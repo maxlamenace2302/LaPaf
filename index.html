@@ -656,6 +656,8 @@
       snapTarget = null;
     }
 
+    // --- Visual helpers (use getBoundingClientRect → screen coords, AFTER transforms).
+    // Used ONLY for the visual transform math (the 3D curve).
     function getCardCenter(card) {
       const r = card.getBoundingClientRect();
       return r.left + r.width / 2;
@@ -669,6 +671,35 @@
       let closest = 0, dist = Infinity;
       for (let i = 0; i < allCards.length; i++) {
         const d = Math.abs(getCardCenter(allCards[i]) - vCenter);
+        if (d < dist) { dist = d; closest = i; }
+      }
+      return closest;
+    }
+
+    // --- Layout helpers (use offsetLeft / clientWidth → unaffected by transforms).
+    // Used for ALL scrollLeft math: wrap deltas, snap targets, init centering.
+    // This is the bug fix — perspective compression made visual deltas (~245px)
+    // smaller than the true layout spacing (300px), so the previous wrap/snap
+    // math under-corrected by ~50px per card, causing next-button to skip cards.
+    //
+    // IMPORTANT: card.offsetLeft is relative to its offsetParent (= the track),
+    // and the track is itself offset by track.offsetLeft = viewport padding-left
+    // (the carousel uses 50% padding so the first/last cards can center). We
+    // must add that to get positions in the viewport's scroll-content coords.
+    function getCardLayoutCenter(card) {
+      return card.offsetLeft + card.offsetWidth / 2 + track.offsetLeft;
+    }
+    function getViewportLayoutCenter() {
+      return viewport.scrollLeft + viewport.clientWidth / 2;
+    }
+    function getScrollLeftToCenter(idx) {
+      return getCardLayoutCenter(allCards[idx]) - viewport.clientWidth / 2;
+    }
+    function getClosestLayoutIndex() {
+      const vCenter = getViewportLayoutCenter();
+      let closest = 0, dist = Infinity;
+      for (let i = 0; i < allCards.length; i++) {
+        const d = Math.abs(getCardLayoutCenter(allCards[i]) - vCenter);
         if (d < dist) { dist = d; closest = i; }
       }
       return closest;
@@ -708,43 +739,40 @@
       dots.forEach((d, i) => d.classList.toggle('is-active', i === dotIndex));
     }
 
-    // Silent wrap: when the closest card is in pre/post copy, teleport to the
-    // equivalent card in the middle copy (same visual position).
+    // Silent wrap: when the LAYOUT-closest card is in pre/post copy, teleport to
+    // the equivalent card in the middle copy. Uses pure layout deltas so the math
+    // is independent of the perspective compression applied by the transforms.
     function maybeWrap() {
-      const idx = getClosestIndex();
+      const idx = getClosestLayoutIndex();
+      let delta = 0;
       if (idx < ORIG_COUNT) {
-        const fromCenter = getCardCenter(allCards[idx]);
-        const targetCard = allCards[idx + ORIG_COUNT];
-        const targetCenter = getCardCenter(targetCard);
-        viewport.scrollLeft += (targetCenter - fromCenter);
-        return true;
+        delta = getCardLayoutCenter(allCards[idx + ORIG_COUNT]) - getCardLayoutCenter(allCards[idx]);
       } else if (idx >= 2 * ORIG_COUNT) {
-        const fromCenter = getCardCenter(allCards[idx]);
-        const targetCard = allCards[idx - ORIG_COUNT];
-        const targetCenter = getCardCenter(targetCard);
-        viewport.scrollLeft += (targetCenter - fromCenter);
+        delta = getCardLayoutCenter(allCards[idx - ORIG_COUNT]) - getCardLayoutCenter(allCards[idx]);
+      }
+      if (delta !== 0) {
+        viewport.scrollLeft += delta;
+        if (snapTarget !== null) snapTarget += delta;
         return true;
       }
       return false;
     }
 
-    // Set snap target = center of card N
+    // Set snap target = absolute scrollLeft that centers card N (layout-based).
     function setSnapToCard(idx) {
-      const card = allCards[idx];
-      if (!card) return;
-      const delta = getCardCenter(card) - getViewportCenter();
-      snapTarget = viewport.scrollLeft + delta;
+      if (!allCards[idx]) return;
+      snapTarget = getScrollLeftToCenter(idx);
     }
 
     function goNext() {
       bumpInteract();
       maybeWrap();
-      setSnapToCard(getClosestIndex() + 1);
+      setSnapToCard(getClosestLayoutIndex() + 1);
     }
     function goPrev() {
       bumpInteract();
       maybeWrap();
-      setSnapToCard(getClosestIndex() - 1);
+      setSnapToCard(getClosestLayoutIndex() - 1);
     }
 
     // ---- Tick: drift + snap + transforms (driven by setInterval for reliability) ----
@@ -755,14 +783,24 @@
 
       if (!isDown) {
         if (snapTarget !== null) {
-          // Animate toward snap target with easing
+          // Animate toward snap target with easing.
+          // IMPORTANT 1: do NOT call maybeWrap() while a snap is in flight —
+          // wrapping mid-animation makes the target oscillate.
+          // IMPORTANT 2: scrollLeft is rounded to int by the browser, so a
+          // sub-pixel step (e.g. 0.25 px) is silently dropped and the snap
+          // stalls forever. We always move at least 1 px toward the target.
           const cur = viewport.scrollLeft;
           const diff = snapTarget - cur;
-          if (Math.abs(diff) < 0.5) {
-            viewport.scrollLeft = snapTarget;
+          if (Math.abs(diff) < 1) {
+            viewport.scrollLeft = Math.round(snapTarget);
             snapTarget = null;
+            maybeWrap(); // wrap once after the snap settles
           } else {
-            viewport.scrollLeft = cur + diff * Math.min(dt * 8, 0.4);
+            const move = diff * Math.min(dt * 8, 0.4);
+            // Ceil/floor toward target so we always advance >= 1 px even when
+            // |move| < 1 (otherwise the integer rounding eats the step).
+            const step = diff > 0 ? Math.max(1, Math.ceil(move)) : Math.min(-1, Math.floor(move));
+            viewport.scrollLeft = cur + step;
           }
         } else if (isVisible && !isInteracting()) {
           // Continuous drift — accumulate fractional pixels (scrollLeft rounds to int)
@@ -772,10 +810,11 @@
             viewport.scrollLeft += whole;
             driftAccum -= whole;
           }
+          maybeWrap();
         } else {
           driftAccum = 0; // reset while paused so we don't snap-jump on resume
+          maybeWrap();
         }
-        maybeWrap();
       }
 
       updateTransforms();
@@ -788,7 +827,7 @@
     dots.forEach((dot, dotIdx) => dot.addEventListener('click', () => {
       bumpInteract();
       maybeWrap();
-      const current = getClosestIndex();
+      const current = getClosestLayoutIndex();
       const currentCopy = Math.floor(current / ORIG_COUNT);
       setSnapToCard(currentCopy * ORIG_COUNT + dotIdx);
     }));
@@ -846,10 +885,8 @@
 
     // ---- Init ----
     function init() {
-      // Land on the first card of the middle copy
-      const targetCard = allCards[ORIG_COUNT];
-      const delta = getCardCenter(targetCard) - getViewportCenter();
-      viewport.scrollLeft += delta;
+      // Land on the first card of the middle copy (layout-based)
+      viewport.scrollLeft = getScrollLeftToCenter(ORIG_COUNT);
       updateTransforms();
       isVisible = true;
       // setInterval (instead of rAF) keeps the carousel rotating reliably
