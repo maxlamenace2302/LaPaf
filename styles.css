@@ -546,6 +546,87 @@ p { margin: 0 0 1rem; }
   color: var(--cream-2);
 }
 
+/* ---- Circular Reveal Heading (21st.dev style) ---- */
+.circular-reveal {
+  display: inline-block;
+  clip-path: circle(0% at 10% 100%);
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    clip-path 1.5s cubic-bezier(0.65, 0, 0.2, 1),
+    opacity .8s ease .15s,
+    transform 1.2s cubic-bezier(0.45, 0, 0.2, 1);
+  will-change: clip-path, transform, opacity;
+}
+.circular-reveal.is-revealed {
+  clip-path: circle(160% at 10% 100%);
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .circular-reveal {
+    clip-path: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---- Price Seal — Rotating circular text around the price ---- */
+.price-seal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(240px, 30vw, 340px);
+  height: clamp(240px, 30vw, 340px);
+  margin: 0.4rem 0 0.6rem;
+}
+.price-seal__rotor {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: orbit-spin 30s linear infinite;
+  pointer-events: none;
+  overflow: visible;
+}
+@media (prefers-reduced-motion: reduce) {
+  .price-seal__rotor { animation: none; }
+}
+.price-seal__text {
+  font-family: var(--f-sans);
+  font-size: 10.5px;
+  letter-spacing: 0.42em;
+  fill: rgba(251,246,238,0.78);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.price-seal__ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.price-seal__ring--outer {
+  inset: 8%;
+  border: 1px solid rgba(251,246,238,0.12);
+}
+.price-seal__ring--inner {
+  inset: 20%;
+  border: 1px dashed rgba(230,57,70,0.35);
+}
+.price-seal .menu-du-jour__price {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  font-size: clamp(3.6rem, 8vw, 6.2rem);
+  text-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .menu-du-jour__sub {
   font-family: var(--f-serif);
   font-style: italic;
@@ -1553,4 +1634,69 @@ p { margin: 0 0 1rem; }
 
 @media (max-width: 600px) {
   .footer__inner { flex-direction: column; text-align: center; }
+}
+
+/* ---------- SCROLL TO TOP BUTTON ---------- */
+
+.scroll-top {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2.2rem);
+  bottom: clamp(1rem, 3vw, 2.2rem);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--coral);
+  color: #fff;
+  border: 2px solid var(--coral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 60;
+  opacity: 0;
+  transform: translateY(18px) scale(0.85);
+  pointer-events: none;
+  transition:
+    opacity .35s ease,
+    transform .35s cubic-bezier(0.5, 0, 0.2, 1),
+    background .25s ease,
+    box-shadow .25s ease;
+  box-shadow: 0 14px 32px -10px rgba(230,57,70,0.55),
+              0 4px 12px -4px rgba(58,26,42,0.35);
+}
+.scroll-top.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.scroll-top:hover {
+  background: var(--coral-dark);
+  border-color: var(--coral-dark);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 18px 38px -10px rgba(230,57,70,0.7),
+              0 6px 14px -4px rgba(58,26,42,0.4);
+}
+.scroll-top:active {
+  transform: translateY(-1px) scale(1.02);
+}
+.scroll-top:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+.scroll-top svg {
+  width: 22px;
+  height: 22px;
+  transition: transform .25s ease;
+}
+.scroll-top:hover svg {
+  transform: translateY(-2px);
+}
+@media (max-width: 600px) {
+  .scroll-top {
+    width: 46px;
+    height: 46px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-top { transition: opacity .2s; transform: none !important; }
 }

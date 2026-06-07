@@ -118,8 +118,22 @@
   <div class="menu-du-jour__inner">
     <div class="menu-du-jour__left">
       <p class="eyebrow eyebrow--light" data-i18n="menudujour.eyebrow">— Tous les midis —</p>
-      <h2 class="h-section h-section--light" data-i18n="menudujour.title">Menu du jour</h2>
-      <p class="menu-du-jour__price"><span>16,50</span><sup>€</sup></p>
+      <h2 class="h-section h-section--light circular-reveal" data-i18n="menudujour.title">Menu du jour</h2>
+
+      <div class="price-seal" aria-hidden="false">
+        <svg class="price-seal__rotor" viewBox="0 0 220 220" aria-hidden="true">
+          <defs>
+            <path id="price-seal-path" d="M 110 110 m -88 0 a 88 88 0 1 1 176 0 a 88 88 0 1 1 -176 0" />
+          </defs>
+          <text class="price-seal__text">
+            <textPath href="#price-seal-path" startOffset="0" data-i18n="menudujour.seal">★ MENU DU JOUR ★ CUISINE MAISON ★ PRODUITS FRAIS ★ FAIT AVEC AMOUR </textPath>
+          </text>
+        </svg>
+        <span class="price-seal__ring price-seal__ring--inner" aria-hidden="true"></span>
+        <span class="price-seal__ring price-seal__ring--outer" aria-hidden="true"></span>
+        <p class="menu-du-jour__price"><span>16,50</span><sup>€</sup></p>
+      </div>
+
       <p class="menu-du-jour__sub" data-i18n="menudujour.sub">Entrée &nbsp;·&nbsp; Plat &nbsp;·&nbsp; Fromage ou Dessert</p>
       <p class="menu-du-jour__note" data-i18n="menudujour.note">Servi du mercredi au vendredi midi — hors jours fériés.</p>
     </div>
@@ -563,6 +577,18 @@
   </div>
 </section>
 
+<!-- SCROLL TO TOP -->
+<button
+  class="scroll-top"
+  id="scrollTop"
+  type="button"
+  aria-label="Remonter en haut"
+  data-i18n-attr="aria-label:scrolltop.label">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</button>
+
 <footer class="footer">
   <div class="footer__inner">
     <div class="footer__brand">
@@ -614,14 +640,15 @@
     const prevBtn = document.querySelector('[data-events-prev]');
     const nextBtn = document.querySelector('[data-events-next]');
 
-    // ---- Continuous rotation params (Circular Gallery feel) ----
-    const VELOCITY = 22;                // px / second of constant drift — slow & cinematic
-    const INTERACT_COOLDOWN = 2500;     // ms paused after user interaction
+    // ---- Continuous rotation params (Circular Gallery — 21st.dev feel) ----
+    const VELOCITY = 26;                // px / second of constant drift — slow & cinematic
+    const INTERACT_COOLDOWN = 2200;     // ms paused after user interaction
     let interactUntil = 0;
     let isVisible = false;
     let isDown = false;
     let snapTarget = null;              // when set, animate toward this scrollLeft
     let lastTs = 0;
+    let driftAccum = 0;                 // sub-pixel accumulator (scrollLeft only takes integers)
 
     function isInteracting() { return isDown || Date.now() < interactUntil; }
     function bumpInteract() {
@@ -659,19 +686,20 @@
         const clamped = Math.max(-1.5, Math.min(1.5, offset));
         const abs = Math.abs(clamped);
 
-        // Stronger circular curve
-        const rotation = -clamped * 52;
-        // Active card pops out (positive Z), edges sink back
-        const centerBoost = Math.max(0, 1 - abs / 0.25); // 1 at center, 0 past 0.25
-        const translateZ = centerBoost * 30 - abs * 230;
-        const scale = (1 + centerBoost * 0.04) - Math.min(abs * 0.26, 0.4);
-        const opacity = 1 - Math.min(abs * 0.7, 0.78);
+        // Circular Gallery (OGL style) — strong cylindrical curve
+        const rotation = -clamped * 65;
+        // Active card pops out, edges sink back AND down (sitting on a wheel)
+        const centerBoost = Math.max(0, 1 - abs / 0.22); // 1 at center, 0 past 0.22
+        const translateZ = centerBoost * 45 - abs * 290;
+        const translateY = abs * abs * 24;   // parabolic dip on the edges
+        const scale = (1 + centerBoost * 0.06) - Math.min(abs * 0.28, 0.45);
+        const opacity = 1 - Math.min(abs * 0.72, 0.82);
 
         card.style.transform =
-          `perspective(1500px) translateZ(${translateZ}px) rotateY(${rotation}deg) scale(${scale})`;
+          `perspective(1600px) translateZ(${translateZ}px) translateY(${translateY}px) rotateY(${rotation}deg) scale(${scale})`;
         card.style.opacity = opacity;
         card.style.zIndex = Math.round(1000 - Math.abs(dx));
-        card.classList.toggle('is-center', abs < 0.15);
+        card.classList.toggle('is-center', abs < 0.14);
       }
 
       // Update active dot
@@ -737,8 +765,15 @@
             viewport.scrollLeft = cur + diff * Math.min(dt * 8, 0.4);
           }
         } else if (isVisible && !isInteracting()) {
-          // Continuous drift
-          viewport.scrollLeft += VELOCITY * dt;
+          // Continuous drift — accumulate fractional pixels (scrollLeft rounds to int)
+          driftAccum += VELOCITY * dt;
+          if (driftAccum >= 1) {
+            const whole = Math.floor(driftAccum);
+            viewport.scrollLeft += whole;
+            driftAccum -= whole;
+          }
+        } else {
+          driftAccum = 0; // reset while paused so we don't snap-jump on resume
         }
         maybeWrap();
       }
@@ -782,7 +817,8 @@
       isDown = false;
       viewport.classList.remove('is-dragging');
       maybeWrap();
-      setSnapToCard(getClosestIndex());
+      // No auto-snap on release — the carousel keeps free-flowing like the
+      // 21st.dev reference. Continuous drift resumes after the cooldown.
     };
     viewport.addEventListener('mousedown', onDown);
     window.addEventListener('mousemove', onMove);
@@ -809,15 +845,56 @@
     window.addEventListener('resize', updateTransforms);
 
     // ---- Init ----
-    requestAnimationFrame(() => {
+    function init() {
       // Land on the first card of the middle copy
       const targetCard = allCards[ORIG_COUNT];
       const delta = getCardCenter(targetCard) - getViewportCenter();
       viewport.scrollLeft += delta;
       updateTransforms();
-      isVisible = true; // start drifting immediately; IO will refine later
-      requestAnimationFrame(tick);
+      isVisible = true;
+      // setInterval (instead of rAF) keeps the carousel rotating reliably
+      // even when the page hasn't been focused yet.
+      setInterval(tick, 16);
+    }
+    if (document.readyState === 'complete') init();
+    else window.addEventListener('load', init);
+  })();
+
+  // ====== SCROLL TO TOP BUTTON ======
+  (function() {
+    const btn = document.getElementById('scrollTop');
+    if (!btn) return;
+    const THRESHOLD = 480;
+    const onCheck = () => {
+      if (window.scrollY > THRESHOLD) btn.classList.add('is-visible');
+      else btn.classList.remove('is-visible');
+    };
+    window.addEventListener('scroll', onCheck, { passive: true });
+    onCheck();
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+  })();
+
+  // ====== CIRCULAR REVEAL HEADING (Menu du jour banner) ======
+  (function() {
+    const targets = document.querySelectorAll('.circular-reveal');
+    if (!targets.length) return;
+    if (!('IntersectionObserver' in window)) {
+      targets.forEach(t => t.classList.add('is-revealed'));
+      return;
+    }
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.25, rootMargin: '0px 0px -10% 0px' });
+    targets.forEach(t => obs.observe(t));
+    // Safety fallback for embedded preview iframes where IO can stall
+    setTimeout(() => targets.forEach(t => t.classList.add('is-revealed')), 1800);
   })();
 </script>
 
