@@ -153,6 +153,7 @@
     signIn, signOut, getSession,
     listReservations, updateStatus, updateInternalNotes,
     subscribeReservations,
+    subscribePush, unsubscribePush,
   } from './supabase.js';
 
   const $  = (s, r = document) => r.querySelector(s);
@@ -183,6 +184,21 @@
     if (Notification.permission === 'denied')  return false;
     const r = await Notification.requestPermission();
     return r === 'granted';
+  }
+
+  // Push notifications en arrière-plan (Web Push) — fonctionnent même app fermée.
+  // Auto-souscription au login : si la permission est accordée, on enregistre
+  // la subscription dans Supabase. L'Edge Function s'en sert pour envoyer les
+  // notifs à chaque nouvelle réservation.
+  async function ensurePushSubscription() {
+    try {
+      const ok = await ensureNotifPermission();
+      if (!ok) return;
+      await subscribePush();
+      console.log('[push] souscrit avec succès');
+    } catch (e) {
+      console.warn('[push] souscription échouée :', e.message);
+    }
   }
 
   let firstLoadDone = false;
@@ -218,8 +234,9 @@
     $('#dashboard-screen').classList.add('is-active');
     window.scrollTo(0, 0);
     await refresh();
-    // Ask once for notification permission (silent if already granted/denied)
-    ensureNotifPermission();
+    // Ask once for notification permission + register the push subscription
+    // (so the chef gets buzzed even when the app is closed).
+    ensurePushSubscription();
     if (!state.unsubscribe) {
       firstLoadDone = false;
       state.unsubscribe = subscribeReservations((payload) => {

@@ -93,6 +93,44 @@ async function cacheFirst(req) {
   }
 }
 
+// ---------- Push notifications (background) ----------
+// The push service (APNs / FCM) wakes this worker up just long enough to
+// show a system notification. The payload is the JSON sent by our Edge
+// Function, encrypted in transit and decrypted by the browser.
+self.addEventListener('push', (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch (_) {}
+  const title = data.title || 'Nouvelle réservation';
+  const body  = data.body  || 'Une demande vient d\'arriver.';
+  const options = {
+    body,
+    icon:  '/assets/icon-192.png',
+    badge: '/assets/icon-192.png',
+    tag:   data.tag || 'reservation',
+    renotify: true,
+    requireInteraction: false,
+    data: { url: data.url || '/admin.html' },
+    vibrate: [200, 100, 200],
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// When the chef taps the notification, focus the dashboard tab or open one.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/admin.html';
+  event.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of all) {
+      if (c.url.includes('/admin.html')) {
+        await c.focus();
+        return;
+      }
+    }
+    await self.clients.openWindow(targetUrl);
+  })());
+});
+
 async function staleWhileRevalidate(req) {
   const cache = await caches.open(CACHE_VERSION);
   const cached = await cache.match(req);

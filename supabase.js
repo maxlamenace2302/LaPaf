@@ -97,6 +97,63 @@ export async function updateInternalNotes(id, internal_notes) {
   return data;
 }
 
+// ---------- Push notifications (Web Push) ----------
+
+// Public VAPID key (safe to expose) — pairs with the private key stored in app_config.
+// If you rotate VAPID, regenerate keys, update app_config and this constant together.
+export const VAPID_PUBLIC_KEY =
+  'BBOYucW6sFNiJBHjxCH1nzypk3m_0WkOLRMxkQDHDBgbd5nxpy08vrhQfjr-GHCv-LAkBXpd-CZngIp19_IPNHc';
+
+function urlBase64ToUint8Array(base64) {
+  const padding = '='.repeat((4 - (base64.length % 4)) % 4);
+  const raw = atob((base64 + padding).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+
+// Subscribe this device to push, and persist the subscription to Supabase.
+// Idempotent: if a subscription already exists for this endpoint, we UPSERT.
+export async function subscribePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    throw new Error('Push non supporté sur ce navigateur.');
+  }
+  const reg = await navigator.serviceWorker.ready;
+
+  // Reuse existing subscription if present, otherwise create new one
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) {
+    sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
+  }
+
+  const json = sub.toJSON();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Non authentifié.');
+
+  const row = {
+    user_id:    user.id,
+    endpoint:   json.endpoint,
+    p256dh:     json.keys.p256dh,
+    auth:       json.keys.auth,
+    user_agent: navigator.userAgent.slice(0, 200),
+    last_used_at: new Date().toISOString(),
+  };
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .upsert(row, { onConflict: 'endpoint' });
+  if (error) throw error;
+  return json.endpoint;
+}
+
+export async function unsubscribePush() {
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.getSubscription();
+  if (!sub) return;
+  await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+  await sub.unsubscribe();
+}
+
 // Realtime: notify when any reservation changes (insert / update / delete)
 export function subscribeReservations(onChange) {
   const channel = supabase
