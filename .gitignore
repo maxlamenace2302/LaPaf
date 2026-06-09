@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Claude Code local files
+.claude/
+CLAUDE.md
+
+# Editor noise
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS / build noise
+node_modules/
+*.log
+.env
+.env.local

@@ -1,0 +1,316 @@
+/* =========================================================
+   carte.html — Standalone printable / shareable menu page
+   ========================================================= */
+
+body.cartepage {
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+/* ---------- Header / nav ---------- */
+
+.cartepage__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem clamp(1.25rem, 4vw, 3rem);
+  background: var(--aubergine);
+  color: var(--cream);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: 0 6px 22px -10px rgba(58,26,42,0.5);
+}
+
+.cartepage__nav .nav__brand {
+  color: #fff;
+}
+.cartepage__nav .nav__brand-line2 { color: var(--coral); }
+
+.cartepage__back {
+  font-family: var(--f-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.78);
+  text-decoration: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.cartepage__back:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  border-color: rgba(255,255,255,0.5);
+}
+
+.cartepage__tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cartepage__print {
+  font-family: var(--f-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 0.55rem 1.1rem;
+  background: var(--coral);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.cartepage__print:hover { background: var(--coral-dark); }
+
+@media (max-width: 720px) {
+  .cartepage__nav .nav__brand { display: none; }
+  .cartepage__back { padding: 0.4rem 0.7rem; font-size: 0.7rem; }
+  .cartepage__print { font-size: 0.7rem; padding: 0.45rem 0.9rem; }
+}
+
+/* ---------- Main layout ---------- */
+
+.cartepage__main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 3vw, 2.5rem) 5rem;
+}
+
+.cartepage__head {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 3rem;
+}
+.cartepage__h1 {
+  font-family: var(--f-serif);
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--aubergine);
+  margin: 0 0 1rem;
+  line-height: 1.05;
+}
+.cartepage__h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--coral);
+}
+.cartepage__intro {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.cartepage__main .carte {
+  padding: 0;
+  background: transparent;
+}
+
+.cartepage .alacarte {
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+
+.cartepage__footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-family: var(--f-serif);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.cartepage__footer a {
+  color: var(--coral-deep);
+  text-decoration: none;
+}
+.cartepage__footer a:hover { color: var(--coral); }
+
+/* ---------- Lang switcher dark variant (already dark on .cartepage__nav) ---------- */
+.lang-switch--dark button { color: rgba(255,255,255,0.7); }
+.lang-switch--dark button:hover { color: #fff; }
+
+/* =========================================================
+   @media print — A4-friendly menu
+   ========================================================= */
+
+@media print {
+
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  /* Hide all non-essential UI */
+  .cartepage__nav,
+  .cartepage__tools,
+  .cartepage__back,
+  .cartepage__print,
+  .lang-switch {
+    display: none !important;
+  }
+
+  body, body.cartepage {
+    background: #fff !important;
+    color: #1a1a1a !important;
+    font-size: 10pt;
+  }
+
+  .cartepage__main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .cartepage__head {
+    margin-bottom: 1rem;
+  }
+  .cartepage__h1 {
+    font-size: 24pt;
+    color: #000;
+    margin: 0 0 0.4rem;
+  }
+  .cartepage__h1 em { color: #8a1c26; }
+  .cartepage__intro {
+    font-size: 9pt;
+    margin: 0;
+  }
+
+  .eyebrow {
+    font-size: 11pt !important;
+    margin-bottom: 0.2rem !important;
+  }
+
+  /* Formules grid: 2 columns to fit A4 portrait neatly */
+  .formules {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6mm !important;
+    margin-bottom: 6mm;
+  }
+  .formule {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 0.5pt solid #999 !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+    padding: 4mm !important;
+    border-radius: 0 !important;
+  }
+  .formule h2,
+  .formule h3 {
+    font-size: 13pt !important;
+    color: #1a1a1a !important;
+    margin-bottom: 0.3rem !important;
+  }
+  .formule__price {
+    font-size: 22pt !important;
+    color: #8a1c26 !important;
+    margin: 0.2rem 0 0.4rem !important;
+  }
+  .formule__price sup { color: #8a1c26 !important; }
+  .formule ul {
+    border-top: 0.5pt dashed #aaa !important;
+    padding-top: 0.4rem !important;
+    margin: 0 !important;
+  }
+  .formule ul li {
+    font-size: 9.5pt !important;
+    padding: 0.15rem 0 !important;
+    color: #1a1a1a !important;
+    line-height: 1.3 !important;
+  }
+  .formule ul li em { color: #8a1c26 !important; }
+  .formule__note {
+    font-size: 8pt !important;
+    color: #555 !important;
+    margin-top: 0.4rem !important;
+    border-top: 0.5pt solid #ddd !important;
+    padding-top: 0.3rem !important;
+  }
+
+  /* Featured formule = colored heading but white bg for ink savings */
+  .formule--feature {
+    background: #fff !important;
+    color: #1a1a1a !important;
+    border-color: #8a1c26 !important;
+    border-width: 1pt !important;
+  }
+  .formule--feature h2,
+  .formule--feature h3 { color: #8a1c26 !important; }
+  .formule--feature .formule__tag { color: #8a1c26 !important; }
+  .formule--feature ul li { color: #1a1a1a !important; }
+
+  .formules__note {
+    font-size: 8pt !important;
+    text-align: center;
+    color: #555 !important;
+    margin: 0 0 5mm !important;
+  }
+
+  /* À la carte: 3 columns for A4 landscape, or stack for portrait */
+  .alacarte {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6mm !important;
+    margin-top: 6mm !important;
+  }
+  .alacarte__col {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .h-sub {
+    font-size: 13pt !important;
+    color: #8a1c26 !important;
+    border-bottom: 0.5pt solid #aaa !important;
+    padding-bottom: 0.3rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .menu-list .item {
+    font-size: 9.5pt !important;
+    color: #1a1a1a !important;
+  }
+  .menu-list .price {
+    font-size: 9.5pt !important;
+    color: #8a1c26 !important;
+  }
+  .menu-list .desc {
+    font-size: 8pt !important;
+    color: #555 !important;
+  }
+  .menu-list > li {
+    padding: 0.3rem 0 !important;
+    border-bottom: 0.3pt solid #e0e0e0 !important;
+  }
+  .menu-list__group-title {
+    font-size: 10pt !important;
+    color: #8a1c26 !important;
+  }
+  .alacarte__note {
+    font-size: 8pt !important;
+    color: #555 !important;
+  }
+
+  .cartepage__footer {
+    margin-top: 6mm !important;
+    padding-top: 3mm !important;
+    border-top: 0.5pt solid #999 !important;
+    font-size: 8.5pt !important;
+    color: #1a1a1a !important;
+  }
+  .cartepage__footer a { color: #1a1a1a !important; }
+
+  /* Try to avoid page break right after head */
+  .cartepage__head { page-break-after: avoid; }
+
+  /* Hide elements we don't want printed */
+  iframe { display: none !important; }
+}

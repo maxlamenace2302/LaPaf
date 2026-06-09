@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="fr" data-i18n-title="cartepage.title">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>La Carte — La Petite Auberge de Flo</title>
+<meta name="description" content="La carte complète de La Petite Auberge de Flo — menus formules, plats, desserts. Cuisine de terroir à Saint-Bonnet-les-Oules." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="carte.css" />
+<script src="i18n.js" defer></script>
+</head>
+<body class="cartepage">
+
+<header class="cartepage__nav">
+  <a class="cartepage__back" href="index.html" data-i18n="cartepage.back">← Retour à l'accueil</a>
+
+  <a class="nav__brand" href="index.html">
+    <img src="assets/logo.jpg" alt="Logo La Petite Auberge de Flo" />
+    <span class="nav__brand-text">
+      <span class="nav__brand-line1">La Petite Auberge</span>
+      <span class="nav__brand-line2">de Flo</span>
+    </span>
+  </a>
+
+  <div class="cartepage__tools">
+    <div class="lang-switch lang-switch--dark" role="group" aria-label="Choisir la langue">
+      <button type="button" data-lang="fr" class="is-active">FR</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="de">DE</button>
+      <button type="button" data-lang="it">IT</button>
+    </div>
+    <button class="cartepage__print" type="button" onclick="window.print()" data-i18n="cartepage.print">
+      Imprimer la carte
+    </button>
+  </div>
+</header>
+
+<main class="cartepage__main">
+
+  <header class="cartepage__head">
+    <p class="eyebrow" data-i18n="carte.eyebrow">— La Carte —</p>
+    <h1 class="cartepage__h1" data-i18n="carte.title">Nos menus &amp; <em>nos plats</em></h1>
+    <p class="cartepage__intro" data-i18n="cartepage.intro">Cuisine de tradition, préparée maison. Tarifs en euros, service compris.</p>
+  </header>
+
+  <!-- MENUS FORMULES -->
+  <section class="carte" aria-label="Menus formules">
+    <div class="formules">
+      <article class="formule formule--feature">
+        <p class="formule__tag" data-i18n="carte.tetard.tag">Jusqu'à 12 ans</p>
+        <h2 data-i18n="carte.tetard.name">Menu Têtard</h2>
+        <p class="formule__price">10<sup>€50</sup></p>
+        <ul>
+          <li data-i18n="carte.tetard.item1">Nuggets de poisson <em>ou</em> petite pièce du boucher</li>
+          <li data-i18n="carte.tetard.item2">Surprise&nbsp;!</li>
+        </ul>
+        <p class="formule__note" data-i18n="carte.tetard.note">Offert jusqu'à 6 ans — 1 par commande</p>
+      </article>
+
+      <article class="formule">
+        <p class="formule__tag" data-i18n="carte.formules.tag">Vendredi soir → dimanche soir</p>
+        <h2 data-i18n="carte.rapees.name">Menu Râpées</h2>
+        <p class="formule__price">21<sup>€50</sup></p>
+        <ul>
+          <li data-i18n="carte.rapees.item1">Assiette de charcuterie</li>
+          <li data-i18n="carte.rapees.item2">Salade verte</li>
+          <li data-i18n="carte.rapees.item3">Râpées</li>
+          <li data-i18n="carte.rapees.item4">Fromage blanc ou sec</li>
+          <li data-i18n="carte.rapees.item5">Dessert maison</li>
+        </ul>
+      </article>
+
+      <article class="formule">
+        <p class="formule__tag" data-i18n="carte.formules.tag">Vendredi soir → dimanche soir</p>
+        <h2 data-i18n="carte.friture.name">Menu Petite Friture</h2>
+        <p class="formule__price">26<sup>€50</sup></p>
+        <ul>
+          <li data-i18n="carte.friture.item1">Terrine</li>
+          <li data-i18n="carte.friture.item2">Petite friture</li>
+          <li data-i18n="carte.friture.item3">Gratin Dauphinois</li>
+          <li data-i18n="carte.friture.item4">Fromage blanc ou sec</li>
+          <li data-i18n="carte.friture.item5">Dessert maison</li>
+        </ul>
+      </article>
+
+      <article class="formule">
+        <p class="formule__tag" data-i18n="carte.formules.tag">Vendredi soir → dimanche soir</p>
+        <h2 data-i18n="carte.grenouilles.name">Menu Grenouilles</h2>
+        <p class="formule__price">27<sup>€50</sup></p>
+        <ul>
+          <li data-i18n="carte.grenouilles.item1">Salade verte</li>
+          <li data-i18n="carte.grenouilles.item2">Grenouilles persillées</li>
+          <li data-i18n="carte.grenouilles.item3">Gratin Dauphinois</li>
+          <li data-i18n="carte.grenouilles.item4">Fromage blanc ou sec</li>
+          <li data-i18n="carte.grenouilles.item5">Dessert maison</li>
+        </ul>
+      </article>
+    </div>
+
+    <p class="formules__note" data-i18n="carte.note.formules">
+      Menus disponibles du vendredi soir au dimanche soir — et sur réservation en semaine.
+    </p>
+
+    <!-- À LA CARTE -->
+    <div class="alacarte alacarte--print">
+      <div class="alacarte__col">
+        <h2 class="h-sub" data-i18n="carte.col.entrees">Entrées &amp; Salades</h2>
+        <ul class="menu-list">
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.entrees.charcuterie">Assiette de charcuterie</span>
+              <span class="dots"></span>
+              <span class="price">17<sup>€90</sup></span>
+            </div>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.entrees.cesar">Salade César</span>
+              <span class="dots"></span>
+              <span class="price">16<sup>€50</sup></span>
+            </div>
+            <p class="desc" data-i18n="carte.entrees.cesar.desc">Salade verte, tomates, croûtons, blanc de poulet grillé, copeaux de grana padano, sauce César.</p>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.entrees.auberge">Salade Petite Auberge</span>
+              <span class="dots"></span>
+              <span class="price">16<sup>€50</sup></span>
+            </div>
+            <p class="desc" data-i18n="carte.entrees.auberge.desc">Salade verte, tomates, croûtons, râpées, rillette sur toasts, lardons, dés de fromage, jambon cru.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="alacarte__col">
+        <h2 class="h-sub" data-i18n="carte.col.plats">Plats</h2>
+        <ul class="menu-list">
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.agneau">Souris d'agneau au thym &amp; miel</span>
+              <span class="dots"></span>
+              <span class="price">24<sup>€50</sup></span>
+            </div>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.canard">Confit de canard maison</span>
+              <span class="dots"></span>
+              <span class="price">22<sup>€00</sup></span>
+            </div>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.tartare">Tartare de bœuf 250 g</span>
+              <span class="dots"></span>
+              <span class="price">22<sup>€50</sup></span>
+            </div>
+            <p class="desc" data-i18n="carte.plats.tartare.desc">Haché au moment.</p>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.boucher">Pièce du boucher</span>
+              <span class="dots"></span>
+              <span class="price">19<sup>€50</sup></span>
+            </div>
+            <p class="desc" data-i18n="carte.plats.boucher.desc">Selon arrivage.</p>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.grenouilles">Cuisses de grenouilles persillées</span>
+              <span class="dots"></span>
+              <span class="price">19<sup>€50</sup></span>
+            </div>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.friture">Assiette petite friture</span>
+              <span class="dots"></span>
+              <span class="price">17<sup>€50</sup></span>
+            </div>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.poisson">Poisson du jour</span>
+              <span class="dots"></span>
+              <span class="price">16<sup>€50</sup></span>
+            </div>
+            <p class="desc" data-i18n="carte.plats.poisson.desc">Selon arrivage.</p>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.rapees">Râpées salade</span>
+              <span class="dots"></span>
+              <span class="price">15<sup>€50</sup></span>
+            </div>
+            <p class="desc" data-i18n="carte.plats.rapees.desc">Sup. sarasson préparé 1€50.</p>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.plats.jour">Plat du jour</span>
+              <span class="dots"></span>
+              <span class="price">15<sup>€00</sup></span>
+            </div>
+            <p class="desc" data-i18n="carte.plats.jour.desc">Du lundi au vendredi midi.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="alacarte__col">
+        <h2 class="h-sub" data-i18n="carte.col.desserts">Desserts &amp; à côté</h2>
+        <ul class="menu-list">
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.desserts.maison">Dessert maison</span>
+              <span class="dots"></span>
+              <span class="price">7<sup>€00</sup></span>
+            </div>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.desserts.fromage">Assiette fromage blanc ou sec</span>
+              <span class="dots"></span>
+              <span class="price">5<sup>€00</sup></span>
+            </div>
+          </li>
+          <li>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.desserts.frites">Assiette de frites maison</span>
+              <span class="dots"></span>
+              <span class="price">7<sup>€50</sup></span>
+            </div>
+          </li>
+          <li class="menu-list__group">
+            <p class="menu-list__group-title" data-i18n="carte.desserts.glace">Glace</p>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.desserts.glace1">1 boule</span>
+              <span class="dots"></span>
+              <span class="price">2<sup>€50</sup></span>
+            </div>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.desserts.glace2">2 boules</span>
+              <span class="dots"></span>
+              <span class="price">4<sup>€50</sup></span>
+            </div>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.desserts.glace3">3 boules</span>
+              <span class="dots"></span>
+              <span class="price">6<sup>€00</sup></span>
+            </div>
+            <div class="menu-list__row">
+              <span class="item" data-i18n="carte.desserts.sup">Supplément chantilly ou coulis</span>
+              <span class="dots"></span>
+              <span class="price">0<sup>€50</sup></span>
+            </div>
+          </li>
+        </ul>
+
+        <p class="alacarte__note" data-i18n="carte.fine.note">
+          Tout changement de garniture : supplément 2€50.<br />
+          Tarifs en euros, service compris.
+        </p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Footer-style address block for print -->
+  <footer class="cartepage__footer">
+    <p>
+      <strong>La Petite Auberge de Flo</strong> &nbsp;·&nbsp; 125 route de la Rosalie, 42330 Saint-Bonnet-les-Oules<br />
+      <a href="tel:0955820214">09 55 82 02 14</a> &nbsp;·&nbsp;
+      <a href="https://www.facebook.com/profile.php?id=61554656295643" target="_blank" rel="noopener">facebook.com/lapetiteaubergedeflo</a>
+    </p>
+  </footer>
+
+</main>
+
+</body>
+</html>
