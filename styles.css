@@ -1575,6 +1575,34 @@ p { margin: 0 0 1rem; }
 }
 .hours .closed { color: rgba(251,246,238,0.45) !important; font-style: italic; }
 
+.contact__cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.contact__cta-row .btn { width: 100%; }
+/* Primary action — book online */
+.contact__cta-row .btn--solid:not(.btn--solid-light) {
+  background: var(--coral);
+  color: #fff;
+  border-color: var(--coral);
+}
+.contact__cta-row .btn--solid:not(.btn--solid-light):hover {
+  background: var(--coral-dark);
+  border-color: var(--coral-dark);
+}
+/* Secondary action — call */
+.contact__cta-row .btn--solid-light {
+  background: transparent;
+  color: var(--cream);
+  border-color: rgba(251,246,238,0.45);
+}
+.contact__cta-row .btn--solid-light:hover {
+  background: rgba(251,246,238,0.08);
+  color: #fff;
+  border-color: var(--cream);
+}
+
 @media (max-width: 880px) {
   .contact__inner { grid-template-columns: 1fr; }
   .contact__row { grid-template-columns: 1fr; gap: 1.2rem; }

@@ -1,0 +1,36 @@
+# Netlify configuration for La Petite Auberge de Flo
+#
+# Static site — no build command. The folder is published as-is.
+# All files are served over HTTPS automatically.
+
+[build]
+  publish = "."
+  command = ""
+
+# --- HTTP headers ---
+# The service worker MUST NOT be cached aggressively, otherwise users
+# stay stuck on the old version. We tell browsers to revalidate every time.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# The manifest needs a precise Content-Type so iOS picks up the icons.
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+# Static assets (images, fonts) can be cached for a long time —
+# they have content-hashed paths in the cache.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# Block search engine indexing for the chef dashboard.
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Tableau de bord — La Petite Auberge de Flo</title>
+<meta name="description" content="Tableau de bord chef — gestion des réservations." />
+<meta name="theme-color" content="#3A1A2A" />
+<meta name="robots" content="noindex, nofollow" />
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Auberge Flo" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body class="adminpage">
+
+<!-- ============================================================
+     LOGIN SCREEN
+     ============================================================ -->
+<section id="login-screen" class="screen">
+  <div class="adm-login-card">
+    <div class="adm-login-brand">
+      <img src="assets/logo.jpg" alt="" />
+      <span class="nav__brand-text">
+        <span class="nav__brand-line1">La Petite Auberge</span>
+        <span class="nav__brand-line2">de Flo</span>
+      </span>
+    </div>
+
+    <p class="adm-login-eyebrow">— Espace chef —</p>
+    <h1 class="adm-login-title">Connectez-vous à votre <em>tableau de bord</em></h1>
+
+    <form id="loginForm" novalidate>
+      <div class="adm-form-field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" name="email" autocomplete="username" required />
+      </div>
+      <div class="adm-form-field">
+        <label for="login-pwd">Mot de passe</label>
+        <input type="password" id="login-pwd" name="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="adm-login-submit" id="loginSubmit">Connexion</button>
+      <p class="adm-login-error" id="loginError" hidden></p>
+    </form>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     DASHBOARD SCREEN
+     ============================================================ -->
+<section id="dashboard-screen" class="screen">
+
+  <header class="adm-topbar">
+    <div class="adm-topbar__inner">
+      <a class="adm-brand" href="#">
+        <img src="assets/logo.jpg" alt="" />
+        <div>
+          <div class="adm-brand-text">
+            <span class="adm-brand-line1">Petite Auberge</span>
+            <span class="adm-brand-line2">de Flo</span>
+          </div>
+          <div class="adm-brand-context">Tableau de bord chef</div>
+        </div>
+      </a>
+
+      <div class="adm-topbar__right">
+        <button class="adm-iconbtn" id="notifBtn" title="Réservations à traiter" type="button">🔔</button>
+        <button class="adm-iconbtn" id="refreshBtn" title="Rafraîchir" type="button">⟳</button>
+        <button class="adm-iconbtn" id="logoutBtn" title="Déconnexion" type="button">⏻</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="adm-summary">
+    <div class="adm-summary__inner">
+      <div class="adm-summary__date">
+        <div class="adm-summary__day" id="sumDay">—</div>
+        <div class="adm-summary__date-detail" id="sumDetail">Chargement…</div>
+      </div>
+      <div class="adm-stats">
+        <div class="adm-stat">
+          <div class="adm-stat__num" id="statMidi">—</div>
+          <div class="adm-stat__label">Couverts midi</div>
+        </div>
+        <div class="adm-stat">
+          <div class="adm-stat__num" id="statSoir">—</div>
+          <div class="adm-stat__label">Couverts soir</div>
+        </div>
+        <div class="adm-stat">
+          <div class="adm-stat__num adm-stat__num--warn" id="statPending">—</div>
+          <div class="adm-stat__label">À traiter</div>
+        </div>
+        <div class="adm-stat">
+          <div class="adm-stat__num adm-stat__num--ok" id="statConfirmed">—</div>
+          <div class="adm-stat__label">Validées</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="adm-filters" aria-label="Filtres">
+    <div class="adm-filters__inner" id="filterChips">
+      <button class="adm-chip is-active" type="button" data-filter="all">Toutes <span class="adm-chip__count" data-count="all">0</span></button>
+      <button class="adm-chip" type="button" data-filter="pending">À traiter <span class="adm-chip__count" data-count="pending">0</span></button>
+      <button class="adm-chip" type="button" data-filter="confirmed">Confirmées <span class="adm-chip__count" data-count="confirmed">0</span></button>
+      <button class="adm-chip" type="button" data-filter="today">Aujourd'hui <span class="adm-chip__count" data-count="today">0</span></button>
+      <button class="adm-chip" type="button" data-filter="week">Cette semaine <span class="adm-chip__count" data-count="week">0</span></button>
+      <button class="adm-chip" type="button" data-filter="refused">Refusées <span class="adm-chip__count" data-count="refused">0</span></button>
+    </div>
+  </nav>
+
+  <main class="adm-main" id="dashList">
+    <div class="adm-empty">
+      <div class="adm-empty__icon">⏳</div>
+      <h2 class="adm-empty__title">Chargement…</h2>
+      <p class="adm-empty__text">On récupère vos réservations depuis Supabase.</p>
+    </div>
+  </main>
+</section>
+
+
+<!-- ============================================================
+     DETAIL SHEET
+     ============================================================ -->
+<div class="adm-sheet-backdrop" id="sheetBackdrop"></div>
+<aside class="adm-sheet" id="detailSheet" aria-hidden="true">
+  <div class="adm-sheet__grip"></div>
+  <button class="adm-sheet__close" type="button" id="sheetClose" aria-label="Fermer">✕</button>
+
+  <div class="adm-sheet__inner" id="sheetInner">
+    <!-- rendered by JS -->
+  </div>
+</aside>
+
+
+<!-- ============================================================
+     JS
+     ============================================================ -->
+<script type="module">
+  import {
+    supabase,
+    signIn, signOut, getSession,
+    listReservations, updateStatus, updateInternalNotes,
+    subscribeReservations,
+  } from './supabase.js';
+
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+  // ---------- App state ----------
+  const state = {
+    reservations: [],
+    filter: 'all',
+    currentId: null,
+    unsubscribe: null,
+  };
+
+  // ---------- PWA service worker ----------
+  // Enregistre le "majordome silencieux" qui gère le cache + le mode offline.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW register failed', e));
+    });
+  }
+
+  // ---------- Notifications in-app sur nouvelle résa ----------
+  // Si la permission est accordée, on affiche une notif système quand une
+  // INSERT arrive via Supabase Realtime — même si l'onglet est en arrière-plan.
+  async function ensureNotifPermission() {
+    if (!('Notification' in window)) return false;
+    if (Notification.permission === 'granted') return true;
+    if (Notification.permission === 'denied')  return false;
+    const r = await Notification.requestPermission();
+    return r === 'granted';
+  }
+
+  let firstLoadDone = false;
+  function onRealtimeChange(payload) {
+    // skip the events that fire during initial subscription
+    if (!firstLoadDone) return;
+    if (payload.eventType === 'INSERT') {
+      const r = payload.new;
+      const body = `${r.name} · ${r.guests} pers. · ${new Date(r.date).toLocaleDateString('fr-FR')} (${r.service})`;
+      if (Notification.permission === 'granted') {
+        new Notification('Nouvelle réservation !', { body, icon: 'assets/icon-192.png', tag: r.id });
+      }
+      try { new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=').play(); } catch (_) {}
+    }
+  }
+
+  // ---------- Routing: login vs dashboard ----------
+  async function route() {
+    const session = await getSession();
+    if (session) await openDashboard();
+    else showLogin();
+  }
+
+  function showLogin() {
+    if (state.unsubscribe) { state.unsubscribe(); state.unsubscribe = null; }
+    $('#dashboard-screen').classList.remove('is-active');
+    $('#login-screen').classList.add('is-active');
+    window.scrollTo(0, 0);
+  }
+
+  async function openDashboard() {
+    $('#login-screen').classList.remove('is-active');
+    $('#dashboard-screen').classList.add('is-active');
+    window.scrollTo(0, 0);
+    await refresh();
+    // Ask once for notification permission (silent if already granted/denied)
+    ensureNotifPermission();
+    if (!state.unsubscribe) {
+      firstLoadDone = false;
+      state.unsubscribe = subscribeReservations((payload) => {
+        onRealtimeChange(payload);
+        refresh();
+      });
+      // mark first burst of "events" as done after a short delay
+      setTimeout(() => { firstLoadDone = true; }, 1500);
+    }
+  }
+
+  // ---------- Login form ----------
+  $('#loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('#loginSubmit');
+    const err = $('#loginError');
+    err.hidden = true;
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Connexion…';
+    try {
+      await signIn($('#login-email').value, $('#login-pwd').value);
+      await openDashboard();
+    } catch (e2) {
+      err.textContent = e2.message === 'Invalid login credentials'
+        ? 'Email ou mot de passe incorrect.'
+        : ('Erreur : ' + e2.message);
+      err.hidden = false;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+
+  // ---------- Topbar buttons ----------
+  $('#logoutBtn').addEventListener('click', async () => {
+    try { await signOut(); } catch (_) {}
+    showLogin();
+  });
+  $('#refreshBtn').addEventListener('click', () => refresh());
+  $('#notifBtn').addEventListener('click', () => {
+    setFilter('pending');
+    document.querySelector('[data-card]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // ---------- Filter chips ----------
+  $('#filterChips').addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-filter]');
+    if (!chip) return;
+    setFilter(chip.dataset.filter);
+  });
+
+  function setFilter(f) {
+    state.filter = f;
+    $$('#filterChips [data-filter]').forEach(c =>
+      c.classList.toggle('is-active', c.dataset.filter === f));
+    renderList();
+  }
+
+  // ---------- Data fetch + render ----------
+  async function refresh() {
+    try {
+      state.reservations = await listReservations();
+    } catch (e) {
+      console.error(e);
+      renderEmpty('Erreur', 'Impossible de charger les réservations : ' + e.message);
+      return;
+    }
+    renderSummary();
+    renderCounts();
+    renderList();
+  }
+
+  function isToday(d) {
+    return d === new Date().toISOString().slice(0, 10);
+  }
+  function isThisWeek(d) {
+    const t = new Date();
+    const end = new Date(t.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+    return d >= t.toISOString().slice(0, 10) && d <= end;
+  }
+
+  function renderSummary() {
+    const today = new Date();
+    const fmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    $('#sumDay').textContent = fmt.format(today).replace(/^./, c => c.toUpperCase());
+    const week = Math.ceil((((today - new Date(today.getFullYear(), 0, 1)) / 86400000) + new Date(today.getFullYear(), 0, 1).getDay() + 1) / 7);
+    const todays = state.reservations.filter(r => isToday(r.date));
+    const midi = todays.filter(r => r.service === 'midi').reduce((s, r) => s + r.guests, 0);
+    const soir = todays.filter(r => r.service === 'soir').reduce((s, r) => s + r.guests, 0);
+    const services = [midi && 'midi', soir && 'soir'].filter(Boolean).join(' + ') || 'aucun service prévu';
+    $('#sumDetail').textContent = `Semaine ${week} · service ${services} aujourd'hui`;
+    $('#statMidi').textContent = midi;
+    $('#statSoir').textContent = soir;
+    const pending = state.reservations.filter(r => r.status === 'en_attente').length;
+    $('#statPending').textContent   = pending;
+    $('#statConfirmed').textContent = state.reservations.filter(r => r.status === 'confirmee').length;
+    const bell = $('#notifBtn');
+    if (pending > 0) bell.dataset.badge = pending; else delete bell.dataset.badge;
+  }
+
+  function renderCounts() {
+    const counts = {
+      all:       state.reservations.length,
+      pending:   state.reservations.filter(r => r.status === 'en_attente').length,
+      confirmed: state.reservations.filter(r => r.status === 'confirmee').length,
+      refused:   state.reservations.filter(r => r.status === 'refusee').length,
+      today:     state.reservations.filter(r => isToday(r.date)).length,
+      week:      state.reservations.filter(r => isThisWeek(r.date)).length,
+    };
+    Object.entries(counts).forEach(([k, v]) => {
+      const el = document.querySelector(`[data-count="${k}"]`);
+      if (el) el.textContent = v;
+    });
+  }
+
+  function filtered() {
+    const r = state.reservations;
+    switch (state.filter) {
+      case 'pending':   return r.filter(x => x.status === 'en_attente');
+      case 'confirmed': return r.filter(x => x.status === 'confirmee');
+      case 'refused':   return r.filter(x => x.status === 'refusee');
+      case 'today':     return r.filter(x => isToday(x.date));
+      case 'week':      return r.filter(x => isThisWeek(x.date));
+      default:          return r;
+    }
+  }
+
+  function renderEmpty(title, text) {
+    $('#dashList').innerHTML = `
+      <div class="adm-empty">
+        <div class="adm-empty__icon">📭</div>
+        <h2 class="adm-empty__title">${title}</h2>
+        <p class="adm-empty__text">${text}</p>
+      </div>`;
+  }
+
+  function renderList() {
+    const rows = filtered();
+    if (!rows.length) {
+      renderEmpty('Aucune réservation', state.filter === 'all'
+        ? 'Aucune réservation à venir pour l\'instant.'
+        : 'Aucune réservation ne correspond à ce filtre.');
+      return;
+    }
+
+    // group by day
+    const groups = new Map();
+    for (const r of rows) {
+      if (!groups.has(r.date)) groups.set(r.date, []);
+      groups.get(r.date).push(r);
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+
+    const dayFmt  = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const sortedDates = [...groups.keys()].sort();
+
+    const html = sortedDates.map(date => {
+      const list = groups.get(date);
+      const guests = list.reduce((s, r) => s + r.guests, 0);
+      let label, sub;
+      if (date === today)         { label = "Aujourd'hui"; sub = dayFmt.format(new Date(date)).replace(/^./, c => c.toUpperCase()); }
+      else if (date === tomorrow) { label = "Demain";      sub = dayFmt.format(new Date(date)).replace(/^./, c => c.toUpperCase()); }
+      else                        { label = dayFmt.format(new Date(date)).replace(/^./, c => c.toUpperCase()); sub = ''; }
+
+      const cards = list.map(cardHtml).join('');
+      return `
+        <section class="adm-day">
+          <header class="adm-day__header">
+            <h2 class="adm-day__title">${label}${sub ? `<span class="adm-day__date">${sub}</span>` : ''}</h2>
+            <div class="adm-day__meta"><strong>${list.length} réservation${list.length > 1 ? 's' : ''}</strong> · ${guests} couvert${guests > 1 ? 's' : ''}</div>
+          </header>
+          <div class="adm-cards">${cards}</div>
+        </section>`;
+    }).join('');
+
+    $('#dashList').innerHTML = html;
+  }
+
+  // ---------- Helpers ----------
+  const STATUS_CLASS = { en_attente: 'pending', confirmee: 'confirmed', refusee: 'refused', annulee: 'cancelled' };
+  const STATUS_LABEL = { en_attente: '⏱ À traiter', confirmee: '✓ Confirmée', refusee: '✕ Refusée', annulee: '✕ Annulée' };
+
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  function timeLabel(service)  { return service === 'midi' ? '12h00' : '19h30'; } // best-effort
+  function relTime(iso) {
+    const d = new Date(iso);
+    const mins = Math.floor((Date.now() - d.getTime()) / 60000);
+    if (mins < 1)    return "à l'instant";
+    if (mins < 60)   return `il y a ${mins} min`;
+    if (mins < 1440) return `il y a ${Math.floor(mins / 60)}h`;
+    return `il y a ${Math.floor(mins / 1440)} j.`;
+  }
+  function smsBody(r) {
+    const dateFmt = new Date(r.date).toLocaleDateString('fr-FR');
+    return encodeURIComponent(
+      `Bonjour ${r.name}, votre réservation du ${dateFmt} (${r.service}) pour ${r.guests} personne${r.guests > 1 ? 's' : ''} est bien confirmée. À bientôt ! La Petite Auberge de Flo`
+    );
+  }
+
+  function cardHtml(r) {
+    const cls    = STATUS_CLASS[r.status] || 'pending';
+    const isNew  = r.status === 'en_attente' && (Date.now() - new Date(r.created_at).getTime()) < 4 * 3600 * 1000;
+    const phone  = (r.phone || '').replace(/[^\d+]/g, '');
+    const badges = [];
+    if (isNew) badges.push(`<span class="adm-badge adm-badge--new">Nouvelle</span>`);
+    badges.push(`<span class="adm-badge adm-badge--${cls}">${STATUS_LABEL[r.status] || r.status}</span>`);
+    if (r.lang) badges.push(`<span class="adm-badge adm-badge--lang">${r.lang.toUpperCase()}</span>`);
+
+    let actions;
+    if (r.status === 'en_attente') {
+      actions = `
+        <a class="adm-btn adm-btn--call" href="tel:${esc(phone)}">📞 Appeler</a>
+        <a class="adm-btn adm-btn--sms"  href="sms:${esc(phone)}?body=${smsBody(r)}">💬 SMS</a>
+        <button class="adm-btn adm-btn--success" type="button" data-action="confirm" data-id="${r.id}">✓ Valider</button>
+        <button class="adm-btn adm-btn--danger"  type="button" data-action="refuse"  data-id="${r.id}">✕ Refuser</button>`;
+    } else {
+      actions = `
+        <a class="adm-btn adm-btn--call" href="tel:${esc(phone)}">📞 Appeler</a>
+        <button class="adm-btn adm-btn--ghost" type="button" data-action="details" data-id="${r.id}">Détails</button>`;
+    }
+
+    return `
+      <article class="adm-card adm-card--${cls}" data-card="${r.id}">
+        <div class="adm-card__row1">
+          <div class="adm-card__time">${timeLabel(r.service)}</div>
+          <div class="adm-card__guests"><strong>${r.guests}</strong> pers.</div>
+        </div>
+        <div class="adm-card__badge-row">${badges.join('')}</div>
+        <h3 class="adm-card__name">${esc(r.name)}</h3>
+        <a class="adm-card__phone" href="tel:${esc(phone)}">${esc(r.phone)}</a>
+        ${r.email ? `<a class="adm-card__email" href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}
+        ${r.notes ? `<p class="adm-card__notes">${esc(r.notes)}</p>` : ''}
+        <div class="adm-card__meta">
+          <span class="adm-card__meta-item">Service <strong>${r.service}</strong></span>
+          <span class="adm-card__meta-item">Reçue <strong>${relTime(r.created_at)}</strong></span>
+        </div>
+        <div class="adm-card__actions">${actions}</div>
+      </article>`;
+  }
+
+  // ---------- Card actions (event delegation) ----------
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) {
+      // Open detail sheet on card body click (ignore clicks on phone/email/buttons)
+      const card = e.target.closest('.adm-card');
+      if (card && !e.target.closest('.adm-btn, a')) openSheet(card.dataset.card);
+      return;
+    }
+    e.stopPropagation();
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    if (action === 'confirm' || action === 'refuse') {
+      btn.disabled = true;
+      try {
+        await updateStatus(id, action === 'confirm' ? 'confirmee' : 'refusee');
+        await refresh();
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+        btn.disabled = false;
+      }
+    } else if (action === 'details') {
+      openSheet(id);
+    }
+  });
+
+  // ---------- Detail sheet ----------
+  function openSheet(id) {
+    const r = state.reservations.find(x => x.id === id);
+    if (!r) return;
+    state.currentId = id;
+
+    const dateFmt = new Date(r.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const phone   = (r.phone || '').replace(/[^\d+]/g, '');
+    const isPending = r.status === 'en_attente';
+
+    const actionsHtml = isPending
+      ? `<a class="adm-btn adm-btn--call" href="tel:${esc(phone)}">📞 Appeler</a>
+         <a class="adm-btn adm-btn--sms"  href="sms:${esc(phone)}?body=${smsBody(r)}">💬 SMS</a>
+         <button class="adm-btn adm-btn--success adm-btn--full" type="button" data-action="confirm" data-id="${r.id}">✓ Valider la réservation</button>
+         <button class="adm-btn adm-btn--danger  adm-btn--full" type="button" data-action="refuse"  data-id="${r.id}">✕ Refuser la réservation</button>`
+      : `<a class="adm-btn adm-btn--call adm-btn--full" href="tel:${esc(phone)}">📞 Appeler ${esc(r.name)}</a>
+         <button class="adm-btn adm-btn--ghost adm-btn--full" type="button" id="reopenBtn">Remettre en attente</button>`;
+
+    $('#sheetInner').innerHTML = `
+      <p class="adm-sheet__eyebrow">— Réservation —</p>
+      <h2 class="adm-sheet__title">${esc(r.name)}</h2>
+
+      <div class="adm-sheet__big-row">
+        <div class="adm-sheet__big-time">${timeLabel(r.service)}</div>
+        <div class="adm-sheet__big-meta">
+          <strong>${r.guests} personne${r.guests > 1 ? 's' : ''}</strong>
+          <span>${dateFmt.replace(/^./, c => c.toUpperCase())}</span>
+        </div>
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Téléphone</p>
+        <p class="adm-sheet__field-value"><a href="tel:${esc(phone)}">${esc(r.phone)}</a></p>
+      </div>
+      ${r.email ? `
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Email</p>
+        <p class="adm-sheet__field-value"><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></p>
+      </div>` : ''}
+      ${r.notes ? `
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Demande du client</p>
+        <div class="adm-sheet__notes">${esc(r.notes)}</div>
+      </div>` : ''}
+
+      <div class="adm-sheet__field adm-sheet__notes-internal">
+        <p class="adm-sheet__field-label">Note interne (visible uniquement par vous)</p>
+        <textarea id="sheetNotes" placeholder="Ex : table près de la fenêtre réservée, prévenir la cuisine pour le gâteau…">${esc(r.internal_notes || '')}</textarea>
+      </div>
+
+      <div class="adm-sheet__actions">${actionsHtml}</div>`;
+
+    // Debounced save of internal notes
+    let saveTimer;
+    $('#sheetNotes').addEventListener('input', (e) => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(async () => {
+        try { await updateInternalNotes(id, e.target.value); } catch (_) {}
+      }, 600);
+    });
+
+    // Re-open (set status back to en_attente)
+    $('#reopenBtn')?.addEventListener('click', async () => {
+      try {
+        await updateStatus(id, 'en_attente');
+        await refresh();
+        closeSheet();
+      } catch (err) { alert('Erreur : ' + err.message); }
+    });
+
+    $('#detailSheet').classList.add('is-open');
+    $('#sheetBackdrop').classList.add('is-open');
+    $('#detailSheet').setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSheet() {
+    $('#detailSheet').classList.remove('is-open');
+    $('#sheetBackdrop').classList.remove('is-open');
+    $('#detailSheet').setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    state.currentId = null;
+  }
+  $('#sheetClose').addEventListener('click', closeSheet);
+  $('#sheetBackdrop').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+
+  // ---------- Auth state changes (handles session expiry, multi-tab) ----------
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') showLogin();
+    if (event === 'SIGNED_IN' && !$('#dashboard-screen').classList.contains('is-active')) openDashboard();
+  });
+
+  // ---------- Go! ----------
+  route();
+</script>
+
+</body>
+</html>

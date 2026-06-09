@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr" data-i18n-title="reserve.pagetitle">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Réservation — La Petite Auberge de Flo</title>
+<meta name="description" content="Réservez votre table à La Petite Auberge de Flo. Indiquez la date, le service, le nombre de personnes et vos demandes particulières — nous confirmons par téléphone." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="reservation.css" />
+<script src="i18n.js" defer></script>
+</head>
+<body class="reservepage">
+
+<header class="cartepage__nav reservepage__nav">
+  <a class="cartepage__back" href="index.html" data-i18n="reserve.back">← Retour à l'accueil</a>
+
+  <a class="nav__brand" href="index.html">
+    <img src="assets/logo.jpg" alt="Logo La Petite Auberge de Flo" />
+    <span class="nav__brand-text">
+      <span class="nav__brand-line1">La Petite Auberge</span>
+      <span class="nav__brand-line2">de Flo</span>
+    </span>
+  </a>
+
+  <div class="cartepage__tools">
+    <div class="lang-switch lang-switch--dark" role="group" aria-label="Choisir la langue">
+      <button type="button" data-lang="fr" class="is-active">FR</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="de">DE</button>
+      <button type="button" data-lang="it">IT</button>
+    </div>
+  </div>
+</header>
+
+<main class="reservepage__main">
+
+  <!-- HERO -->
+  <section class="reserve-hero">
+    <div class="reserve-hero__inner">
+      <p class="eyebrow eyebrow--light" data-i18n="reserve.eyebrow">— Réservation —</p>
+      <h1 class="reserve-hero__title" data-i18n="reserve.title">Réservez votre <em>table</em></h1>
+      <p class="reserve-hero__lede" data-i18n="reserve.lede">
+        Une cuisine généreuse, une équipe attentionnée — réservez votre soirée en quelques clics.
+        Nous vous confirmons par téléphone.
+      </p>
+    </div>
+  </section>
+
+  <!-- BODY: form + aside -->
+  <section class="reserve-body">
+    <div class="reserve-body__inner">
+
+      <!-- FORM -->
+      <!--
+        Le formulaire écrit directement dans la table `reservations` de Supabase
+        (cf. supabase.js). Le tableau de bord chef (admin.html) lit la même table
+        en temps réel. RLS : anon peut INSERT mais pas SELECT/UPDATE/DELETE.
+      -->
+      <form class="reserve-form" id="reserveForm" novalidate>
+
+        <!-- Row 1: date + service + guests -->
+        <div class="reserve-row reserve-row--3">
+          <div class="reserve-field">
+            <label for="rf-date" data-i18n="reserve.field.date">Date</label>
+            <input type="date" id="rf-date" name="date" required />
+          </div>
+          <div class="reserve-field">
+            <label for="rf-service" data-i18n="reserve.field.service">Service</label>
+            <select id="rf-service" name="service" required>
+              <option value="" data-i18n="reserve.field.service.placeholder">— Choisir —</option>
+              <option value="midi" data-i18n="reserve.field.service.lunch">Midi (12h – 14h)</option>
+              <option value="soir" data-i18n="reserve.field.service.dinner">Soir (19h – 22h)</option>
+            </select>
+          </div>
+          <div class="reserve-field">
+            <label for="rf-guests" data-i18n="reserve.field.guests">Nombre de personnes</label>
+            <input type="number" id="rf-guests" name="guests" min="1" max="40" inputmode="numeric" required />
+          </div>
+        </div>
+
+        <!-- Row 2: name + phone + email -->
+        <div class="reserve-row reserve-row--3">
+          <div class="reserve-field">
+            <label for="rf-name" data-i18n="reserve.field.name">Votre nom</label>
+            <input type="text" id="rf-name" name="name" autocomplete="name" required />
+          </div>
+          <div class="reserve-field">
+            <label for="rf-phone" data-i18n="reserve.field.phone">Téléphone</label>
+            <input type="tel" id="rf-phone" name="phone" autocomplete="tel" required />
+          </div>
+          <div class="reserve-field">
+            <label for="rf-email" data-i18n="reserve.field.email">Email <span class="reserve-field__opt">(facultatif)</span></label>
+            <input type="email" id="rf-email" name="email" autocomplete="email" />
+          </div>
+        </div>
+
+        <!-- Row 3: notes (full width) -->
+        <div class="reserve-field reserve-field--full">
+          <label for="rf-notes" data-i18n="reserve.field.notes">Demandes particulières</label>
+          <textarea
+            id="rf-notes"
+            name="notes"
+            rows="5"
+            data-i18n-attr="placeholder:reserve.field.notes.placeholder"
+            placeholder="Anniversaire, repas de groupe, menu personnalisé, accessibilité PMR, allergies, place près de la fenêtre…"></textarea>
+        </div>
+
+        <!-- Honeypot (hidden from real users, bots fill it) -->
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
+
+        <div class="reserve-actions">
+          <button type="submit" class="btn btn--solid btn--big" id="reserveSubmit" data-i18n="reserve.submit">Envoyer ma demande</button>
+          <p class="reserve-note" data-i18n="reserve.note">Nous confirmons toutes les réservations par téléphone aux horaires d'ouverture.</p>
+        </div>
+
+        <!-- Success message (hidden by default) -->
+        <div class="reserve-success" id="reserveSuccess" role="status" aria-live="polite" hidden>
+          <p class="reserve-success__title" data-i18n="reserve.success.title">Merci !</p>
+          <p data-i18n="reserve.success.text">
+            Votre demande nous est bien parvenue — nous vous rappelons rapidement aux coordonnées indiquées pour confirmer votre réservation.
+          </p>
+        </div>
+
+        <!-- Error message (hidden by default) -->
+        <div class="reserve-error" id="reserveError" role="alert" aria-live="assertive" hidden>
+          <p class="reserve-error__title" data-i18n="reserve.error.title">Oups…</p>
+          <p data-i18n="reserve.error.text">
+            L'envoi a échoué. Réessayez dans un instant — ou appelez-nous directement au 09 55 82 02 14.
+          </p>
+        </div>
+      </form>
+
+      <!-- ASIDE — call alternative + hours -->
+      <aside class="reserve-aside">
+        <p class="eyebrow" data-i18n="reserve.aside.eyebrow">— Ou plus simple —</p>
+        <h2 class="reserve-aside__title" data-i18n="reserve.aside.title">Appelez-nous directement</h2>
+        <p class="reserve-aside__text" data-i18n="reserve.aside.text">
+          Aux horaires d'ouverture, un coup de fil suffit pour réserver votre table.
+        </p>
+        <a href="tel:0955820214" class="reserve-aside__phone" data-i18n="reserve.aside.phone">09 55 82 02 14</a>
+
+        <div class="reserve-aside__hours">
+          <p class="eyebrow eyebrow--light" data-i18n="reserve.aside.hours.title">Horaires</p>
+          <ul class="hours">
+            <li><span data-i18n="contact.hours.day1">Lundi</span><span class="closed" data-i18n="contact.hours.closed">Fermé</span></li>
+            <li><span data-i18n="contact.hours.day2">Mardi</span><span class="closed" data-i18n="contact.hours.closed">Fermé</span></li>
+            <li><span data-i18n="contact.hours.day3">Mercredi</span><span>12h&nbsp;–&nbsp;14h</span></li>
+            <li><span data-i18n="contact.hours.day4">Jeudi</span><span>12h&nbsp;–&nbsp;14h</span></li>
+            <li><span data-i18n="contact.hours.day5">Vendredi</span><span>12h&nbsp;–&nbsp;14h&nbsp;&nbsp;·&nbsp;&nbsp;19h&nbsp;–&nbsp;22h</span></li>
+            <li><span data-i18n="contact.hours.day6">Samedi</span><span>12h&nbsp;–&nbsp;14h&nbsp;&nbsp;·&nbsp;&nbsp;19h&nbsp;–&nbsp;22h</span></li>
+            <li><span data-i18n="contact.hours.day7">Dimanche</span><span>12h&nbsp;–&nbsp;14h&nbsp;&nbsp;·&nbsp;&nbsp;19h&nbsp;–&nbsp;22h</span></li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <img src="assets/logo.jpg" alt="Logo La Petite Auberge de Flo" />
+      <p>La Petite Auberge de Flo<br /><span data-i18n="footer.subtitle">Cuisine de terroir · Saint-Bonnet-les-Oules</span></p>
+    </div>
+    <p class="footer__copy">© <span id="year"></span> <span data-i18n="footer.copy">La Petite Auberge de Flo — Tous droits réservés.</span></p>
+  </div>
+</footer>
+
+<script type="module">
+  import { createReservation } from './supabase.js';
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const form = document.getElementById('reserveForm');
+  const submitBtn = document.getElementById('reserveSubmit');
+  const success = document.getElementById('reserveSuccess');
+  const errorBox = document.getElementById('reserveError');
+  const submitLabelDefault = submitBtn.textContent;
+
+  // Min date = today
+  document.getElementById('rf-date').min = new Date().toISOString().slice(0, 10);
+
+  function t(key) {
+    const lang = (document.documentElement.lang || 'fr').slice(0, 2);
+    return window.I18N?.[lang]?.[key] || window.I18N?.fr?.[key] || key;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    // Honeypot: bot — silent fake-success
+    if (form.elements['_honey']?.value) {
+      success.hidden = false;
+      return;
+    }
+
+    const fd = new FormData(form);
+    const payload = {
+      date:    fd.get('date'),
+      service: fd.get('service'),
+      guests:  fd.get('guests'),
+      name:    fd.get('name'),
+      phone:   fd.get('phone'),
+      email:   fd.get('email'),
+      notes:   fd.get('notes'),
+      lang:    (document.documentElement.lang || 'fr').slice(0, 2),
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = t('reserve.submitting');
+    success.hidden = true;
+    errorBox.hidden = true;
+
+    try {
+      await createReservation(payload);
+      success.hidden = false;
+      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      form.reset();
+    } catch (err) {
+      console.error('[reservation] envoi échoué :', err);
+      errorBox.hidden = false;
+      errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = t('reserve.submit') || submitLabelDefault;
+    }
+  });
+</script>
+
+</body>
+</html>
