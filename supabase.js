@@ -97,6 +97,73 @@ export async function updateInternalNotes(id, internal_notes) {
   return data;
 }
 
+// ---------- Service capacity (couverts, complet/ouvert) ----------
+
+// Returns: { available, manually_closed, current_couverts, max_couverts, remaining }
+export async function getServiceState(date, service) {
+  const { data, error } = await supabase.rpc('get_service_state', {
+    p_date: date, p_service: service,
+  });
+  if (error) throw error;
+  return data;
+}
+
+// Chef toggles a service open/closed for a given day
+export async function setServiceClosed(date, service, closed) {
+  const { data: { user } } = await supabase.auth.getUser();
+  const row = {
+    date, service,
+    manually_closed: closed,
+    closed_by: closed ? user?.id || null : null,
+    closed_at:  closed ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await supabase
+    .from('service_overrides')
+    .upsert(row, { onConflict: 'date,service' });
+  if (error) throw error;
+}
+
+// Chef sets a custom max for a specific day (overrides the default)
+export async function setServiceMax(date, service, max) {
+  const row = {
+    date, service,
+    max_couverts: max == null ? null : Number(max),
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await supabase
+    .from('service_overrides')
+    .upsert(row, { onConflict: 'date,service' });
+  if (error) throw error;
+}
+
+// Read the default global maxes (used by the settings panel)
+export async function getDefaultCapacities() {
+  const { data, error } = await supabase
+    .from('app_config')
+    .select('key, value')
+    .in('key', ['default_max_midi', 'default_max_soir']);
+  if (error) throw error;
+  const out = { midi: 30, soir: 40 };
+  for (const r of data || []) {
+    if (r.key === 'default_max_midi') out.midi = parseInt(r.value, 10);
+    if (r.key === 'default_max_soir') out.soir = parseInt(r.value, 10);
+  }
+  return out;
+}
+
+// Chef updates the global defaults (in Settings)
+export async function setDefaultCapacities({ midi, soir }) {
+  const rows = [
+    { key: 'default_max_midi', value: String(midi), updated_at: new Date().toISOString() },
+    { key: 'default_max_soir', value: String(soir), updated_at: new Date().toISOString() },
+  ];
+  const { error } = await supabase
+    .from('app_config')
+    .upsert(rows, { onConflict: 'key' });
+  if (error) throw error;
+}
+
 // ---------- Push notifications (Web Push) ----------
 
 // Public VAPID key (safe to expose) — pairs with the private key stored in app_config.

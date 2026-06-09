@@ -113,6 +113,12 @@
         <!-- Honeypot (hidden from real users, bots fill it) -->
         <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
 
+        <!-- Live availability indicator (filled by JS as user picks date+service) -->
+        <div class="reserve-avail" id="reserveAvail" hidden>
+          <span class="reserve-avail__dot" aria-hidden="true"></span>
+          <span class="reserve-avail__text"></span>
+        </div>
+
         <div class="reserve-actions">
           <button type="submit" class="btn btn--solid btn--big" id="reserveSubmit" data-i18n="reserve.submit">Envoyer ma demande</button>
           <p class="reserve-note" data-i18n="reserve.note">Nous confirmons toutes les réservations par téléphone aux horaires d'ouverture.</p>
@@ -174,7 +180,7 @@
 </footer>
 
 <script type="module">
-  import { createReservation } from './supabase.js';
+  import { createReservation, getServiceState } from './supabase.js';
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -183,14 +189,111 @@
   const success = document.getElementById('reserveSuccess');
   const errorBox = document.getElementById('reserveError');
   const submitLabelDefault = submitBtn.textContent;
+  const dateInput    = document.getElementById('rf-date');
+  const serviceInput = document.getElementById('rf-service');
+  const guestsInput  = document.getElementById('rf-guests');
+  const availBox     = document.getElementById('reserveAvail');
 
   // Min date = today
-  document.getElementById('rf-date').min = new Date().toISOString().slice(0, 10);
+  dateInput.min = new Date().toISOString().slice(0, 10);
 
   function t(key) {
     const lang = (document.documentElement.lang || 'fr').slice(0, 2);
     return window.I18N?.[lang]?.[key] || window.I18N?.fr?.[key] || key;
   }
+
+  // ----- Live availability check -----
+  let availState = null; // last known state from server
+  let availTimer;
+  let canSubmit = true;  // toggled by checkAvailability
+
+  function setAvail({ level, text }) {
+    availBox.hidden = false;
+    availBox.classList.remove('reserve-avail--ok', 'reserve-avail--warn', 'reserve-avail--full', 'reserve-avail--loading');
+    availBox.classList.add('reserve-avail--' + level);
+    availBox.querySelector('.reserve-avail__text').textContent = text;
+  }
+
+  function updateSubmitBlock() {
+    if (!canSubmit) {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '.55';
+      submitBtn.style.cursor  = 'not-allowed';
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '';
+      submitBtn.style.cursor  = '';
+    }
+  }
+
+  async function checkAvailability() {
+    const date = dateInput.value;
+    const service = serviceInput.value;
+    if (!date || !service) {
+      availBox.hidden = true;
+      canSubmit = true;
+      updateSubmitBlock();
+      return;
+    }
+    setAvail({ level: 'loading', text: 'Vérification de la disponibilité…' });
+    try {
+      const state = await getServiceState(date, service);
+      availState = state;
+      const guests = Number(guestsInput.value) || 0;
+
+      if (state.manually_closed) {
+        canSubmit = false;
+        setAvail({
+          level: 'full',
+          text: `Désolé, le service ${service} du ${formatDate(date)} est complet. Appelez-nous au 09 55 82 02 14 — il y a peut-être de la place avec un peu de souplesse.`,
+        });
+      } else if (state.max_couverts != null && state.remaining <= 0) {
+        canSubmit = false;
+        setAvail({
+          level: 'full',
+          text: `Désolé, ce service est complet (${state.current_couverts}/${state.max_couverts} couverts). Appelez-nous au 09 55 82 02 14 pour vérifier les annulations.`,
+        });
+      } else if (state.max_couverts != null && guests > 0 && guests > state.remaining) {
+        canSubmit = false;
+        setAvail({
+          level: 'full',
+          text: `Il ne reste que ${state.remaining} places pour ce service et vous demandez ${guests} couverts. Appelez-nous, on peut peut-être s'arranger.`,
+        });
+      } else if (state.max_couverts != null && state.remaining <= 5) {
+        canSubmit = true;
+        setAvail({
+          level: 'warn',
+          text: `Plus que ${state.remaining} places disponibles — pensez à nous appeler pour confirmer.`,
+        });
+      } else {
+        canSubmit = true;
+        const remainingText = state.max_couverts == null
+          ? 'Service ouvert.'
+          : `${state.remaining} places restantes sur ce service.`;
+        setAvail({ level: 'ok', text: '✓ ' + remainingText });
+      }
+    } catch (e) {
+      console.warn('[avail] check failed', e);
+      // En cas d'erreur on laisse soumettre (le chef rappellera)
+      canSubmit = true;
+      availBox.hidden = true;
+    }
+    updateSubmitBlock();
+  }
+
+  function formatDate(d) {
+    try {
+      return new Date(d + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    } catch { return d; }
+  }
+
+  function debouncedCheck() {
+    clearTimeout(availTimer);
+    availTimer = setTimeout(checkAvailability, 300);
+  }
+  dateInput.addEventListener('change', debouncedCheck);
+  serviceInput.addEventListener('change', debouncedCheck);
+  guestsInput.addEventListener('input',  debouncedCheck);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -199,6 +302,13 @@
     // Honeypot: bot — silent fake-success
     if (form.elements['_honey']?.value) {
       success.hidden = false;
+      return;
+    }
+
+    // Final availability re-check: maybe the chef just closed the service.
+    await checkAvailability();
+    if (!canSubmit) {
+      availBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
