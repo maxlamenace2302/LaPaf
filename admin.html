@@ -77,7 +77,7 @@
       <div class="adm-topbar__right">
         <button class="adm-iconbtn" id="notifBtn" title="Réservations à traiter" type="button">🔔</button>
         <button class="adm-iconbtn" id="refreshBtn" title="Rafraîchir" type="button">⟳</button>
-        <button class="adm-iconbtn" id="logoutBtn" title="Déconnexion" type="button">⏻</button>
+        <button class="adm-iconbtn" id="settingsBtn" title="Réglages" type="button">⚙</button>
       </div>
     </div>
   </header>
@@ -272,15 +272,108 @@
   });
 
   // ---------- Topbar buttons ----------
-  $('#logoutBtn').addEventListener('click', async () => {
-    try { await signOut(); } catch (_) {}
-    showLogin();
-  });
   $('#refreshBtn').addEventListener('click', () => refresh());
   $('#notifBtn').addEventListener('click', () => {
     setFilter('pending');
     document.querySelector('[data-card]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+  $('#settingsBtn').addEventListener('click', openSettings);
+
+  // ---------- Settings sheet ----------
+  async function getPushState() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return 'unsupported';
+    const perm = Notification.permission;
+    if (perm === 'denied') return 'blocked';
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub && perm === 'granted') return 'on';
+      if (perm === 'granted') return 'permission-only';
+      return 'off';
+    } catch (e) {
+      return 'error';
+    }
+  }
+
+  const PUSH_LABELS = {
+    on:              { dot: 'var(--adm-success)', title: 'Notifications activées', desc: "Tu reçois une notif sur ce téléphone à chaque nouvelle réservation, même app fermée.", btn: 'Désactiver', action: 'disable' },
+    'permission-only': { dot: 'var(--adm-warning)', title: 'Pas encore souscrit', desc: "Permission accordée, mais ce téléphone n'est pas enregistré. Tape sur \"Activer\".", btn: 'Activer', action: 'enable' },
+    off:             { dot: 'var(--ink-soft)',    title: 'Notifications désactivées', desc: "Active-les pour recevoir une notif à chaque nouvelle réservation, même app fermée.", btn: 'Activer', action: 'enable' },
+    blocked:         { dot: 'var(--adm-danger)',  title: 'Bloquées par iOS / le navigateur', desc: "Tu as refusé la permission. Va dans les Réglages iOS → Notifications → Auberge Flo pour réautoriser.", btn: '', action: '' },
+    unsupported:     { dot: 'var(--ink-soft)',    title: 'Push non supporté', desc: "Ce navigateur ne supporte pas les notifications web. Sur iPhone, il faut iOS 16.4+ et installer l'app depuis l'écran d'accueil.", btn: '', action: '' },
+    error:           { dot: 'var(--adm-danger)',  title: 'Erreur de configuration', desc: "Quelque chose s'est mal passé. Recharge la page.", btn: '', action: '' },
+  };
+
+  async function openSettings() {
+    const session = await getSession();
+    const userEmail = session?.user?.email || '—';
+    const pushState = await getPushState();
+    const p = PUSH_LABELS[pushState];
+
+    $('#sheetInner').innerHTML = `
+      <p class="adm-sheet__eyebrow">— Réglages —</p>
+      <h2 class="adm-sheet__title">Compte &amp; <em>notifications</em></h2>
+
+      <div class="adm-settings-section">
+        <p class="adm-settings-label">Notifications push</p>
+        <div class="adm-settings-row">
+          <span class="adm-settings-dot" style="background:${p.dot}"></span>
+          <div class="adm-settings-text">
+            <strong>${p.title}</strong>
+            <span>${p.desc}</span>
+          </div>
+        </div>
+        ${p.btn ? `<button class="adm-btn adm-btn--${p.action === 'enable' ? 'success' : 'ghost'} adm-btn--full" type="button" data-push-action="${p.action}">${p.btn}</button>` : ''}
+      </div>
+
+      <div class="adm-settings-section">
+        <p class="adm-settings-label">Compte connecté</p>
+        <div class="adm-settings-row">
+          <span class="adm-settings-dot" style="background:var(--adm-success)"></span>
+          <div class="adm-settings-text">
+            <strong>${esc(userEmail)}</strong>
+            <span>Session active sur cet appareil.</span>
+          </div>
+        </div>
+        <button class="adm-btn adm-btn--danger adm-btn--full" type="button" id="signoutBtn">Se déconnecter</button>
+      </div>
+
+      <p class="adm-settings-version">La Petite Auberge de Flo · Tableau de bord chef · v1.0</p>`;
+
+    $('[data-push-action]')?.addEventListener('click', async (e) => {
+      const action = e.currentTarget.dataset.pushAction;
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = action === 'enable' ? 'Activation…' : 'Désactivation…';
+      try {
+        if (action === 'enable') {
+          const granted = await ensureNotifPermission();
+          if (!granted) throw new Error('Permission refusée');
+          await subscribePush();
+        } else {
+          await unsubscribePush();
+        }
+        // re-render the sheet to show the new state
+        openSettings();
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
+
+    $('#signoutBtn').addEventListener('click', async () => {
+      closeSheet();
+      try { await signOut(); } catch (_) {}
+      showLogin();
+    });
+
+    $('#detailSheet').classList.add('is-open');
+    $('#sheetBackdrop').classList.add('is-open');
+    $('#detailSheet').setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
 
   // ---------- Filter chips ----------
   $('#filterChips').addEventListener('click', (e) => {

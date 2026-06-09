@@ -177,11 +177,17 @@ body.adminpage {
   top: 0;
   z-index: 50;
   box-shadow: 0 4px 24px rgba(58, 26, 42, .18);
+  /* iOS PWA standalone : on ajoute la hauteur de l'encoche / dynamic island
+     pour que la barre ne passe pas dessous. Sur Android / desktop, env() = 0. */
+  padding-top: env(safe-area-inset-top);
 }
 .adm-topbar__inner {
   max-width: 1280px;
   margin: 0 auto;
   padding: .9rem clamp(1rem, 3vw, 2rem);
+  /* Respecte aussi les encoches latérales en mode paysage */
+  padding-left:  max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-left));
+  padding-right: max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-right));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -342,7 +348,8 @@ body.adminpage {
 .adm-filters {
   background: var(--cream);
   position: sticky;
-  top: 64px;
+  /* Sous la topbar dynamique : 64px par défaut + safe area si on est sur iPhone à encoche */
+  top: calc(64px + env(safe-area-inset-top));
   z-index: 40;
   border-bottom: 1px solid var(--line);
 }
@@ -894,6 +901,68 @@ body.adminpage {
 .adm-sheet__actions .adm-btn { padding: .9rem 1rem; font-size: .9rem; }
 .adm-sheet__actions .adm-btn--full {
   grid-column: 1 / -1;
+}
+
+/* ============================================================
+   SETTINGS SHEET CONTENT
+   ============================================================ */
+.adm-settings-section {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.adm-settings-section:last-of-type {
+  border-bottom: none;
+}
+.adm-settings-label {
+  font-family: var(--f-sans);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 .6rem;
+}
+.adm-settings-row {
+  display: flex;
+  gap: .85rem;
+  align-items: flex-start;
+  padding: .85rem;
+  background: var(--cream-2);
+  border-radius: 8px;
+  margin-bottom: .85rem;
+}
+.adm-settings-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: .35rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .04);
+}
+.adm-settings-text {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.adm-settings-text strong {
+  font-family: var(--f-sans);
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.adm-settings-text span {
+  font-family: var(--f-sans);
+  font-size: .82rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+.adm-settings-version {
+  text-align: center;
+  margin-top: 2rem;
+  font-family: var(--f-sans);
+  font-size: .72rem;
+  color: var(--ink-soft);
+  letter-spacing: .04em;
 }
 
 /* ============================================================
