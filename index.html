@@ -1009,6 +1009,84 @@
     else window.addEventListener('load', init);
   })();
 
+  // ====== GALERIE — Inset-Y curtain reveal (YoucefBnm style) ======
+  // Each photo starts clipped to a thin horizontal band at its centre
+  // (CSS-only fallback for users without JS = visible). When it enters
+  // the viewport, we add .is-revealed and the band opens vertically.
+  (function() {
+    const photos = document.querySelectorAll('.galerie__mosaic .g');
+    if (!photos.length) return;
+    document.documentElement.classList.add('js-ready');
+
+    if (!('IntersectionObserver' in window)) {
+      photos.forEach(p => p.classList.add('is-revealed'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-revealed');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
+    photos.forEach(p => io.observe(p));
+    // Safety in case IO stalls (preview iframes)
+    setTimeout(() => photos.forEach(p => p.classList.add('is-revealed')), 2500);
+  })();
+
+  // ====== HERO PARALLAX (osmosupply style) ======
+  // Background photo moves at ~30% of scroll speed, foreground content moves
+  // at ~60% AND fades out. The result : a deep, cinematic intro instead of a
+  // flat hero. requestAnimationFrame throttling keeps it smooth at 60fps.
+  (function() {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    const media = hero.querySelector('.hero__media');
+    const content = hero.querySelector('.hero__content');
+    const overlay = hero.querySelector('.hero__overlay');
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    let ticking = false;
+    let lastScrollY = 0;
+
+    function update() {
+      const y = lastScrollY;
+      const heroH = hero.offsetHeight;
+      // Only animate while hero is in/near viewport
+      if (y > heroH) { ticking = false; return; }
+
+      const progress = Math.min(y / heroH, 1); // 0 at top, 1 at bottom of hero
+
+      // Background photo : slow upward drift (parallax base), slight zoom-out
+      const mediaY = -y * 0.45;           // ~45% of scroll = slow rise
+      const mediaScale = 1.06 + progress * 0.04; // very subtle zoom toward 1.10
+
+      // Content : faster upward drift + fade
+      const contentY = -y * 0.25;
+      const contentOpacity = Math.max(1 - progress * 1.4, 0);
+
+      hero.style.setProperty('--hero-media-y',   mediaY + 'px');
+      hero.style.setProperty('--hero-media-scale', mediaScale);
+      hero.style.setProperty('--hero-content-y', contentY + 'px');
+      hero.style.setProperty('--hero-content-opacity', contentOpacity);
+
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      lastScrollY = window.scrollY;
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }, { passive: true });
+
+    update();
+  })();
+
   // ====== SCROLL TO TOP BUTTON ======
   (function() {
     const btn = document.getElementById('scrollTop');
@@ -1031,6 +1109,10 @@
   (function() {
     const cards = document.querySelectorAll('.formule');
     if (!cards.length) return;
+
+    // Tell CSS we're ready — this enables the entrance animation.
+    // Without this class, .formule stays opacity:1 (no JS = no hidden cards).
+    document.documentElement.classList.add('js-ready');
 
     // Cursor spotlight via CSS custom properties --mx / --my
     cards.forEach(card => {
