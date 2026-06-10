@@ -154,6 +154,8 @@
     listReservations, updateStatus, updateInternalNotes,
     subscribeReservations,
     subscribePush, unsubscribePush,
+    getServiceState, setServiceClosed,
+    getDefaultCapacities, setDefaultCapacities,
   } from './supabase.js';
 
   const $  = (s, r = document) => r.querySelector(s);
@@ -162,6 +164,8 @@
   // ---------- App state ----------
   const state = {
     reservations: [],
+    overrides:    [],   // service_overrides rows (per-day "complet" or custom max)
+    defaults:     { midi: 30, soir: 40 },
     filter: 'all',
     currentId: null,
     unsubscribe: null,
@@ -312,7 +316,26 @@
 
     $('#sheetInner').innerHTML = `
       <p class="adm-sheet__eyebrow">— Réglages —</p>
-      <h2 class="adm-sheet__title">Compte &amp; <em>notifications</em></h2>
+      <h2 class="adm-sheet__title">Compte, capacité &amp; <em>notifications</em></h2>
+
+      <div class="adm-settings-section">
+        <p class="adm-settings-label">Capacité par défaut</p>
+        <p class="adm-settings-help">Nombre maximum de couverts acceptés <em>par défaut</em> pour chaque service. Tu peux fermer un jour précis depuis le dashboard si besoin (bouton "Marquer complet").</p>
+        <div class="adm-settings-capacity">
+          <label class="adm-settings-capfield">
+            <span>Midi</span>
+            <input type="number" min="0" max="999" id="capMidi" value="${state.defaults.midi}" />
+            <span class="adm-settings-capunit">couverts</span>
+          </label>
+          <label class="adm-settings-capfield">
+            <span>Soir</span>
+            <input type="number" min="0" max="999" id="capSoir" value="${state.defaults.soir}" />
+            <span class="adm-settings-capunit">couverts</span>
+          </label>
+        </div>
+        <button class="adm-btn adm-btn--success adm-btn--full" type="button" id="saveCapBtn">Enregistrer</button>
+        <p class="adm-settings-saved" id="capSaved" hidden>✓ Enregistré</p>
+      </div>
 
       <div class="adm-settings-section">
         <p class="adm-settings-label">Notifications push</p>
@@ -338,7 +361,29 @@
         <button class="adm-btn adm-btn--danger adm-btn--full" type="button" id="signoutBtn">Se déconnecter</button>
       </div>
 
-      <p class="adm-settings-version">La Petite Auberge de Flo · Tableau de bord chef · v1.0</p>`;
+      <p class="adm-settings-version">La Petite Auberge de Flo · Tableau de bord chef · v1.1</p>`;
+
+    // Save default capacity
+    $('#saveCapBtn').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const midi = parseInt($('#capMidi').value, 10) || 0;
+      const soir = parseInt($('#capSoir').value, 10) || 0;
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Enregistrement…';
+      try {
+        await setDefaultCapacities({ midi, soir });
+        state.defaults = { midi, soir };
+        $('#capSaved').hidden = false;
+        setTimeout(() => { $('#capSaved').hidden = true; }, 2000);
+        refresh(); // re-render dashboard with new caps
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
 
     $('[data-push-action]')?.addEventListener('click', async (e) => {
       const action = e.currentTarget.dataset.pushAction;
@@ -392,7 +437,15 @@
   // ---------- Data fetch + render ----------
   async function refresh() {
     try {
-      state.reservations = await listReservations();
+      const today = new Date().toISOString().slice(0, 10);
+      const [reservations, ovResp, defaults] = await Promise.all([
+        listReservations(),
+        supabase.from('service_overrides').select('*').gte('date', today),
+        getDefaultCapacities(),
+      ]);
+      state.reservations = reservations;
+      state.overrides    = ovResp.data || [];
+      state.defaults     = defaults;
     } catch (e) {
       console.error(e);
       renderEmpty('Erreur', 'Impossible de charger les réservations : ' + e.message);
@@ -401,6 +454,17 @@
     renderSummary();
     renderCounts();
     renderList();
+  }
+
+  // Helper : pour une date + service, retourne { current, max, closed }
+  function capacityFor(date, service) {
+    const current = state.reservations
+      .filter(r => r.date === date && r.service === service && (r.status === 'en_attente' || r.status === 'confirmee'))
+      .reduce((s, r) => s + r.guests, 0);
+    const ov = state.overrides.find(o => o.date === date && o.service === service);
+    const max    = ov?.max_couverts ?? state.defaults[service];
+    const closed = ov?.manually_closed === true;
+    return { current, max, closed };
   }
 
   function isToday(d) {
@@ -497,17 +561,48 @@
       else                        { label = dayFmt.format(new Date(date)).replace(/^./, c => c.toUpperCase()); sub = ''; }
 
       const cards = list.map(cardHtml).join('');
+      const midi = capacityFor(date, 'midi');
+      const soir = capacityFor(date, 'soir');
       return `
         <section class="adm-day">
           <header class="adm-day__header">
             <h2 class="adm-day__title">${label}${sub ? `<span class="adm-day__date">${sub}</span>` : ''}</h2>
             <div class="adm-day__meta"><strong>${list.length} réservation${list.length > 1 ? 's' : ''}</strong> · ${guests} couvert${guests > 1 ? 's' : ''}</div>
           </header>
+          <div class="adm-capacity">
+            ${capacityChipHtml(date, 'midi', midi)}
+            ${capacityChipHtml(date, 'soir', soir)}
+          </div>
           <div class="adm-cards">${cards}</div>
         </section>`;
     }).join('');
 
     $('#dashList').innerHTML = html;
+  }
+
+  // Per-day capacity chip with toggle "Ouvert / Complet"
+  function capacityChipHtml(date, service, cap) {
+    const { current, max, closed } = cap;
+    const full   = max != null && current >= max;
+    const isFull = closed || full;
+    const cls    = isFull ? 'adm-cap--full' : (max != null && current / max >= 0.85 ? 'adm-cap--warn' : 'adm-cap--ok');
+    const label  = service === 'midi' ? 'Midi' : 'Soir';
+    const stateLabel = closed ? 'Complet (manuel)' : (full ? 'Complet (capacité)' : `${current}/${max ?? '∞'} couverts`);
+    const btnLabel   = closed ? 'Rouvrir' : 'Marquer complet';
+    return `
+      <div class="adm-cap ${cls}">
+        <div class="adm-cap__head">
+          <span class="adm-cap__service">${label}</span>
+          <span class="adm-cap__count">${stateLabel}</span>
+        </div>
+        <button class="adm-cap__btn" type="button"
+                data-cap-action="toggle"
+                data-cap-date="${date}"
+                data-cap-service="${service}"
+                data-cap-closed="${closed}">
+          ${btnLabel}
+        </button>
+      </div>`;
   }
 
   // ---------- Helpers ----------
@@ -573,6 +668,27 @@
         <div class="adm-card__actions">${actions}</div>
       </article>`;
   }
+
+  // ---------- Capacity toggle (Ouvert ↔ Complet) ----------
+  document.addEventListener('click', async (e) => {
+    const cap = e.target.closest('[data-cap-action="toggle"]');
+    if (!cap) return;
+    e.stopPropagation();
+    const date    = cap.dataset.capDate;
+    const service = cap.dataset.capService;
+    const wasClosed = cap.dataset.capClosed === 'true';
+    cap.disabled = true;
+    const original = cap.textContent.trim();
+    cap.textContent = wasClosed ? 'Réouverture…' : 'Fermeture…';
+    try {
+      await setServiceClosed(date, service, !wasClosed);
+      await refresh();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+      cap.disabled = false;
+      cap.textContent = original;
+    }
+  });
 
   // ---------- Card actions (event delegation) ----------
   document.addEventListener('click', async (e) => {

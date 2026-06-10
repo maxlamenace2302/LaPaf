@@ -624,6 +624,47 @@
     const ORIG_COUNT = originals.length;
     if (ORIG_COUNT === 0) return;
 
+    // ---- AUTO-DETECT EVENT MEDIA ----
+    // For each event, try to load assets/events/<slug>.jpg then .mp4.
+    // If found, the gradient art panel gets a real photo or autoplay video
+    // overlay. If neither exists, the elegant gradient + icon stays as-is.
+    // ⇒ Just drop the file at the expected path, no HTML edit needed.
+    const tryMedia = (card) => {
+      const slug = card.dataset.event;
+      if (!slug) return;
+      const art = card.querySelector('.event-card__art');
+      if (!art) return;
+      // First, try image
+      const img = new Image();
+      img.onload = () => {
+        art.style.backgroundImage =
+          `linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(58,26,42,0.7) 100%), url("assets/events/${slug}.jpg")`;
+        art.style.backgroundSize = 'cover';
+        art.style.backgroundPosition = 'center';
+        art.style.backgroundRepeat = 'no-repeat';
+        art.classList.add('event-card__art--has-media');
+      };
+      img.onerror = () => {
+        // No image → try video
+        fetch(`assets/events/${slug}.mp4`, { method: 'HEAD' }).then(r => {
+          if (!r.ok) return;
+          const video = document.createElement('video');
+          video.src = `assets/events/${slug}.mp4`;
+          video.autoplay = true;
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.preload = 'metadata';
+          video.className = 'event-card__video';
+          // Insert at the bottom of the art panel; the icon + tag stay on top
+          art.insertBefore(video, art.firstChild);
+          art.classList.add('event-card__art--has-media');
+        }).catch(() => {});
+      };
+      img.src = `assets/events/${slug}.jpg`;
+    };
+    originals.forEach(tryMedia);
+
     // Triple the cards: [pre | active | post] for silent wrap-around.
     originals.forEach(c => {
       const clone = c.cloneNode(true);
@@ -839,35 +880,103 @@
     viewport.addEventListener('mouseenter', () => { bumpInteract(); });
 
     // ---- Drag ----
-    let startX = 0, startScroll = 0;
-    const onDown = (e) => {
+    // On TOUCH, we MUST detect the gesture direction before committing to a
+    // horizontal drag, otherwise vertical scrolls inside the carousel area
+    // get blocked (= the whole page becomes un-scrollable on mobile).
+    //
+    //   • finger moves mostly horizontally → take over, scroll the carousel
+    //   • finger moves mostly vertically   → release, let the page scroll
+    //
+    // For mouse drag we commit immediately (no scroll conflict).
+    const DIR_THRESHOLD = 8; // px before we decide direction
+    let startX = 0, startY = 0, startScroll = 0;
+    let touchDirection = null; // 'horizontal' | 'vertical' | null (touch only)
+
+    const onDownMouse = (e) => {
       isDown = true;
       snapTarget = null;
       bumpInteract();
       viewport.classList.add('is-dragging');
-      startX = (e.touches ? e.touches[0].pageX : e.pageX);
+      startX = e.pageX;
       startScroll = viewport.scrollLeft;
     };
-    const onMove = (e) => {
+    const onMoveMouse = (e) => {
       if (!isDown) return;
       e.preventDefault?.();
-      const x = (e.touches ? e.touches[0].pageX : e.pageX);
-      viewport.scrollLeft = startScroll - (x - startX);
+      viewport.scrollLeft = startScroll - (e.pageX - startX);
     };
-    const onUp = () => {
+    const onUpMouse = () => {
       if (!isDown) return;
       isDown = false;
       viewport.classList.remove('is-dragging');
       maybeWrap();
-      // No auto-snap on release — the carousel keeps free-flowing like the
-      // 21st.dev reference. Continuous drift resumes after the cooldown.
     };
-    viewport.addEventListener('mousedown', onDown);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    viewport.addEventListener('touchstart', onDown, { passive: true });
-    viewport.addEventListener('touchmove', onMove, { passive: false });
-    viewport.addEventListener('touchend', onUp);
+
+    const onTouchStart = (e) => {
+      // Just record the start — don't commit yet, don't bumpInteract yet.
+      // If the user is trying to scroll the page, we must stay invisible.
+      startX = e.touches[0].pageX;
+      startY = e.touches[0].pageY;
+      startScroll = viewport.scrollLeft;
+      touchDirection = null;
+      isDown = false;
+    };
+    const onTouchMove = (e) => {
+      const x = e.touches[0].pageX;
+      const y = e.touches[0].pageY;
+      const dx = x - startX;
+      const dy = y - startY;
+
+      // First-pass direction detection
+      if (touchDirection === null) {
+        if (Math.abs(dx) < DIR_THRESHOLD && Math.abs(dy) < DIR_THRESHOLD) {
+          // Not enough movement yet — wait. Don't preventDefault.
+          return;
+        }
+        if (Math.abs(dx) > Math.abs(dy)) {
+          touchDirection = 'horizontal';
+          isDown = true;
+          snapTarget = null;
+          bumpInteract();
+          viewport.classList.add('is-dragging');
+          // Reset start to the point where horizontal commitment happened
+          startX = x;
+          startScroll = viewport.scrollLeft;
+        } else {
+          // VERTICAL gesture → let the page scroll. Mark as 'vertical' so we
+          // don't reconsider on subsequent moves of the same touch.
+          touchDirection = 'vertical';
+          return;
+        }
+      }
+
+      if (touchDirection === 'horizontal' && isDown) {
+        // Now it's safe to claim the gesture
+        e.preventDefault();
+        viewport.scrollLeft = startScroll - (x - startX);
+      }
+      // touchDirection === 'vertical' → silently let the page scroll
+    };
+    const onTouchEnd = () => {
+      if (isDown) {
+        isDown = false;
+        viewport.classList.remove('is-dragging');
+        maybeWrap();
+      }
+      touchDirection = null;
+    };
+
+    viewport.addEventListener('mousedown', onDownMouse);
+    window.addEventListener('mousemove', onMoveMouse);
+    window.addEventListener('mouseup', onUpMouse);
+    // touchstart MUST stay passive — the moment we say non-passive here,
+    // iOS Safari delays the first frame waiting for a possible preventDefault.
+    viewport.addEventListener('touchstart', onTouchStart, { passive: true });
+    // touchmove non-passive so we can preventDefault ONLY when we've decided
+    // the gesture is horizontal. Vertical gestures pass through untouched.
+    viewport.addEventListener('touchmove', onTouchMove, { passive: false });
+    viewport.addEventListener('touchend', onTouchEnd);
+    viewport.addEventListener('touchcancel', onTouchEnd);
 
     // Always consider visible — the rAF naturally throttles to ~60fps and the
     // transforms cost almost nothing for 15 cards. Saves us a flaky IO that
@@ -914,6 +1023,44 @@
     btn.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+  })();
+
+  // ====== FORMULES — Hover spotlight + scroll-triggered reveal ======
+  // Inspired by 21st.dev "pricing-section-4": cards reveal in a stagger,
+  // lift on hover, and a coral spotlight follows the cursor across them.
+  (function() {
+    const cards = document.querySelectorAll('.formule');
+    if (!cards.length) return;
+
+    // Cursor spotlight via CSS custom properties --mx / --my
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top)  + 'px');
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--mx', '50%');
+        card.style.setProperty('--my', '50%');
+      });
+    });
+
+    // Staggered entrance via IntersectionObserver
+    if (!('IntersectionObserver' in window)) {
+      cards.forEach(c => c.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+    cards.forEach(c => io.observe(c));
+    // Safety: ensure all are visible even if IO stalls (some preview iframes)
+    setTimeout(() => cards.forEach(c => c.classList.add('is-visible')), 2200);
   })();
 
   // ====== CIRCULAR REVEAL HEADING (Menu du jour banner) ======

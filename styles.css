@@ -816,11 +816,50 @@ p { margin: 0 0 1rem; }
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: transform .3s, box-shadow .3s;
+  overflow: hidden;
+  isolation: isolate;
+  /* Entrance state — revealed by .is-visible (IntersectionObserver) */
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .8s cubic-bezier(.4, 0, .2, 1),
+              transform .8s cubic-bezier(.4, 0, .2, 1),
+              box-shadow .35s cubic-bezier(.4, 0, .2, 1),
+              border-color .35s;
+  will-change: transform, opacity;
 }
-.formule:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 25px 50px -25px rgba(58,26,42,0.35);
+.formule.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.formule:nth-child(1).is-visible { transition-delay: 0ms,   0ms,   0s, 0s; }
+.formule:nth-child(2).is-visible { transition-delay: 80ms,  80ms,  0s, 0s; }
+.formule:nth-child(3).is-visible { transition-delay: 160ms, 160ms, 0s, 0s; }
+.formule:nth-child(4).is-visible { transition-delay: 240ms, 240ms, 0s, 0s; }
+
+/* Cursor-following spotlight */
+.formule::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    520px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(230, 57, 70, 0.14),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.formule:hover::before { opacity: 1; }
+.formule > * { position: relative; z-index: 1; }
+
+.formule.is-visible:hover {
+  transform: translateY(-10px) scale(1.012);
+  box-shadow: 0 35px 60px -25px rgba(58, 26, 42, 0.4),
+              0 12px 22px -10px rgba(230, 57, 70, 0.12);
+  border-color: rgba(230, 57, 70, 0.25);
+  transition-delay: 0s !important;
 }
 
 .formule__tag {
@@ -888,6 +927,37 @@ p { margin: 0 0 1rem; }
   background: linear-gradient(160deg, var(--coral) 0%, var(--coral-deep) 100%);
   color: #fff;
   border-color: var(--coral);
+}
+.formule--feature::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 25%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 75%
+  );
+  background-size: 250% 100%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: feature-shimmer 4.5s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes feature-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.formule--feature::before {
+  background: radial-gradient(
+    520px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.18),
+    transparent 55%
+  );
 }
 .formule--feature h3 { color: #fff; }
 .formule--feature .formule__tag {
@@ -1143,6 +1213,41 @@ p { margin: 0 0 1rem; }
 }
 .event-card__art--foie-gras {
   background: linear-gradient(135deg, #B8884A 0%, #5C3614 100%);
+}
+
+/* When a real photo or video is attached to the art panel, mute the icon
+   pattern and let the media breathe. The tag stays clearly readable. */
+.event-card__art--has-media::before {
+  display: none; /* drop the diagonal pattern overlay */
+}
+.event-card__art--has-media .event-card__icon {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.event-card__art--has-media .event-card__tag {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Inline autoplay video — fills the art panel under the icon/tag */
+.event-card__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  /* Overlay applied via box-shadow so the icon/tag stay legible */
+  filter: brightness(0.78) saturate(1.05);
+}
+.event-card__art--has-media .event-card__icon,
+.event-card__art--has-media .event-card__tag {
+  position: relative;
+  z-index: 2;
 }
 
 .event-card__icon {

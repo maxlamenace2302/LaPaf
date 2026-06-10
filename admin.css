@@ -447,6 +447,78 @@ body.adminpage {
 }
 
 /* ============================================================
+   CAPACITY CHIPS (per-day per-service Midi / Soir)
+   ============================================================ */
+.adm-capacity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .65rem;
+  margin-bottom: 1rem;
+}
+.adm-cap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .7rem .9rem;
+  border-radius: 10px;
+  border: 1.5px solid;
+  font-family: var(--f-sans);
+}
+.adm-cap__head {
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+  min-width: 0;
+}
+.adm-cap__service {
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.adm-cap__count {
+  font-size: .9rem;
+  font-weight: 600;
+}
+.adm-cap__btn {
+  flex-shrink: 0;
+  padding: .45rem .8rem;
+  border-radius: 6px;
+  border: 1.5px solid;
+  background: transparent;
+  font-family: var(--f-sans);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.adm-cap__btn:active { transform: scale(.97); }
+
+.adm-cap--ok   { background: var(--adm-success-soft); border-color: rgba(45, 134, 89, .25); }
+.adm-cap--ok   .adm-cap__service { color: #246d49; }
+.adm-cap--ok   .adm-cap__count   { color: var(--ink); }
+.adm-cap--ok   .adm-cap__btn     { color: var(--adm-success); border-color: var(--adm-success); }
+.adm-cap--ok   .adm-cap__btn:hover { background: var(--adm-success); color: #fff; }
+
+.adm-cap--warn { background: var(--adm-warning-soft); border-color: rgba(179, 107, 0, .3); }
+.adm-cap--warn .adm-cap__service { color: var(--adm-warning); }
+.adm-cap--warn .adm-cap__count   { color: var(--ink); }
+.adm-cap--warn .adm-cap__btn     { color: var(--adm-warning); border-color: var(--adm-warning); }
+.adm-cap--warn .adm-cap__btn:hover { background: var(--adm-warning); color: #fff; }
+
+.adm-cap--full { background: var(--adm-danger-soft); border-color: rgba(196, 43, 56, .3); }
+.adm-cap--full .adm-cap__service { color: var(--adm-danger); }
+.adm-cap--full .adm-cap__count   { color: var(--adm-danger); font-weight: 700; }
+.adm-cap--full .adm-cap__btn     { color: var(--adm-success); border-color: var(--adm-success); background: #fff; }
+.adm-cap--full .adm-cap__btn:hover { background: var(--adm-success); color: #fff; }
+
+@media (max-width: 480px) {
+  .adm-capacity { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
    RESERVATION CARDS
    ============================================================ */
 .adm-cards {
@@ -956,6 +1028,74 @@ body.adminpage {
   color: var(--ink-soft);
   line-height: 1.45;
 }
+.adm-settings-help {
+  font-family: var(--f-sans);
+  font-size: .82rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 0 0 .85rem;
+}
+.adm-settings-help em {
+  font-style: italic;
+  color: var(--ink);
+}
+.adm-settings-capacity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+  margin-bottom: .85rem;
+}
+.adm-settings-capfield {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: .75rem;
+  background: var(--cream-2);
+  border-radius: 8px;
+  font-family: var(--f-sans);
+}
+.adm-settings-capfield > span:first-child {
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.adm-settings-capfield input {
+  font-family: var(--f-sans);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+  -moz-appearance: textfield;
+}
+.adm-settings-capfield input::-webkit-outer-spin-button,
+.adm-settings-capfield input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.adm-settings-capfield input:focus {
+  outline: none;
+  color: var(--coral-deep);
+}
+.adm-settings-capunit {
+  font-size: .72rem;
+  color: var(--ink-soft);
+  letter-spacing: .04em;
+}
+.adm-settings-saved {
+  text-align: center;
+  margin-top: .65rem;
+  font-family: var(--f-sans);
+  font-size: .85rem;
+  color: var(--adm-success);
+  font-weight: 600;
+}
+
 .adm-settings-version {
   text-align: center;
   margin-top: 2rem;
