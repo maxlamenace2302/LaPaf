@@ -1219,9 +1219,6 @@ html.js-ready .formule:nth-child(4).is-visible { transition-delay: 270ms; }
     radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22), transparent 55%),
     linear-gradient(135deg, var(--coral) 0%, var(--coral-deep) 100%);
   color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
 }
 .event-card__art::before {
@@ -1248,6 +1245,9 @@ html.js-ready .formule:nth-child(4).is-visible { transition-delay: 270ms; }
 .event-card__art--foie-gras {
   background: linear-gradient(135deg, #B8884A 0%, #5C3614 100%);
 }
+.event-card__art--cochon {
+  background: linear-gradient(135deg, #C97B5B 0%, #6A2A18 100%);
+}
 
 /* When a real photo or video is attached to the art panel, mute the icon
    pattern and let the media breathe. The tag stays clearly readable. */
@@ -1267,53 +1267,62 @@ html.js-ready .formule:nth-child(4).is-visible { transition-delay: 270ms; }
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Inline autoplay video — fills the art panel under the icon/tag */
+/* Inline autoplay video — sits in the art panel under the badges.
+   `contain` shows the FULL video frame instead of cropping it (the
+   foie-gras shot was portrait and getting heavily zoomed with `cover`).
+   The card background still fills the unused edges with the gradient. */
 .event-card__video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   z-index: 0;
-  /* Overlay applied via box-shadow so the icon/tag stay legible */
-  filter: brightness(0.78) saturate(1.05);
-}
-.event-card__art--has-media .event-card__icon,
-.event-card__art--has-media .event-card__tag {
-  position: relative;
-  z-index: 2;
+  background: rgba(0, 0, 0, 0.25); /* dark inner frame so contain "bars"
+                                      look intentional, not bug-ish */
+  filter: brightness(1) saturate(1);
 }
 
+/* Badge icon in the top-right corner — small, glassy, doesn't fight
+   with the photo behind. Replaces the big centered medallion that
+   was masking the visuals. */
 .event-card__icon {
-  position: relative;
-  width: 130px;
-  height: 130px;
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.14);
-  border: 1.5px solid rgba(255,255,255,0.36);
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 14px 30px -8px rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.35);
+  z-index: 3;
 }
-.event-card__icon svg { width: 60px; height: 60px; }
+.event-card__icon svg { width: 22px; height: 22px; }
 
 .event-card__tag {
   position: absolute;
   top: 1rem;
   left: 1rem;
+  z-index: 3;
   font-family: var(--f-sans);
   font-size: 0.68rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(0,0,0,0.32);
+  border: 1px solid rgba(255,255,255,0.4);
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   color: #fff;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .event-card__body {

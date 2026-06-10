@@ -339,8 +339,14 @@
 
         <article class="event-card" data-event="basque">
           <div class="event-card__art event-card__art--basque">
-            <span class="event-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M12 2 2 22h20L12 2zm0 5 6.5 13h-13L12 7z"/></svg>
+            <span class="event-card__icon" aria-hidden="true" title="Croix basque (lauburu)">
+              <!-- Lauburu : 4-armed Basque cross -->
+              <svg viewBox="0 0 64 64" width="32" height="32" fill="currentColor">
+                <path d="M32 32 L32 6 Q26 6 26 12 L26 26 L12 26 Q6 26 6 32 Z"/>
+                <path d="M32 32 L58 32 Q58 26 52 26 L38 26 L38 12 Q38 6 32 6 Z"/>
+                <path d="M32 32 L32 58 Q38 58 38 52 L38 38 L52 38 Q58 38 58 32 Z"/>
+                <path d="M32 32 L6 32 Q6 38 12 38 L26 38 L26 52 Q26 58 32 58 Z"/>
+              </svg>
             </span>
             <span class="event-card__tag" data-i18n="events.basque.tag">Une fois en été</span>
           </div>
@@ -352,13 +358,17 @@
 
         <article class="event-card" data-event="huitres">
           <div class="event-card__art event-card__art--huitres">
-            <span class="event-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M12 2C6.5 2 2 6 2 11c0 4.6 4 8.5 9 9v2h2v-2c5-.5 9-4.4 9-9 0-5-4.5-9-10-9zm0 3a7 7 0 0 1 7 6c0 3.7-3.4 6.5-7 6.5S5 14.7 5 11a7 7 0 0 1 7-6zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+            <span class="event-card__icon" aria-hidden="true" title="Vague">
+              <!-- Wave : two stacked sine curves -->
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 9 C4 6, 6 6, 8 9 S12 12, 14 9 S18 6, 20 9 S22 9, 22 9"/>
+                <path d="M2 15 C4 12, 6 12, 8 15 S12 18, 14 15 S18 12, 20 15 S22 15, 22 15"/>
+              </svg>
             </span>
             <span class="event-card__tag" data-i18n="events.huitres.tag">Pendant les fêtes</span>
           </div>
           <div class="event-card__body">
-            <h3 data-i18n="events.huitres.name">Soirée Huîtres</h3>
+            <h3 data-i18n="events.huitres.name">Huitre</h3>
             <p data-i18n="events.huitres.desc">Dégustation d'huîtres fraîches arrivées du matin, accompagnées d'un verre de vin blanc sec — l'instant iodé de l'hiver.</p>
           </div>
         </article>
@@ -366,13 +376,30 @@
         <article class="event-card" data-event="foie-gras">
           <div class="event-card__art event-card__art--foie-gras">
             <span class="event-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M12 2.5c-2.6 0-4.7 1.4-5.8 3.4C4.8 6 3.7 6.6 3 7.7 2 9.4 2.1 11.6 3.2 13.2c.4.6 1 1 1.6 1.3-.2 1.7.4 3.5 1.8 4.7C7.9 20.5 9.9 21.5 12 21.5s4.1-1 5.4-2.3c1.4-1.2 2-3 1.8-4.7.6-.3 1.2-.7 1.6-1.3 1.1-1.6 1.2-3.8.2-5.5-.7-1.1-1.8-1.7-3.2-1.8C16.7 3.9 14.6 2.5 12 2.5zm-2.5 8.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M12 2.5c-2.6 0-4.7 1.4-5.8 3.4C4.8 6 3.7 6.6 3 7.7 2 9.4 2.1 11.6 3.2 13.2c.4.6 1 1 1.6 1.3-.2 1.7.4 3.5 1.8 4.7C7.9 20.5 9.9 21.5 12 21.5s4.1-1 5.4-2.3c1.4-1.2 2-3 1.8-4.7.6-.3 1.2-.7 1.6-1.3 1.1-1.6 1.2-3.8.2-5.5-.7-1.1-1.8-1.7-3.2-1.8C16.7 3.9 14.6 2.5 12 2.5zm-2.5 8.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg>
             </span>
             <span class="event-card__tag" data-i18n="events.foiegras.tag">Pendant les fêtes</span>
           </div>
           <div class="event-card__body">
-            <h3 data-i18n="events.foiegras.name">Soirée Foie Gras</h3>
+            <h3 data-i18n="events.foiegras.name">Foie gras</h3>
             <p data-i18n="events.foiegras.desc">Foie gras mi-cuit, chutney de figues et pain d'épices toasté — la soirée gourmande de l'année, à partager au coin du feu.</p>
+          </div>
+        </article>
+
+        <article class="event-card" data-event="cochon">
+          <div class="event-card__art event-card__art--cochon">
+            <span class="event-card__icon" aria-hidden="true" title="Flamme">
+              <!-- Flame : cochon à la broche -->
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                <path d="M12 2c0 3-3 4.5-3 7.5 0 1.2.6 2 1.4 2.5-.4-1.5.6-2.6 1.6-2.6.8 0 1.5.6 1.5 1.5 0 1.2-1 1.6-1 2.6 0 .9.7 1.5 1.5 1.5 1.1 0 2.5-.8 2.5-3 0-2.5-2-4-2-7 0-1.5.8-2.5 1-3-1 .4-2 1-3 2-1 1-1.5 2-1.5 3.5C10 6 12 4.5 12 2z"/>
+                <path d="M8 13c-1.5 0-3 1.2-3 3.5C5 19 7 21 12 21s7-2 7-4.5c0-2-1-3-2-3.5-.4 1.2-1.5 2-3 2-2 0-3-1.5-3-3 0-.4.1-.7.2-1-1.5.2-2.7 1-3.2 2z"/>
+              </svg>
+            </span>
+            <span class="event-card__tag" data-i18n="events.cochon.tag">Une fois en été</span>
+          </div>
+          <div class="event-card__body">
+            <h3 data-i18n="events.cochon.name">Soirée Cochon</h3>
+            <p data-i18n="events.cochon.desc">Cochon rôti à la broche, pommes sarladaises et confitures maison — un festin convivial à partager en grande tablée.</p>
           </div>
         </article>
 
@@ -388,8 +415,9 @@
     <button class="events__dot is-active" data-event-go="0" aria-label="Aller à Karaoké"></button>
     <button class="events__dot" data-event-go="1" aria-label="Aller à Paella"></button>
     <button class="events__dot" data-event-go="2" aria-label="Aller à Basque"></button>
-    <button class="events__dot" data-event-go="3" aria-label="Aller à Huîtres"></button>
-    <button class="events__dot" data-event-go="4" aria-label="Aller à Foie Gras"></button>
+    <button class="events__dot" data-event-go="3" aria-label="Aller à Huitre"></button>
+    <button class="events__dot" data-event-go="4" aria-label="Aller à Foie gras"></button>
+    <button class="events__dot" data-event-go="5" aria-label="Aller à Soirée Cochon"></button>
   </div>
 
   <p class="events__note">
@@ -624,47 +652,6 @@
     const ORIG_COUNT = originals.length;
     if (ORIG_COUNT === 0) return;
 
-    // ---- AUTO-DETECT EVENT MEDIA ----
-    // For each event, try to load assets/events/<slug>.jpg then .mp4.
-    // If found, the gradient art panel gets a real photo or autoplay video
-    // overlay. If neither exists, the elegant gradient + icon stays as-is.
-    // ⇒ Just drop the file at the expected path, no HTML edit needed.
-    const tryMedia = (card) => {
-      const slug = card.dataset.event;
-      if (!slug) return;
-      const art = card.querySelector('.event-card__art');
-      if (!art) return;
-      // First, try image
-      const img = new Image();
-      img.onload = () => {
-        art.style.backgroundImage =
-          `linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(58,26,42,0.7) 100%), url("assets/events/${slug}.jpg")`;
-        art.style.backgroundSize = 'cover';
-        art.style.backgroundPosition = 'center';
-        art.style.backgroundRepeat = 'no-repeat';
-        art.classList.add('event-card__art--has-media');
-      };
-      img.onerror = () => {
-        // No image → try video
-        fetch(`assets/events/${slug}.mp4`, { method: 'HEAD' }).then(r => {
-          if (!r.ok) return;
-          const video = document.createElement('video');
-          video.src = `assets/events/${slug}.mp4`;
-          video.autoplay = true;
-          video.muted = true;
-          video.loop = true;
-          video.playsInline = true;
-          video.preload = 'metadata';
-          video.className = 'event-card__video';
-          // Insert at the bottom of the art panel; the icon + tag stay on top
-          art.insertBefore(video, art.firstChild);
-          art.classList.add('event-card__art--has-media');
-        }).catch(() => {});
-      };
-      img.src = `assets/events/${slug}.jpg`;
-    };
-    originals.forEach(tryMedia);
-
     // Triple the cards: [pre | active | post] for silent wrap-around.
     originals.forEach(c => {
       const clone = c.cloneNode(true);
@@ -683,6 +670,56 @@
     const dots = Array.from(document.querySelectorAll('[data-event-go]'));
     const prevBtn = document.querySelector('[data-events-prev]');
     const nextBtn = document.querySelector('[data-events-next]');
+
+    // ---- AUTO-DETECT EVENT MEDIA ----
+    // For each unique event slug, try assets/events/<slug>.jpg then .mp4.
+    // If found, every copy (pre / middle / post) of that event card gets
+    // the photo background or autoplay video. No HTML edit needed — just
+    // drop a file at assets/events/<slug>.jpg (or .mp4) and it appears.
+    const applyImageToSlug = (slug, url) => {
+      track.querySelectorAll(`.event-card[data-event="${slug}"] .event-card__art`).forEach(art => {
+        art.style.backgroundImage =
+          `linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(58,26,42,0.7) 100%), url("${url}")`;
+        art.style.backgroundSize = 'cover';
+        art.style.backgroundPosition = 'center';
+        art.style.backgroundRepeat = 'no-repeat';
+        art.classList.add('event-card__art--has-media');
+      });
+    };
+    const applyVideoToSlug = (slug, url) => {
+      track.querySelectorAll(`.event-card[data-event="${slug}"] .event-card__art`).forEach(art => {
+        // Each card needs its own <video> element (DOM nodes can't be shared)
+        const video = document.createElement('video');
+        video.src = url;
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.className = 'event-card__video';
+        art.insertBefore(video, art.firstChild);
+        art.classList.add('event-card__art--has-media');
+        // Older mobile Safari sometimes needs an explicit play() after insert
+        const tryPlay = () => video.play().catch(() => {});
+        if (video.readyState >= 2) tryPlay();
+        else video.addEventListener('loadeddata', tryPlay, { once: true });
+      });
+    };
+    const tryMediaForSlug = (slug) => {
+      const imgUrl = `assets/events/${slug}.jpg`;
+      const img = new Image();
+      img.onload = () => applyImageToSlug(slug, imgUrl);
+      img.onerror = () => {
+        const vidUrl = `assets/events/${slug}.mp4`;
+        fetch(vidUrl, { method: 'HEAD' })
+          .then(r => { if (r.ok) applyVideoToSlug(slug, vidUrl); })
+          .catch(() => {});
+      };
+      img.src = imgUrl;
+    };
+    // Unique slugs from the originals
+    const uniqueSlugs = [...new Set(originals.map(c => c.dataset.event).filter(Boolean))];
+    uniqueSlugs.forEach(tryMediaForSlug);
 
     // ---- Continuous rotation params (Circular Gallery — 21st.dev feel) ----
     const VELOCITY = 26;                // px / second of constant drift — slow & cinematic
@@ -1031,8 +1068,9 @@
       });
     }, { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
     photos.forEach(p => io.observe(p));
-    // Safety in case IO stalls (preview iframes)
-    setTimeout(() => photos.forEach(p => p.classList.add('is-revealed')), 2500);
+    // Last-resort safety net (broken JS / ancient browser only). 10 s is
+    // generous on purpose — real users will have triggered IO long before.
+    setTimeout(() => photos.forEach(p => p.classList.add('is-revealed')), 10000);
   })();
 
   // ====== HERO PARALLAX (osmosupply style) ======
@@ -1141,8 +1179,8 @@
       });
     }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
     cards.forEach(c => io.observe(c));
-    // Safety: ensure all are visible even if IO stalls (some preview iframes)
-    setTimeout(() => cards.forEach(c => c.classList.add('is-visible')), 2200);
+    // Last-resort safety net (broken JS / ancient browser only).
+    setTimeout(() => cards.forEach(c => c.classList.add('is-visible')), 10000);
   })();
 
   // ====== CIRCULAR REVEAL HEADING (Menu du jour banner) ======
