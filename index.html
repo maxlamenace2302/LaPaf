@@ -624,47 +624,6 @@
     const ORIG_COUNT = originals.length;
     if (ORIG_COUNT === 0) return;
 
-    // ---- AUTO-DETECT EVENT MEDIA ----
-    // For each event, try to load assets/events/<slug>.jpg then .mp4.
-    // If found, the gradient art panel gets a real photo or autoplay video
-    // overlay. If neither exists, the elegant gradient + icon stays as-is.
-    // ⇒ Just drop the file at the expected path, no HTML edit needed.
-    const tryMedia = (card) => {
-      const slug = card.dataset.event;
-      if (!slug) return;
-      const art = card.querySelector('.event-card__art');
-      if (!art) return;
-      // First, try image
-      const img = new Image();
-      img.onload = () => {
-        art.style.backgroundImage =
-          `linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(58,26,42,0.7) 100%), url("assets/events/${slug}.jpg")`;
-        art.style.backgroundSize = 'cover';
-        art.style.backgroundPosition = 'center';
-        art.style.backgroundRepeat = 'no-repeat';
-        art.classList.add('event-card__art--has-media');
-      };
-      img.onerror = () => {
-        // No image → try video
-        fetch(`assets/events/${slug}.mp4`, { method: 'HEAD' }).then(r => {
-          if (!r.ok) return;
-          const video = document.createElement('video');
-          video.src = `assets/events/${slug}.mp4`;
-          video.autoplay = true;
-          video.muted = true;
-          video.loop = true;
-          video.playsInline = true;
-          video.preload = 'metadata';
-          video.className = 'event-card__video';
-          // Insert at the bottom of the art panel; the icon + tag stay on top
-          art.insertBefore(video, art.firstChild);
-          art.classList.add('event-card__art--has-media');
-        }).catch(() => {});
-      };
-      img.src = `assets/events/${slug}.jpg`;
-    };
-    originals.forEach(tryMedia);
-
     // Triple the cards: [pre | active | post] for silent wrap-around.
     originals.forEach(c => {
       const clone = c.cloneNode(true);
@@ -683,6 +642,56 @@
     const dots = Array.from(document.querySelectorAll('[data-event-go]'));
     const prevBtn = document.querySelector('[data-events-prev]');
     const nextBtn = document.querySelector('[data-events-next]');
+
+    // ---- AUTO-DETECT EVENT MEDIA ----
+    // For each unique event slug, try assets/events/<slug>.jpg then .mp4.
+    // If found, every copy (pre / middle / post) of that event card gets
+    // the photo background or autoplay video. No HTML edit needed — just
+    // drop a file at assets/events/<slug>.jpg (or .mp4) and it appears.
+    const applyImageToSlug = (slug, url) => {
+      track.querySelectorAll(`.event-card[data-event="${slug}"] .event-card__art`).forEach(art => {
+        art.style.backgroundImage =
+          `linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(58,26,42,0.7) 100%), url("${url}")`;
+        art.style.backgroundSize = 'cover';
+        art.style.backgroundPosition = 'center';
+        art.style.backgroundRepeat = 'no-repeat';
+        art.classList.add('event-card__art--has-media');
+      });
+    };
+    const applyVideoToSlug = (slug, url) => {
+      track.querySelectorAll(`.event-card[data-event="${slug}"] .event-card__art`).forEach(art => {
+        // Each card needs its own <video> element (DOM nodes can't be shared)
+        const video = document.createElement('video');
+        video.src = url;
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.className = 'event-card__video';
+        art.insertBefore(video, art.firstChild);
+        art.classList.add('event-card__art--has-media');
+        // Older mobile Safari sometimes needs an explicit play() after insert
+        const tryPlay = () => video.play().catch(() => {});
+        if (video.readyState >= 2) tryPlay();
+        else video.addEventListener('loadeddata', tryPlay, { once: true });
+      });
+    };
+    const tryMediaForSlug = (slug) => {
+      const imgUrl = `assets/events/${slug}.jpg`;
+      const img = new Image();
+      img.onload = () => applyImageToSlug(slug, imgUrl);
+      img.onerror = () => {
+        const vidUrl = `assets/events/${slug}.mp4`;
+        fetch(vidUrl, { method: 'HEAD' })
+          .then(r => { if (r.ok) applyVideoToSlug(slug, vidUrl); })
+          .catch(() => {});
+      };
+      img.src = imgUrl;
+    };
+    // Unique slugs from the originals
+    const uniqueSlugs = [...new Set(originals.map(c => c.dataset.event).filter(Boolean))];
+    uniqueSlugs.forEach(tryMediaForSlug);
 
     // ---- Continuous rotation params (Circular Gallery — 21st.dev feel) ----
     const VELOCITY = 26;                // px / second of constant drift — slow & cinematic
