@@ -280,5 +280,42 @@
 
 </main>
 
+<script>
+  // Same formules reveal + spotlight as the home page — keeps the look
+  // consistent and prevents the cards from staying hidden if JS runs.
+  (function() {
+    const cards = document.querySelectorAll('.formule');
+    if (!cards.length) return;
+    document.documentElement.classList.add('js-ready');
+
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top)  + 'px');
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--mx', '50%');
+        card.style.setProperty('--my', '50%');
+      });
+    });
+
+    if (!('IntersectionObserver' in window)) {
+      cards.forEach(c => c.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+    cards.forEach(c => io.observe(c));
+    setTimeout(() => cards.forEach(c => c.classList.add('is-visible')), 2200);
+  })();
+</script>
+
 </body>
 </html>
