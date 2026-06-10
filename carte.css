@@ -314,3 +314,112 @@ body.cartepage {
   /* Hide elements we don't want printed */
   iframe { display: none !important; }
 }
+
+/* =========================================================
+   ALLERGÈNES — INCO 1169/2011 (mandatory consumer info)
+   ========================================================= */
+.allergens {
+  max-width: var(--container);
+  margin: clamp(3rem, 6vw, 4.5rem) auto 0;
+  padding: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.7), rgba(244, 235, 218, 0.5));
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 18px 40px -25px rgba(58, 26, 42, 0.2);
+}
+
+.allergens__head {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px dashed var(--line-strong);
+}
+.allergens__head h2 {
+  font-family: var(--f-serif);
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--aubergine);
+  margin: 0.3rem 0 0.9rem;
+}
+.allergens__intro {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+  color: var(--ink-soft);
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+.allergens__grid {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.8rem;
+}
+.allergen {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+.allergen:hover {
+  transform: translateY(-2px);
+  border-color: var(--coral);
+  box-shadow: 0 8px 18px -8px rgba(230, 57, 70, 0.25);
+}
+.allergen__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream-2);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.allergen__label {
+  font-family: var(--f-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--aubergine);
+  font-weight: 500;
+}
+
+.allergens__note {
+  text-align: center;
+  margin: 1.5rem 0 0;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--line);
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* Print : keep allergens visible but airier and monochrome */
+@media print {
+  .allergens {
+    background: white;
+    box-shadow: none;
+    border-color: #999;
+    page-break-inside: avoid;
+  }
+  .allergens h2 { color: black; }
+  .allergen {
+    background: white;
+    border: 1px solid #999;
+  }
+  .allergen__icon { background: #f0f0f0; }
+  .allergen__label { color: black; }
+}

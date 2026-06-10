@@ -122,6 +122,14 @@
         <div class="reserve-actions">
           <button type="submit" class="btn btn--solid btn--big" id="reserveSubmit" data-i18n="reserve.submit">Envoyer ma demande</button>
           <p class="reserve-note" data-i18n="reserve.note">Nous confirmons toutes les réservations par téléphone aux horaires d'ouverture.</p>
+
+          <!-- RGPD legal notice — required under articles 13/14 of the GDPR.
+               The link sits OUTSIDE the translated <span> so it survives the
+               innerHTML replacement done by i18n.js when the language changes. -->
+          <p class="reserve-rgpd">
+            <span data-i18n="reserve.rgpd">Les informations collectées sont utilisées uniquement pour traiter votre demande de réservation. Elles sont conservées 12 mois puis supprimées. Conformément au RGPD, vous pouvez à tout moment exercer vos droits d'accès, rectification, suppression et opposition en nous écrivant.</span>
+            <a href="politique-confidentialite.html" data-i18n="reserve.rgpd.link">En savoir plus →</a>
+          </p>
         </div>
 
         <!-- Success message (hidden by default) -->
@@ -175,6 +183,10 @@
       <img src="assets/logo.jpg" alt="Logo La Petite Auberge de Flo" />
       <p>La Petite Auberge de Flo<br /><span data-i18n="footer.subtitle">Cuisine de terroir · Saint-Bonnet-les-Oules</span></p>
     </div>
+    <nav class="footer__legal" aria-label="Liens légaux">
+      <a href="mentions-legales.html" data-i18n="footer.legal.mentions">Mentions légales</a>
+      <a href="politique-confidentialite.html" data-i18n="footer.legal.privacy">Politique de confidentialité</a>
+    </nav>
     <p class="footer__copy">© <span id="year"></span> <span data-i18n="footer.copy">La Petite Auberge de Flo — Tous droits réservés.</span></p>
   </div>
 </footer>

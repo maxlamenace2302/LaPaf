@@ -106,6 +106,84 @@
       Menus disponibles du vendredi soir au dimanche soir — et sur réservation en semaine.
     </p>
 
+    <!-- ALLERGÈNES (règlement UE 1169/2011 dit "INCO") -->
+    <section class="allergens" aria-labelledby="allergens-title">
+      <header class="allergens__head">
+        <p class="eyebrow" data-i18n="allergens.eyebrow">— Information consommateur —</p>
+        <h2 id="allergens-title" data-i18n="allergens.title">Allergènes</h2>
+        <p class="allergens__intro" data-i18n="allergens.intro">
+          Conformément au règlement (UE) n° 1169/2011, nos plats peuvent contenir
+          tout ou partie des 14 allergènes majeurs listés ci-dessous. Pour toute
+          question ou demande spécifique, n'hésitez pas à interpeller notre
+          équipe en salle ou à le préciser lors de votre réservation.
+        </p>
+      </header>
+
+      <ul class="allergens__grid" role="list">
+        <li class="allergen" data-allergen="gluten">
+          <span class="allergen__icon" aria-hidden="true">🌾</span>
+          <span class="allergen__label" data-i18n="allergens.gluten">Gluten</span>
+        </li>
+        <li class="allergen" data-allergen="crustaces">
+          <span class="allergen__icon" aria-hidden="true">🦐</span>
+          <span class="allergen__label" data-i18n="allergens.crustaces">Crustacés</span>
+        </li>
+        <li class="allergen" data-allergen="oeufs">
+          <span class="allergen__icon" aria-hidden="true">🥚</span>
+          <span class="allergen__label" data-i18n="allergens.oeufs">Œufs</span>
+        </li>
+        <li class="allergen" data-allergen="poissons">
+          <span class="allergen__icon" aria-hidden="true">🐟</span>
+          <span class="allergen__label" data-i18n="allergens.poissons">Poissons</span>
+        </li>
+        <li class="allergen" data-allergen="arachides">
+          <span class="allergen__icon" aria-hidden="true">🥜</span>
+          <span class="allergen__label" data-i18n="allergens.arachides">Arachides</span>
+        </li>
+        <li class="allergen" data-allergen="soja">
+          <span class="allergen__icon" aria-hidden="true">🫘</span>
+          <span class="allergen__label" data-i18n="allergens.soja">Soja</span>
+        </li>
+        <li class="allergen" data-allergen="lait">
+          <span class="allergen__icon" aria-hidden="true">🥛</span>
+          <span class="allergen__label" data-i18n="allergens.lait">Lait</span>
+        </li>
+        <li class="allergen" data-allergen="coque">
+          <span class="allergen__icon" aria-hidden="true">🌰</span>
+          <span class="allergen__label" data-i18n="allergens.coque">Fruits à coque</span>
+        </li>
+        <li class="allergen" data-allergen="celeri">
+          <span class="allergen__icon" aria-hidden="true">🥬</span>
+          <span class="allergen__label" data-i18n="allergens.celeri">Céleri</span>
+        </li>
+        <li class="allergen" data-allergen="moutarde">
+          <span class="allergen__icon" aria-hidden="true">🌭</span>
+          <span class="allergen__label" data-i18n="allergens.moutarde">Moutarde</span>
+        </li>
+        <li class="allergen" data-allergen="sesame">
+          <span class="allergen__icon" aria-hidden="true">⚪</span>
+          <span class="allergen__label" data-i18n="allergens.sesame">Sésame</span>
+        </li>
+        <li class="allergen" data-allergen="sulfites">
+          <span class="allergen__icon" aria-hidden="true">🍷</span>
+          <span class="allergen__label" data-i18n="allergens.sulfites">Sulfites</span>
+        </li>
+        <li class="allergen" data-allergen="lupin">
+          <span class="allergen__icon" aria-hidden="true">🌼</span>
+          <span class="allergen__label" data-i18n="allergens.lupin">Lupin</span>
+        </li>
+        <li class="allergen" data-allergen="mollusques">
+          <span class="allergen__icon" aria-hidden="true">🦪</span>
+          <span class="allergen__label" data-i18n="allergens.mollusques">Mollusques</span>
+        </li>
+      </ul>
+
+      <p class="allergens__note" data-i18n="allergens.note">
+        Une fiche détaillée par plat est disponible en salle sur simple demande
+        auprès de notre équipe. Origine de la viande bovine : France.
+      </p>
+    </section>
+
     <!-- À LA CARTE -->
     <div class="alacarte alacarte--print">
       <div class="alacarte__col">
@@ -276,6 +354,11 @@
       <a href="tel:0955820214">09 55 82 02 14</a> &nbsp;·&nbsp;
       <a href="https://www.facebook.com/profile.php?id=61554656295643" target="_blank" rel="noopener">facebook.com/lapetiteaubergedeflo</a>
     </p>
+    <nav class="cartepage__legal" aria-label="Liens légaux">
+      <a href="mentions-legales.html" data-i18n="footer.legal.mentions">Mentions légales</a>
+      <span aria-hidden="true">·</span>
+      <a href="politique-confidentialite.html" data-i18n="footer.legal.privacy">Politique de confidentialité</a>
+    </nav>
   </footer>
 
 </main>

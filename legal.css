@@ -1,0 +1,250 @@
+/* =========================================================
+   La Petite Auberge de Flo — Pages légales (mentions, RGPD)
+   Style sobre, lisible, imprimable. Reprend les tokens de styles.css.
+   ========================================================= */
+
+.legalpage {
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+.legalpage__nav {
+  background: var(--aubergine);
+  color: var(--cream);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem clamp(1.25rem, 4vw, 3rem);
+  box-shadow: 0 4px 24px rgba(58, 26, 42, 0.18);
+}
+
+.legalpage__main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4.5rem) clamp(1.25rem, 4vw, 3rem) 4rem;
+}
+
+/* ---------- HEAD ---------- */
+.legalpage__head {
+  text-align: center;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+.legalpage__h1 {
+  font-family: var(--f-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0.4rem 0 1.2rem;
+  color: var(--aubergine);
+}
+.legalpage__intro {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* ---------- BLOCKS ---------- */
+.legal-block {
+  margin-bottom: clamp(2.5rem, 4vw, 3.5rem);
+}
+.legal-block h2 {
+  font-family: var(--f-serif);
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--aubergine);
+  margin: 0 0 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.legal-block h3 {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--coral-deep);
+  margin: 1.8rem 0 0.8rem;
+}
+.legal-block p {
+  font-family: var(--f-sans);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--ink);
+  margin: 0 0 1rem;
+}
+.legal-block p strong { color: var(--aubergine); font-weight: 600; }
+.legal-block a {
+  color: var(--coral-deep);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.legal-block a:hover { color: var(--coral); }
+
+/* ---------- DEFINITION LIST ---------- */
+.legal-list {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0.6rem 1.6rem;
+  margin: 0 0 1.2rem;
+  padding: 1.4rem 1.6rem;
+  background: rgba(255, 255, 255, 0.55);
+  border-left: 3px solid var(--coral);
+  border-radius: 2px;
+}
+.legal-list dt {
+  font-family: var(--f-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 500;
+  padding-top: 0.15rem;
+}
+.legal-list dd {
+  margin: 0;
+  font-family: var(--f-serif);
+  font-size: 1.05rem;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.legal-list dd strong { color: var(--aubergine); font-weight: 600; }
+.legal-list dd em { color: var(--ink-soft); font-style: italic; font-size: 0.92rem; }
+
+@media (max-width: 640px) {
+  .legal-list { grid-template-columns: 1fr; gap: 0.3rem; padding: 1.1rem 1.2rem; }
+  .legal-list dt { padding-top: 0.6rem; border-top: 1px solid var(--line); }
+  .legal-list dt:first-child { border-top: none; padding-top: 0; }
+}
+
+/* ---------- BULLETS ---------- */
+.legal-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.2rem;
+}
+.legal-bullets li {
+  font-family: var(--f-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink);
+  padding: 0.4rem 0 0.4rem 1.6rem;
+  position: relative;
+}
+.legal-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.95em;
+  width: 6px;
+  height: 6px;
+  background: var(--coral);
+  border-radius: 50%;
+}
+.legal-bullets li strong { color: var(--aubergine); font-weight: 600; }
+
+/* ---------- TABLE ---------- */
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-family: var(--f-sans);
+  font-size: 0.95rem;
+}
+.legal-table th,
+.legal-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.5;
+}
+.legal-table th {
+  background: rgba(58, 26, 42, 0.04);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--aubergine);
+  font-weight: 600;
+}
+.legal-table td strong { color: var(--aubergine); }
+@media (max-width: 640px) {
+  .legal-table { font-size: 0.88rem; }
+  .legal-table th, .legal-table td { padding: 0.6rem 0.7rem; }
+}
+
+/* ---------- NOTE (callouts) ---------- */
+.legal-note {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.06), rgba(230, 57, 70, 0.02));
+  border: 1px solid rgba(230, 57, 70, 0.18);
+  border-left: 4px solid var(--coral);
+  padding: 1rem 1.2rem !important;
+  border-radius: 3px;
+  font-family: var(--f-serif) !important;
+  font-style: italic;
+  font-size: 0.96rem !important;
+  color: var(--ink-soft) !important;
+  margin-top: 1rem !important;
+}
+
+/* ---------- UPDATE FOOTER LINE ---------- */
+.legal-update {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--f-serif);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+/* ---------- CODE INLINE ---------- */
+.legal-block code {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 0.88em;
+  background: rgba(58, 26, 42, 0.06);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  color: var(--coral-deep);
+}
+
+/* ---------- FOOTER (legal links inline) ---------- */
+.footer__legal {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.footer__legal a {
+  font-family: var(--f-sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(251, 246, 238, 0.75);
+  text-decoration: none;
+  transition: color .2s;
+}
+.footer__legal a:hover { color: #fff; }
+
+/* ---------- PRINT ---------- */
+@media print {
+  .legalpage__nav { display: none; }
+  .legalpage__main { padding: 1cm 1.5cm; max-width: none; }
+  .footer { display: none; }
+  body { background: white; color: black; }
+  .legal-block h2 { color: black; border-bottom: 1px solid #999; }
+  .legal-block a { color: black; }
+  .legal-list { background: #f8f8f8; border-left-color: #555; }
+  .legal-note { background: #fafafa; border-left-color: #555; }
+}
