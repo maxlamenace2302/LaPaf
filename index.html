@@ -440,12 +440,61 @@
     <p class="eyebrow" data-i18n="galerie.eyebrow">— Notre Auberge —</p>
     <h2 class="h-section" data-i18n="galerie.title">Un coup d'œil dans la salle</h2>
   </div>
-  <div class="galerie__mosaic">
-    <img src="assets/salle3.jpg" alt="Suggestion du jour à l'ardoise" class="g g1" />
-    <img src="assets/menu_rapees2.jpg" alt="Râpées et croquettes en service" class="g g2" />
-    <img src="assets/grenouilles_pan.jpg" alt="Grenouilles persillade à la poêle" class="g g3" />
-    <img src="assets/facade.jpg" alt="Façade de l'auberge" class="g g4" />
-    <img src="assets/salle2.jpg" alt="Table dressée" class="g g5" />
+  <!-- Two horizontally-scrolling strips, drifting in opposite directions.
+       The track is duplicated (aria-hidden copies) so translateX -50%
+       loops seamlessly. Pause on hover. -->
+  <div class="galerie__strip galerie__strip--ltr" aria-label="Photos du restaurant — ligne 1">
+    <div class="galerie__track">
+      <!-- Original set (10 photos) -->
+      <img class="galerie__photo" src="assets/salle3.jpg"          alt="Suggestion du jour à l'ardoise" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat.jpg" alt="Grenouilles persillade généreuse" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees2.jpg"     alt="Râpées dorées en service" loading="lazy" />
+      <img class="galerie__photo" src="assets/salade.jpg"           alt="Salade Petite Auberge" loading="lazy" />
+      <img class="galerie__photo" src="assets/salle1.jpg"           alt="Salle de l'auberge" loading="lazy" />
+      <img class="galerie__photo" src="assets/magret.jpg"           alt="Magret de canard" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_pan.jpg"  alt="Grenouilles à la poêle" loading="lazy" />
+      <img class="galerie__photo" src="assets/tarte_citron.jpg"     alt="Tarte au citron meringuée" loading="lazy" />
+      <img class="galerie__photo" src="assets/steak_frites.jpg"     alt="Pièce du boucher et frites maison" loading="lazy" />
+      <img class="galerie__photo" src="assets/assiette_charcuterie.jpeg" alt="Assiette de charcuterie" loading="lazy" />
+      <!-- Duplicate for seamless infinite loop -->
+      <img class="galerie__photo" src="assets/salle3.jpg"          alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat.jpg" alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees2.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/salade.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/salle1.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/magret.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_pan.jpg"  alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/tarte_citron.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/steak_frites.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/assiette_charcuterie.jpeg" alt="" aria-hidden="true" loading="lazy" />
+    </div>
+  </div>
+
+  <div class="galerie__strip galerie__strip--rtl" aria-label="Photos du restaurant — ligne 2">
+    <div class="galerie__track">
+      <!-- Original set (10 photos, different selection) -->
+      <img class="galerie__photo" src="assets/salle2.jpg"           alt="Table dressée avec menu" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan.jpeg"      alt="Râpées dans la poêle" loading="lazy" />
+      <img class="galerie__photo" src="assets/creme_brulee.jpg"     alt="Crème brûlée maison" loading="lazy" />
+      <img class="galerie__photo" src="assets/salade1.jpg"          alt="Salade composée fraîche" loading="lazy" />
+      <img class="galerie__photo" src="assets/facade.jpg"           alt="Façade de l'auberge" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees1.jpg"     alt="Râpées en grande assiette" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat1.jpg" alt="Plat de grenouilles vue rapprochée" loading="lazy" />
+      <img class="galerie__photo" src="assets/steak_frites1.jpg"    alt="Steak frites à l'auberge" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan2.jpg"      alt="Râpées en cuisson" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees.jpg"      alt="Menu râpées complet" loading="lazy" />
+      <!-- Duplicate for seamless infinite loop -->
+      <img class="galerie__photo" src="assets/salle2.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan.jpeg"      alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/creme_brulee.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/salade1.jpg"          alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/facade.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees1.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat1.jpg" alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/steak_frites1.jpg"    alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan2.jpg"      alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees.jpg"      alt="" aria-hidden="true" loading="lazy" />
+    </div>
   </div>
 </section>
 
@@ -474,7 +523,7 @@
         <p class="review__author">Sophie M. <span>— TripAdvisor</span></p>
       </article>
       <article class="review">
-        <p class="review__stars" aria-label="5 sur 5">★★★★★</p>
+        <p class="review__stars" aria-label="4 sur 5">★★★★</p>
         <p class="review__text">«&nbsp;Soirée karaoké géniale&nbsp;! On y a fait notre anniversaire en groupe, l'équipe a été aux petits soins, à recommander.&nbsp;»</p>
         <p class="review__author">Lucas B. <span>— Facebook</span></p>
       </article>
@@ -1050,31 +1099,30 @@
     else window.addEventListener('load', init);
   })();
 
-  // ====== GALERIE — Inset-Y curtain reveal (YoucefBnm style) ======
-  // Each photo starts clipped to a thin horizontal band at its centre
-  // (CSS-only fallback for users without JS = visible). When it enters
-  // the viewport, we add .is-revealed and the band opens vertically.
+  // ====== GALERIE — Marquee infinite scroll (efferd style) ======
+  // The animation is 100% CSS (translateX 0 → -50%, with the track
+  // duplicated for seamless wrap). JS is only used to:
+  //   1. Mark html.js-ready so the entrance fade-in kicks in
+  //   2. Pause the animation when the section leaves the viewport
+  //      (saves CPU & battery — important on mobile)
   (function() {
-    const photos = document.querySelectorAll('.galerie__mosaic .g');
-    if (!photos.length) return;
+    const strips = document.querySelectorAll('.galerie__strip');
+    if (!strips.length) return;
     document.documentElement.classList.add('js-ready');
 
-    if (!('IntersectionObserver' in window)) {
-      photos.forEach(p => p.classList.add('is-revealed'));
-      return;
+    // Only animate while the gallery is on-screen
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          strips.forEach(s => {
+            s.style.animationPlayState =
+              s.querySelector('.galerie__track').style.animationPlayState =
+                e.isIntersecting ? 'running' : 'paused';
+          });
+        });
+      }, { threshold: 0 });
+      strips.forEach(s => io.observe(s));
     }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('is-revealed');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
-    photos.forEach(p => io.observe(p));
-    // Last-resort safety net (broken JS / ancient browser only). 10 s is
-    // generous on purpose — real users will have triggered IO long before.
-    setTimeout(() => photos.forEach(p => p.classList.add('is-revealed')), 10000);
   })();
 
   // ====== HERO PARALLAX (osmosupply style) ======
