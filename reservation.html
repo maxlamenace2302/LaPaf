@@ -278,36 +278,35 @@
       availState = state;
       const guests = Number(guestsInput.value) || 0;
 
+      // Note: on ne révèle PAS les chiffres de capacité côté client.
+      // Le chef seul voit "8/30 couverts" dans son dashboard.
       if (state.manually_closed) {
         canSubmit = false;
         setAvail({
           level: 'full',
-          text: `Désolé, le service ${service} du ${formatDate(date)} est complet. Appelez-nous au 09 55 82 02 14 — il y a peut-être de la place avec un peu de souplesse.`,
+          text: `Désolé, ce service est complet. Appelez-nous au 09 55 82 02 14 — il y a peut-être de la place avec un peu de souplesse.`,
         });
       } else if (state.max_couverts != null && state.remaining <= 0) {
         canSubmit = false;
         setAvail({
           level: 'full',
-          text: `Désolé, ce service est complet (${state.current_couverts}/${state.max_couverts} couverts). Appelez-nous au 09 55 82 02 14 pour vérifier les annulations.`,
+          text: `Désolé, ce service est complet. Appelez-nous au 09 55 82 02 14 pour vérifier les annulations.`,
         });
       } else if (state.max_couverts != null && guests > 0 && guests > state.remaining) {
         canSubmit = false;
         setAvail({
           level: 'full',
-          text: `Il ne reste que ${state.remaining} places pour ce service et vous demandez ${guests} couverts. Appelez-nous, on peut peut-être s'arranger.`,
+          text: `Désolé, nous ne pouvons pas accueillir un groupe de cette taille à ce service. Appelez-nous au 09 55 82 02 14, on peut peut-être s'arranger.`,
         });
       } else if (state.max_couverts != null && state.remaining <= 5) {
         canSubmit = true;
         setAvail({
           level: 'warn',
-          text: `Plus que ${state.remaining} places disponibles — pensez à nous appeler pour confirmer.`,
+          text: `Quelques places encore — pensez à nous appeler au 09 55 82 02 14 pour confirmer.`,
         });
       } else {
         canSubmit = true;
-        const remainingText = state.max_couverts == null
-          ? 'Service ouvert.'
-          : `${state.remaining} places restantes sur ce service.`;
-        setAvail({ level: 'ok', text: '✓ ' + remainingText });
+        setAvail({ level: 'ok', text: '✓ Disponible' });
       }
     } catch (e) {
       console.warn('[avail] check failed', e);
