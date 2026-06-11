@@ -103,7 +103,7 @@
         <img src="assets/salle1.jpg" alt="Salle de l'auberge, tables dressées" />
       </div>
       <div class="maison__frame maison__frame--small">
-        <img src="assets/salle2.jpg" alt="Table dressée avec menu du jour" />
+        <img src="assets/Bar.jpg" alt="Table dressée avec menu du jour" />
       </div>
       <div class="maison__signature">
         <span class="caveat" data-i18n="maison.signature">Flo &amp; son équipe</span>
@@ -185,12 +185,12 @@
 
     <article class="dish">
       <div class="dish__img">
-        <img src="assets/menu_rapees.jpg" alt="Friture &amp; râpées en accompagnement" />
+        <img src="assets/fritures.jpg" alt="Friture &amp; râpées en accompagnement" />
       </div>
       <div class="dish__body">
-        <p class="dish__tag" data-i18n="spe.friture.tag">Vendredi soir</p>
+        <p class="dish__tag" data-i18n="spe.friture.tag">Petit Poisson/p>
         <h3 data-i18n="spe.friture.name">La Friture</h3>
-        <p data-i18n="spe.friture.desc">Petite friture du dimanche, croquettes maison et accompagnements de saison —
+        <p data-i18n="spe.friture.desc">Petite friture du dimanche —
         à partager au comptoir ou en grande tablée.</p>
       </div>
     </article>
@@ -440,12 +440,61 @@
     <p class="eyebrow" data-i18n="galerie.eyebrow">— Notre Auberge —</p>
     <h2 class="h-section" data-i18n="galerie.title">Un coup d'œil dans la salle</h2>
   </div>
-  <div class="galerie__mosaic">
-    <img src="assets/salle3.jpg" alt="Suggestion du jour à l'ardoise" class="g g1" />
-    <img src="assets/menu_rapees2.jpg" alt="Râpées et croquettes en service" class="g g2" />
-    <img src="assets/grenouilles_pan.jpg" alt="Grenouilles persillade à la poêle" class="g g3" />
-    <img src="assets/facade.jpg" alt="Façade de l'auberge" class="g g4" />
-    <img src="assets/salle2.jpg" alt="Table dressée" class="g g5" />
+  <!-- Two horizontally-scrolling strips, drifting in opposite directions.
+       The track is duplicated (aria-hidden copies) so translateX -50%
+       loops seamlessly. Pause on hover. -->
+  <div class="galerie__strip galerie__strip--ltr" aria-label="Photos du restaurant — ligne 1">
+    <div class="galerie__track">
+      <!-- Original set (10 photos) -->
+      <img class="galerie__photo" src="assets/salle3.jpg"          alt="Suggestion du jour à l'ardoise" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat.jpg" alt="Grenouilles persillade généreuse" loading="lazy" />
+      <img class="galerie__photo" src="assets/Karaoke.jpeg"     alt="karaoke loading="lazy" />
+      <img class="galerie__photo" src="assets/Dessert.jpg"           alt="dessert" loading="lazy" />
+      <img class="galerie__photo" src="assets/salle1.jpg"           alt="Salle de l'auberge" loading="lazy" />
+      <img class="galerie__photo" src="assets/magret.jpg"           alt="Magret de canard" loading="lazy" />
+      <img class="galerie__photo" src="assets/Bar.jpg"  alt="Bar" loading="lazy" />
+      <img class="galerie__photo" src="assets/Gateau2.jpg"     alt="Gateau" loading="lazy" />
+      <img class="galerie__photo" src="assets/Vin2.jpg"     alt="Vin" loading="lazy" />
+      <img class="galerie__photo" src="assets/BasqueEquipe.jpg" alt="equipe Basque" loading="lazy" />
+      <!-- Duplicate for seamless infinite loop -->
+      <img class="galerie__photo" src="assets/salle3.jpg"          alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat.jpg" alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/Karaoke.jpeg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/Dessert.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/salle1.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/magret.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/Bar.jpg"  alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/Gateau2.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/Vin2.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/BasqueEquipe.jpg" alt="" aria-hidden="true" loading="lazy" />
+    </div>
+  </div>
+
+  <div class="galerie__strip galerie__strip--rtl" aria-label="Photos du restaurant — ligne 2">
+    <div class="galerie__track">
+      <!-- Original set (10 photos, different selection) -->
+      <img class="galerie__photo" src="assets/salle2.jpg"           alt="Table dressée avec menu" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan.jpeg"      alt="Râpées dans la poêle" loading="lazy" />
+      <img class="galerie__photo" src="assets/creme_brulee.jpg"     alt="Crème brûlée maison" loading="lazy" />
+      <img class="galerie__photo" src="assets/salade1.jpg"          alt="Salade composée fraîche" loading="lazy" />
+      <img class="galerie__photo" src="assets/facade.jpg"           alt="Façade de l'auberge" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees1.jpg"     alt="Râpées en grande assiette" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat1.jpg" alt="Plat de grenouilles vue rapprochée" loading="lazy" />
+      <img class="galerie__photo" src="assets/steak_frites1.jpg"    alt="Steak frites à l'auberge" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan2.jpg"      alt="Râpées en cuisson" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees.jpg"      alt="Menu râpées complet" loading="lazy" />
+      <!-- Duplicate for seamless infinite loop -->
+      <img class="galerie__photo" src="assets/salle2.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan.jpeg"      alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/creme_brulee.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/salade1.jpg"          alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/facade.jpg"           alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees1.jpg"     alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/grenouilles_plat1.jpg" alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/steak_frites1.jpg"    alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/rapees_pan2.jpg"      alt="" aria-hidden="true" loading="lazy" />
+      <img class="galerie__photo" src="assets/menu_rapees.jpg"      alt="" aria-hidden="true" loading="lazy" />
+    </div>
   </div>
 </section>
 
@@ -474,7 +523,7 @@
         <p class="review__author">Sophie M. <span>— TripAdvisor</span></p>
       </article>
       <article class="review">
-        <p class="review__stars" aria-label="5 sur 5">★★★★★</p>
+        <p class="review__stars" aria-label="4 sur 5">★★★★</p>
         <p class="review__text">«&nbsp;Soirée karaoké géniale&nbsp;! On y a fait notre anniversaire en groupe, l'équipe a été aux petits soins, à recommander.&nbsp;»</p>
         <p class="review__author">Lucas B. <span>— Facebook</span></p>
       </article>
@@ -626,6 +675,10 @@
       <img src="assets/logo.jpg" alt="Logo La Petite Auberge de Flo" />
       <p>La Petite Auberge de Flo<br /><span data-i18n="footer.subtitle">Cuisine de terroir · Saint-Bonnet-les-Oules</span></p>
     </div>
+    <nav class="footer__legal" aria-label="Liens légaux">
+      <a href="mentions-legales.html" data-i18n="footer.legal.mentions">Mentions légales</a>
+      <a href="politique-confidentialite.html" data-i18n="footer.legal.privacy">Politique de confidentialité</a>
+    </nav>
     <p class="footer__copy">© <span id="year"></span> <span data-i18n="footer.copy">La Petite Auberge de Flo — Tous droits réservés.</span></p>
   </div>
 </footer>
@@ -1046,31 +1099,30 @@
     else window.addEventListener('load', init);
   })();
 
-  // ====== GALERIE — Inset-Y curtain reveal (YoucefBnm style) ======
-  // Each photo starts clipped to a thin horizontal band at its centre
-  // (CSS-only fallback for users without JS = visible). When it enters
-  // the viewport, we add .is-revealed and the band opens vertically.
+  // ====== GALERIE — Marquee infinite scroll (efferd style) ======
+  // The animation is 100% CSS (translateX 0 → -50%, with the track
+  // duplicated for seamless wrap). JS is only used to:
+  //   1. Mark html.js-ready so the entrance fade-in kicks in
+  //   2. Pause the animation when the section leaves the viewport
+  //      (saves CPU & battery — important on mobile)
   (function() {
-    const photos = document.querySelectorAll('.galerie__mosaic .g');
-    if (!photos.length) return;
+    const strips = document.querySelectorAll('.galerie__strip');
+    if (!strips.length) return;
     document.documentElement.classList.add('js-ready');
 
-    if (!('IntersectionObserver' in window)) {
-      photos.forEach(p => p.classList.add('is-revealed'));
-      return;
+    // Only animate while the gallery is on-screen
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          strips.forEach(s => {
+            s.style.animationPlayState =
+              s.querySelector('.galerie__track').style.animationPlayState =
+                e.isIntersecting ? 'running' : 'paused';
+          });
+        });
+      }, { threshold: 0 });
+      strips.forEach(s => io.observe(s));
     }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('is-revealed');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
-    photos.forEach(p => io.observe(p));
-    // Last-resort safety net (broken JS / ancient browser only). 10 s is
-    // generous on purpose — real users will have triggered IO long before.
-    setTimeout(() => photos.forEach(p => p.classList.add('is-revealed')), 10000);
   })();
 
   // ====== HERO PARALLAX (osmosupply style) ======

@@ -244,6 +244,28 @@
   line-height: 1.5;
 }
 
+/* RGPD compliance notice under the submit button */
+.reserve-rgpd {
+  font-family: var(--f-sans);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0.4rem 0 0;
+  padding: 0.8rem 1rem;
+  background: rgba(58, 26, 42, 0.04);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 2px;
+}
+.reserve-rgpd a {
+  color: var(--coral-deep);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.reserve-rgpd a:hover { color: var(--coral); }
+
 /* ---------- AVAILABILITY BANNER ---------- */
 .reserve-avail {
   display: flex;
