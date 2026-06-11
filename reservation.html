@@ -70,11 +70,23 @@
             <input type="date" id="rf-date" name="date" required />
           </div>
           <div class="reserve-field">
-            <label for="rf-service" data-i18n="reserve.field.service">Service</label>
-            <select id="rf-service" name="service" required>
-              <option value="" data-i18n="reserve.field.service.placeholder">— Choisir —</option>
-              <option value="midi" data-i18n="reserve.field.service.lunch">Midi (12h – 14h)</option>
-              <option value="soir" data-i18n="reserve.field.service.dinner">Soir (19h – 22h)</option>
+            <label for="rf-time" data-i18n="reserve.field.time">Horaire</label>
+            <select id="rf-time" name="time" required>
+              <option value="" data-i18n="reserve.field.time.placeholder">— Choisir un créneau —</option>
+              <optgroup label="Midi (12h – 14h)" data-i18n-attr="label:reserve.field.time.midi">
+                <option value="12:00">12h00</option>
+                <option value="12:30">12h30</option>
+                <option value="13:00">13h00</option>
+                <option value="13:30">13h30</option>
+              </optgroup>
+              <optgroup label="Soir (19h – 22h)" data-i18n-attr="label:reserve.field.time.soir">
+                <option value="19:00">19h00</option>
+                <option value="19:30">19h30</option>
+                <option value="20:00">20h00</option>
+                <option value="20:30">20h30</option>
+                <option value="21:00">21h00</option>
+                <option value="21:30">21h30</option>
+              </optgroup>
             </select>
           </div>
           <div class="reserve-field">
@@ -202,9 +214,21 @@
   const errorBox = document.getElementById('reserveError');
   const submitLabelDefault = submitBtn.textContent;
   const dateInput    = document.getElementById('rf-date');
-  const serviceInput = document.getElementById('rf-service');
+  const timeInput    = document.getElementById('rf-time');
   const guestsInput  = document.getElementById('rf-guests');
   const availBox     = document.getElementById('reserveAvail');
+
+  // 12:00–15:59 = midi, 16:00+ = soir (boundary chosen safely below the 19h soir start)
+  function serviceFromTime(time) {
+    if (!time) return null;
+    const h = parseInt(time.split(':')[0], 10);
+    return h < 16 ? 'midi' : 'soir';
+  }
+  function formatTimeFR(time) {
+    if (!time) return '';
+    const [h, m] = time.split(':');
+    return `${parseInt(h, 10)}h${m}`;
+  }
 
   // Min date = today
   dateInput.min = new Date().toISOString().slice(0, 10);
@@ -240,7 +264,8 @@
 
   async function checkAvailability() {
     const date = dateInput.value;
-    const service = serviceInput.value;
+    const time = timeInput.value;
+    const service = serviceFromTime(time);
     if (!date || !service) {
       availBox.hidden = true;
       canSubmit = true;
@@ -253,36 +278,35 @@
       availState = state;
       const guests = Number(guestsInput.value) || 0;
 
+      // Note: on ne révèle PAS les chiffres de capacité côté client.
+      // Le chef seul voit "8/30 couverts" dans son dashboard.
       if (state.manually_closed) {
         canSubmit = false;
         setAvail({
           level: 'full',
-          text: `Désolé, le service ${service} du ${formatDate(date)} est complet. Appelez-nous au 09 55 82 02 14 — il y a peut-être de la place avec un peu de souplesse.`,
+          text: `Désolé, ce service est complet. Appelez-nous au 09 55 82 02 14 — il y a peut-être de la place avec un peu de souplesse.`,
         });
       } else if (state.max_couverts != null && state.remaining <= 0) {
         canSubmit = false;
         setAvail({
           level: 'full',
-          text: `Désolé, ce service est complet (${state.current_couverts}/${state.max_couverts} couverts). Appelez-nous au 09 55 82 02 14 pour vérifier les annulations.`,
+          text: `Désolé, ce service est complet. Appelez-nous au 09 55 82 02 14 pour vérifier les annulations.`,
         });
       } else if (state.max_couverts != null && guests > 0 && guests > state.remaining) {
         canSubmit = false;
         setAvail({
           level: 'full',
-          text: `Il ne reste que ${state.remaining} places pour ce service et vous demandez ${guests} couverts. Appelez-nous, on peut peut-être s'arranger.`,
+          text: `Désolé, nous ne pouvons pas accueillir un groupe de cette taille à ce service. Appelez-nous au 09 55 82 02 14, on peut peut-être s'arranger.`,
         });
       } else if (state.max_couverts != null && state.remaining <= 5) {
         canSubmit = true;
         setAvail({
           level: 'warn',
-          text: `Plus que ${state.remaining} places disponibles — pensez à nous appeler pour confirmer.`,
+          text: `Quelques places encore — pensez à nous appeler au 09 55 82 02 14 pour confirmer.`,
         });
       } else {
         canSubmit = true;
-        const remainingText = state.max_couverts == null
-          ? 'Service ouvert.'
-          : `${state.remaining} places restantes sur ce service.`;
-        setAvail({ level: 'ok', text: '✓ ' + remainingText });
+        setAvail({ level: 'ok', text: '✓ Disponible' });
       }
     } catch (e) {
       console.warn('[avail] check failed', e);
@@ -304,7 +328,7 @@
     availTimer = setTimeout(checkAvailability, 300);
   }
   dateInput.addEventListener('change', debouncedCheck);
-  serviceInput.addEventListener('change', debouncedCheck);
+  timeInput.addEventListener('change', debouncedCheck);
   guestsInput.addEventListener('input',  debouncedCheck);
 
   form.addEventListener('submit', async (e) => {
@@ -325,9 +349,11 @@
     }
 
     const fd = new FormData(form);
+    const time = fd.get('time');
     const payload = {
       date:    fd.get('date'),
-      service: fd.get('service'),
+      time,
+      service: serviceFromTime(time),
       guests:  fd.get('guests'),
       name:    fd.get('name'),
       phone:   fd.get('phone'),
