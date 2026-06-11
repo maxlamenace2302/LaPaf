@@ -612,7 +612,14 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
   }
-  function timeLabel(service)  { return service === 'midi' ? '12h00' : '19h30'; } // best-effort
+  function timeLabel(reservation) {
+    // Prefer the exact time stored on the row; fall back to service default for legacy rows.
+    if (reservation?.time) {
+      const [h, m] = reservation.time.split(':');
+      return `${parseInt(h, 10)}h${m}`;
+    }
+    return reservation?.service === 'midi' ? '12h00' : '19h30';
+  }
   function relTime(iso) {
     const d = new Date(iso);
     const mins = Math.floor((Date.now() - d.getTime()) / 60000);
@@ -653,7 +660,7 @@
     return `
       <article class="adm-card adm-card--${cls}" data-card="${r.id}">
         <div class="adm-card__row1">
-          <div class="adm-card__time">${timeLabel(r.service)}</div>
+          <div class="adm-card__time">${timeLabel(r)}</div>
           <div class="adm-card__guests"><strong>${r.guests}</strong> pers.</div>
         </div>
         <div class="adm-card__badge-row">${badges.join('')}</div>
@@ -739,7 +746,7 @@
       <h2 class="adm-sheet__title">${esc(r.name)}</h2>
 
       <div class="adm-sheet__big-row">
-        <div class="adm-sheet__big-time">${timeLabel(r.service)}</div>
+        <div class="adm-sheet__big-time">${timeLabel(r)}</div>
         <div class="adm-sheet__big-meta">
           <strong>${r.guests} personne${r.guests > 1 ? 's' : ''}</strong>
           <span>${dateFmt.replace(/^./, c => c.toUpperCase())}</span>

@@ -23,10 +23,11 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 // ---------- Public form (reservation.html) ----------
 
-export async function createReservation({ date, service, guests, name, phone, email, notes, lang }) {
+export async function createReservation({ date, time, service, guests, name, phone, email, notes, lang }) {
   const row = {
     date,
-    service,
+    time,          // exact slot, e.g. "12:30"
+    service,       // derived (midi/soir) — kept for capacity grouping
     guests: Number(guests),
     name: name.trim(),
     phone: phone.trim(),
