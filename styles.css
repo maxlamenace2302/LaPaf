@@ -235,7 +235,8 @@ p { margin: 0 0 1rem; }
   letter-spacing: 0.2em;
   text-transform: uppercase;
   font-weight: 500;
-  transition: background .2s;
+  transition: background .2s, padding .2s, font-size .2s;
+  white-space: nowrap;
 }
 .nav__cta:hover { background: var(--coral-dark); }
 
@@ -243,41 +244,82 @@ p { margin: 0 0 1rem; }
   .nav__links { display: none; }
   .nav__brand-line1 { display: none; }
 }
+/* Mobile : compact Reserve to free room for the language dropdown */
+@media (max-width: 600px) {
+  .nav__cta {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+  }
+  .nav { padding: 0.6rem 0.85rem; gap: 0.4rem; }
+  .nav__brand img { width: 42px; height: 42px; }
+}
 
-/* ---------- LANGUAGE SWITCHER ---------- */
+/* ---------- LANGUAGE SWITCHER — modern dropdown ---------- */
+
+/* Grouped actions container (lang + Reserve sit together) */
+.nav__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 .lang-switch {
   display: inline-flex;
-  gap: 0;
+  align-items: center;
   background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.22);
   border-radius: 999px;
-  padding: 2px;
-  margin: 0 0.75rem 0 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  overflow: hidden;
 }
-.lang-switch button {
+.lang-switch:hover,
+.lang-switch:focus-within {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.4);
+}
+.lang-switch__select {
+  appearance: none;
+  -webkit-appearance: none;
   background: transparent;
   border: 0;
-  color: rgba(255,255,255,0.7);
+  color: #fff;
   font-family: var(--f-sans);
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
+  font-size: 0.78rem;
   font-weight: 500;
-  padding: 0.35rem 0.55rem;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 1.6rem 0.5rem 0.7rem;
   cursor: pointer;
-  border-radius: 999px;
-  transition: background .2s, color .2s;
-  line-height: 1;
+  outline: none;
+  /* Chevron drawn with linear-gradients */
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.75) 50%),
+    linear-gradient(135deg, rgba(255,255,255,0.75) 50%, transparent 50%);
+  background-position:
+    calc(100% - 11px) calc(50% + 1px),
+    calc(100% - 7px) calc(50% + 1px);
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
 }
-.lang-switch button:hover {
+.lang-switch__select option {
+  background: var(--aubergine);
   color: #fff;
+  font-family: var(--f-sans);
 }
-.lang-switch button.is-active {
-  background: var(--coral);
-  color: #fff;
-}
+
+/* Mobile : keep visible (was display:none) — language must remain reachable */
 @media (max-width: 600px) {
-  .lang-switch { display: none; }
+  .nav__actions { gap: 0.4rem; }
+  .lang-switch__select {
+    font-size: 0.72rem;
+    padding: 0.4rem 1.35rem 0.4rem 0.55rem;
+    background-position:
+      calc(100% - 10px) calc(50% + 1px),
+      calc(100% - 6px) calc(50% + 1px);
+  }
 }
 
 /* ---------- CARTE CTA on home ---------- */
@@ -1613,81 +1655,125 @@ html.js-ready .formule:nth-child(4).is-visible { transition-delay: 270ms; }
   margin: 0 auto 3.5rem;
   text-align: center;
 }
-/* ----- Galerie en bandes défilantes (style efferd/image-gallery) -----
-   Two horizontal strips, opposite directions, infinite marquee via
-   translateX(0 → -50%) with the track duplicated to make the loop seamless.
-   Pause on hover, mask gradient on the sides for soft fade-in/out. */
+/* ----- Galerie : grille statique mobile-first + tap-to-zoom lightbox -----
+   2 colonnes sur mobile, 3 colonnes tablette, 4 colonnes desktop.
+   Plus de marquee défilant : conforme à la directive "1 seule bande
+   défilante site-wide" (les avis). */
 
-.galerie__strip {
+.galerie__grid {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+@media (min-width: 700px) {
+  .galerie__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+@media (min-width: 1024px) {
+  .galerie__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.galerie__cell {
   position: relative;
-  width: 100%;
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: var(--cream-2);
+  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 1rem;
-  /* Soft horizontal fade so photos don't snap in/out at the edges */
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-          mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  cursor: zoom-in;
+  aspect-ratio: 1 / 1;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s;
 }
-.galerie__strip:last-of-type { margin-bottom: 0; }
-
-.galerie__track {
-  display: flex;
-  gap: 1rem;
-  width: max-content;
-  padding: 0.25rem 0;
-  animation: galerie-scroll 60s linear infinite;
-  will-change: transform;
+.galerie__cell:hover,
+.galerie__cell:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -10px rgba(58, 26, 42, 0.4);
+  outline: none;
 }
-.galerie__strip--ltr .galerie__track { animation-direction: normal; }
-.galerie__strip--rtl .galerie__track { animation-direction: reverse; }
-
-.galerie__strip:hover .galerie__track {
-  animation-play-state: paused;
-}
-
-@keyframes galerie-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-.galerie__photo {
-  flex: 0 0 auto;
-  width: clamp(160px, 18vw, 240px);
-  height: clamp(110px, 12vw, 160px);
+.galerie__cell img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 4px;
-  filter: saturate(0.95);
-  box-shadow: 0 8px 20px -10px rgba(58, 26, 42, 0.35);
-  transition: transform .35s cubic-bezier(.4, 0, .2, 1),
-              filter .35s,
-              box-shadow .35s;
-  cursor: pointer;
+  display: block;
+  transition: transform .35s ease, filter .35s ease;
+  filter: saturate(0.92);
 }
-.galerie__photo:hover {
-  transform: scale(1.05) translateY(-2px);
+.galerie__cell:hover img,
+.galerie__cell:focus-visible img {
+  transform: scale(1.04);
   filter: saturate(1.1);
-  box-shadow: 0 16px 32px -10px rgba(58, 26, 42, 0.5);
 }
 
-/* On mobile, smaller tiles + faster scroll so the pacing stays lively */
+/* ----- Lightbox ----- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 8, 14, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity .25s ease;
+  cursor: zoom-out;
+}
+.lightbox.is-open {
+  opacity: 1;
+}
+.lightbox[hidden] { display: none; }
+.lightbox__img {
+  max-width: 95vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8);
+  cursor: default;
+}
+.lightbox__close,
+.lightbox__prev,
+.lightbox__next {
+  position: absolute;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-sans);
+  transition: background .2s, border-color .2s, transform .2s;
+}
+.lightbox__close:hover,
+.lightbox__prev:hover,
+.lightbox__next:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.5);
+}
+.lightbox__close { top: 1rem; right: 1rem; font-size: 2.2rem; line-height: 0.85; }
+.lightbox__prev  { left: 1rem; top: 50%; transform: translateY(-50%); }
+.lightbox__next  { right: 1rem; top: 50%; transform: translateY(-50%); }
+.lightbox__prev:hover { transform: translateY(-50%) scale(1.08); }
+.lightbox__next:hover { transform: translateY(-50%) scale(1.08); }
+
 @media (max-width: 600px) {
-  .galerie__photo {
-    width: 150px;
-    height: 105px;
-  }
-  .galerie__track { animation-duration: 45s; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .galerie__track {
-    animation: none;
-    /* Without the marquee, show a static row that scrolls horizontally on touch */
-    overflow-x: auto;
-    max-width: 100vw;
-  }
-  .galerie__strip {
-    -webkit-mask-image: none;
-            mask-image: none;
-  }
+  .lightbox__close,
+  .lightbox__prev,
+  .lightbox__next { width: 44px; height: 44px; font-size: 1.5rem; }
+  .lightbox__close { font-size: 1.8rem; }
 }
 
 /* ---------- CONTACT ---------- */
@@ -1917,4 +2003,200 @@ html.js-ready .formule:nth-child(4).is-visible { transition-delay: 270ms; }
 }
 @media (prefers-reduced-motion: reduce) {
   .scroll-top { transition: opacity .2s; transform: none !important; }
+}
+
+/* =========================================================
+   MOBILE-FIRST GLOBAL UX TWEAKS
+   Lighter sections, simpler typography, breathing room.
+   Applies under 700px (covers all phones in portrait).
+   ========================================================= */
+@media (max-width: 699px) {
+  /* Tighter section padding (cinematic on desktop, just air on mobile) */
+  .maison, .specialites, .carte, .events, .galerie, .contact, .pull {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+  .menu-du-jour { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+
+  /* Smaller section heads (-12% font-size) — easier to scan */
+  .h-section { font-size: 1.85rem; }
+  .lede      { font-size: 1rem; line-height: 1.5; margin-bottom: 1.1rem; }
+  .eyebrow   { font-size: 1.15rem; margin-bottom: 0.35rem; }
+
+  /* Simplify the menu du jour layout : drop the orbital seal on mobile */
+  .price-seal {
+    width: clamp(180px, 60vw, 240px);
+    height: clamp(180px, 60vw, 240px);
+    margin: 0.2rem auto;
+  }
+  .price-seal__rotor { animation: none; }
+  .price-seal__ring--outer,
+  .price-seal__ring--inner { display: none; }
+
+  /* Bottom safety margin so sticky-call doesn't sit on top of content */
+  body { padding-bottom: 4rem; }
+  .footer { padding-bottom: 5rem; }
+
+  /* Reviews ticker : faster + tighter on mobile */
+  .reviews__track { animation-duration: 60s !important; }
+
+  /* Hide the curtain-quote callouts duplicated content on mobile */
+  .pull { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+
+  /* Specialites : reduce featured dish disproportion */
+  .specialites__grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1.2rem !important;
+  }
+}
+
+/* =========================================================
+   EVENTS — Desktop carousel / Mobile static vertical list
+   Mobile-first : the static list is the DEFAULT (visible on small
+   screens). The 3D circular carousel is an enhancement that only
+   kicks in on tablet / desktop (≥ 700px).
+   ========================================================= */
+
+/* On phone : hide the curved 3D carousel + dots + arrows + note arrow */
+@media (max-width: 699px) {
+  .events__stage,
+  .events__dots { display: none !important; }
+}
+
+/* On tablet/desktop : hide the static list */
+@media (min-width: 700px) {
+  .events__list { display: none !important; }
+}
+
+/* Static list styling (mobile) */
+.events__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 var(--gutter);
+}
+.event-row {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 22px -16px rgba(58, 26, 42, 0.3);
+}
+.event-row__art {
+  flex: 0 0 90px;
+  width: 90px;
+  height: auto;
+  min-height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.event-row__art .event-card__icon {
+  position: static;
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow: none;
+}
+.event-row__art .event-card__icon svg { width: 20px; height: 20px; }
+.event-row__body {
+  flex: 1;
+  padding: 0.85rem 1rem 0.95rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.event-row__tag {
+  font-family: var(--f-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral-deep);
+  font-weight: 600;
+  margin: 0;
+}
+.event-row__body h3 {
+  font-family: var(--f-serif);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--aubergine);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.event-row__body p {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* =========================================================
+   STICKY CALL — mobile-only 1-tap dial button
+   Always reachable at the bottom of the screen so a visitor can
+   call without scrolling back to the contact section.
+   ========================================================= */
+.sticky-call {
+  display: none; /* hidden on desktop — call button is in nav/contact anyway */
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  z-index: 70;
+  background: var(--coral);
+  color: #fff;
+  text-decoration: none;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  font-family: var(--f-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  box-shadow:
+    0 14px 32px -8px rgba(230, 57, 70, 0.55),
+    0 4px 12px -4px rgba(58, 26, 42, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  transition: transform .25s cubic-bezier(.5,0,.2,1), background .2s, box-shadow .25s;
+}
+.sticky-call:hover,
+.sticky-call:focus-visible {
+  background: var(--coral-dark);
+  transform: translateX(-50%) translateY(-2px);
+  outline: none;
+  box-shadow:
+    0 20px 40px -8px rgba(230, 57, 70, 0.65),
+    0 6px 14px -4px rgba(58, 26, 42, 0.45);
+}
+.sticky-call:active {
+  transform: translateX(-50%) translateY(0);
+}
+.sticky-call__icon { font-size: 1.05rem; line-height: 1; }
+.sticky-call__label { line-height: 1; }
+
+/* Mobile only */
+@media (max-width: 700px) {
+  .sticky-call {
+    display: inline-flex;
+  }
+}
+
+/* Push the scroll-top button up so it doesn't overlap the sticky-call */
+@media (max-width: 700px) {
+  .scroll-top {
+    bottom: 5rem;
+  }
 }

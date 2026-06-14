@@ -32,13 +32,18 @@
     <a href="#galerie" data-i18n="nav.galerie">Galerie</a>
     <a href="#contact" data-i18n="nav.contact">Contact</a>
   </nav>
-  <div class="lang-switch" role="group" aria-label="Choisir la langue">
-    <button type="button" data-lang="fr" class="is-active">FR</button>
-    <button type="button" data-lang="en">EN</button>
-    <button type="button" data-lang="de">DE</button>
-    <button type="button" data-lang="it">IT</button>
+  <!-- Right-side actions : compact lang dropdown + Réserver CTA (paired) -->
+  <div class="nav__actions">
+    <div class="lang-switch" data-lang-switch>
+      <select class="lang-switch__select" id="langSelectTop" aria-label="Choisir la langue">
+        <option value="fr">🇫🇷 FR</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="de">🇩🇪 DE</option>
+        <option value="it">🇮🇹 IT</option>
+      </select>
+    </div>
+    <a class="nav__cta" href="reservation.html" data-i18n="nav.reserve">Réserver</a>
   </div>
-  <a class="nav__cta" href="reservation.html" data-i18n="nav.reserve">Réserver</a>
 </header>
 
 <!-- HERO -->
@@ -420,6 +425,70 @@
     <button class="events__dot" data-event-go="5" aria-label="Aller à Soirée Cochon"></button>
   </div>
 
+  <!-- MOBILE-ONLY : static vertical list (no carousel, no animation) -->
+  <ul class="events__list" aria-label="Liste des soirées de l'auberge">
+    <li class="event-row">
+      <div class="event-row__art event-card__art" aria-hidden="true">
+        <span class="event-card__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm6-3a6 6 0 1 1-12 0H4a8 8 0 0 0 7 7.93V22h2v-3.07A8 8 0 0 0 20 11h-2z"/></svg></span>
+      </div>
+      <div class="event-row__body">
+        <span class="event-row__tag" data-i18n="events.karaoke.tag">Tous les mois</span>
+        <h3 data-i18n="events.karaoke.name">Soirée Karaoké</h3>
+        <p data-i18n="events.karaoke.desc">Micro, dîner et bonne humeur — l'auberge se transforme en scène ouverte le temps d'une soirée.</p>
+      </div>
+    </li>
+    <li class="event-row">
+      <div class="event-row__art event-card__art event-card__art--paella" aria-hidden="true">
+        <span class="event-card__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M21 11h-7V6a4 4 0 0 0-8 0v5H3a1 1 0 0 0-1 1 10 10 0 0 0 20 0 1 1 0 0 0-1-1zM8 6a2 2 0 0 1 4 0v5H8z"/></svg></span>
+      </div>
+      <div class="event-row__body">
+        <span class="event-row__tag" data-i18n="events.paella.tag">Une fois en été</span>
+        <h3 data-i18n="events.paella.name">Soirée Paella</h3>
+        <p data-i18n="events.paella.desc">Une paella géante mijotée à la plancha, du safran à profusion et une sangria fraîche en accompagnement.</p>
+      </div>
+    </li>
+    <li class="event-row">
+      <div class="event-row__art event-card__art event-card__art--basque" aria-hidden="true">
+        <span class="event-card__icon"><svg viewBox="0 0 64 64" width="22" height="22" fill="currentColor"><path d="M32 32 L32 6 Q26 6 26 12 L26 26 L12 26 Q6 26 6 32 Z"/><path d="M32 32 L58 32 Q58 26 52 26 L38 26 L38 12 Q38 6 32 6 Z"/><path d="M32 32 L32 58 Q38 58 38 52 L38 38 L52 38 Q58 38 58 32 Z"/><path d="M32 32 L6 32 Q6 38 12 38 L26 38 L26 52 Q26 58 32 58 Z"/></svg></span>
+      </div>
+      <div class="event-row__body">
+        <span class="event-row__tag" data-i18n="events.basque.tag">Une fois en été</span>
+        <h3 data-i18n="events.basque.name">Soirée Basque</h3>
+        <p data-i18n="events.basque.desc">Axoa de veau, piperade, gâteau basque… une virée gourmande au cœur du Pays Basque, l'espace d'une soirée.</p>
+      </div>
+    </li>
+    <li class="event-row">
+      <div class="event-row__art event-card__art event-card__art--huitres" aria-hidden="true">
+        <span class="event-card__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9 C4 6, 6 6, 8 9 S12 12, 14 9 S18 6, 20 9"/><path d="M2 15 C4 12, 6 12, 8 15 S12 18, 14 15 S18 12, 20 15"/></svg></span>
+      </div>
+      <div class="event-row__body">
+        <span class="event-row__tag" data-i18n="events.huitres.tag">Pendant les fêtes</span>
+        <h3 data-i18n="events.huitres.name">Huitre</h3>
+        <p data-i18n="events.huitres.desc">Dégustation d'huîtres fraîches arrivées du matin, accompagnées d'un verre de vin blanc sec.</p>
+      </div>
+    </li>
+    <li class="event-row">
+      <div class="event-row__art event-card__art event-card__art--foie-gras" aria-hidden="true">
+        <span class="event-card__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2.5c-2.6 0-4.7 1.4-5.8 3.4C4.8 6 3.7 6.6 3 7.7 2 9.4 2.1 11.6 3.2 13.2c.4.6 1 1 1.6 1.3-.2 1.7.4 3.5 1.8 4.7C7.9 20.5 9.9 21.5 12 21.5s4.1-1 5.4-2.3c1.4-1.2 2-3 1.8-4.7.6-.3 1.2-.7 1.6-1.3 1.1-1.6 1.2-3.8.2-5.5-.7-1.1-1.8-1.7-3.2-1.8C16.7 3.9 14.6 2.5 12 2.5z"/></svg></span>
+      </div>
+      <div class="event-row__body">
+        <span class="event-row__tag" data-i18n="events.foiegras.tag">Pendant les fêtes</span>
+        <h3 data-i18n="events.foiegras.name">Foie gras</h3>
+        <p data-i18n="events.foiegras.desc">Foie gras mi-cuit, chutney de figues et pain d'épices toasté — la soirée gourmande de l'année.</p>
+      </div>
+    </li>
+    <li class="event-row">
+      <div class="event-row__art event-card__art event-card__art--cochon" aria-hidden="true">
+        <span class="event-card__icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2c0 3-3 4.5-3 7.5 0 1.2.6 2 1.4 2.5-.4-1.5.6-2.6 1.6-2.6.8 0 1.5.6 1.5 1.5 0 1.2-1 1.6-1 2.6 0 .9.7 1.5 1.5 1.5 1.1 0 2.5-.8 2.5-3 0-2.5-2-4-2-7 0-1.5.8-2.5 1-3-1 .4-2 1-3 2-1 1-1.5 2-1.5 3.5C10 6 12 4.5 12 2z"/></svg></span>
+      </div>
+      <div class="event-row__body">
+        <span class="event-row__tag" data-i18n="events.cochon.tag">Une fois en été</span>
+        <h3 data-i18n="events.cochon.name">Soirée Cochon</h3>
+        <p data-i18n="events.cochon.desc">Cochon rôti à la broche, pommes sarladaises et confitures maison — un festin à partager en grande tablée.</p>
+      </div>
+    </li>
+  </ul>
+
   <p class="events__note">
     <span class="caveat" data-i18n="events.note.script">Envie d'être prévenu(e) ?</span>
     <span data-i18n="events.note.text">Suivez-nous sur</span>
@@ -440,61 +509,59 @@
     <p class="eyebrow" data-i18n="galerie.eyebrow">— Notre Auberge —</p>
     <h2 class="h-section" data-i18n="galerie.title">Un coup d'œil dans la salle</h2>
   </div>
-  <!-- Two horizontally-scrolling strips, drifting in opposite directions.
-       The track is duplicated (aria-hidden copies) so translateX -50%
-       loops seamlessly. Pause on hover. -->
-  <div class="galerie__strip galerie__strip--ltr" aria-label="Photos du restaurant — ligne 1">
-    <div class="galerie__track">
-      <!-- Original set (10 photos) -->
-      <img class="galerie__photo" src="assets/salle3.jpg"          alt="Suggestion du jour à l'ardoise" loading="lazy" />
-      <img class="galerie__photo" src="assets/grenouilles_plat.jpg" alt="Grenouilles persillade généreuse" loading="lazy" />
-      <img class="galerie__photo" src="assets/Karaoke.jpeg"     alt="karaoke loading="lazy" />
-      <img class="galerie__photo" src="assets/Dessert.jpg"           alt="dessert" loading="lazy" />
-      <img class="galerie__photo" src="assets/salle1.jpg"           alt="Salle de l'auberge" loading="lazy" />
-      <img class="galerie__photo" src="assets/magret.jpg"           alt="Magret de canard" loading="lazy" />
-      <img class="galerie__photo" src="assets/Bar.jpg"  alt="Bar" loading="lazy" />
-      <img class="galerie__photo" src="assets/Gateau2.jpg"     alt="Gateau" loading="lazy" />
-      <img class="galerie__photo" src="assets/Vin2.jpg"     alt="Vin" loading="lazy" />
-      <img class="galerie__photo" src="assets/BasqueEquipe.jpg" alt="equipe Basque" loading="lazy" />
-      <!-- Duplicate for seamless infinite loop -->
-      <img class="galerie__photo" src="assets/salle3.jpg"          alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/grenouilles_plat.jpg" alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/Karaoke.jpeg"     alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/Dessert.jpg"           alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/salle1.jpg"           alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/magret.jpg"           alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/Bar.jpg"  alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/Gateau2.jpg"     alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/Vin2.jpg"     alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/BasqueEquipe.jpg" alt="" aria-hidden="true" loading="lazy" />
-    </div>
+  <!-- Static grid : tap any photo to open the lightbox.
+       2 columns on mobile, 3 on tablet, 4 on desktop. -->
+  <div class="galerie__grid" data-gallery>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/salle3.jpg" alt="Suggestion du jour à l'ardoise" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/grenouilles_plat.jpg" alt="Grenouilles persillade généreuse" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/Karaoke.jpeg" alt="Soirée karaoké" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/Dessert.jpg" alt="Dessert maison" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/salle1.jpg" alt="Salle de l'auberge" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/magret.jpg" alt="Magret de canard" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/Bar.jpg" alt="Le bar de l'auberge" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/Gateau2.jpg" alt="Gâteau maison" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/Vin2.jpg" alt="Sélection vin" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/BasqueEquipe.jpg" alt="L'équipe en soirée basque" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/salle2.jpg" alt="Table dressée avec menu" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/creme_brulee.jpg" alt="Crème brûlée maison" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/facade.jpg" alt="Façade de l'auberge" loading="lazy" decoding="async" />
+    </button>
+    <button type="button" class="galerie__cell" data-gallery-item>
+      <img src="assets/steak_frites1.jpg" alt="Steak frites maison" loading="lazy" decoding="async" />
+    </button>
   </div>
 
-  <div class="galerie__strip galerie__strip--rtl" aria-label="Photos du restaurant — ligne 2">
-    <div class="galerie__track">
-      <!-- Original set (10 photos, different selection) -->
-      <img class="galerie__photo" src="assets/salle2.jpg"           alt="Table dressée avec menu" loading="lazy" />
-      <img class="galerie__photo" src="assets/rapees_pan.jpeg"      alt="Râpées dans la poêle" loading="lazy" />
-      <img class="galerie__photo" src="assets/creme_brulee.jpg"     alt="Crème brûlée maison" loading="lazy" />
-      <img class="galerie__photo" src="assets/salade1.jpg"          alt="Salade composée fraîche" loading="lazy" />
-      <img class="galerie__photo" src="assets/facade.jpg"           alt="Façade de l'auberge" loading="lazy" />
-      <img class="galerie__photo" src="assets/menu_rapees1.jpg"     alt="Râpées en grande assiette" loading="lazy" />
-      <img class="galerie__photo" src="assets/grenouilles_plat1.jpg" alt="Plat de grenouilles vue rapprochée" loading="lazy" />
-      <img class="galerie__photo" src="assets/steak_frites1.jpg"    alt="Steak frites à l'auberge" loading="lazy" />
-      <img class="galerie__photo" src="assets/rapees_pan2.jpg"      alt="Râpées en cuisson" loading="lazy" />
-      <img class="galerie__photo" src="assets/menu_rapees.jpg"      alt="Menu râpées complet" loading="lazy" />
-      <!-- Duplicate for seamless infinite loop -->
-      <img class="galerie__photo" src="assets/salle2.jpg"           alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/rapees_pan.jpeg"      alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/creme_brulee.jpg"     alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/salade1.jpg"          alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/facade.jpg"           alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/menu_rapees1.jpg"     alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/grenouilles_plat1.jpg" alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/steak_frites1.jpg"    alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/rapees_pan2.jpg"      alt="" aria-hidden="true" loading="lazy" />
-      <img class="galerie__photo" src="assets/menu_rapees.jpg"      alt="" aria-hidden="true" loading="lazy" />
-    </div>
+  <!-- Lightbox overlay (built once, reused for every photo) -->
+  <div class="lightbox" id="galleryLightbox" hidden aria-hidden="true">
+    <button type="button" class="lightbox__close" aria-label="Fermer">×</button>
+    <button type="button" class="lightbox__prev"  aria-label="Photo précédente">‹</button>
+    <button type="button" class="lightbox__next"  aria-label="Photo suivante">›</button>
+    <img class="lightbox__img" alt="" />
   </div>
 </section>
 
@@ -775,7 +842,9 @@
     uniqueSlugs.forEach(tryMediaForSlug);
 
     // ---- Continuous rotation params (Circular Gallery — 21st.dev feel) ----
-    const VELOCITY = 26;                // px / second of constant drift — slow & cinematic
+    // Single-ticker policy : only the reviews marquee animates site-wide.
+    // The events carousel is arrow/dot-driven only — no auto-drift.
+    const VELOCITY = 0;                 // px / second of constant drift (0 = disabled)
     const INTERACT_COOLDOWN = 2200;     // ms paused after user interaction
     let interactUntil = 0;
     let isVisible = false;
@@ -1099,30 +1168,72 @@
     else window.addEventListener('load', init);
   })();
 
-  // ====== GALERIE — Marquee infinite scroll (efferd style) ======
-  // The animation is 100% CSS (translateX 0 → -50%, with the track
-  // duplicated for seamless wrap). JS is only used to:
-  //   1. Mark html.js-ready so the entrance fade-in kicks in
-  //   2. Pause the animation when the section leaves the viewport
-  //      (saves CPU & battery — important on mobile)
+  // ====== GALERIE — Tap-to-zoom lightbox ======
+  // Static grid (no more marquee — only the reviews ticker animates
+  // site-wide). Clicking any cell opens the lightbox; ‹/› navigates,
+  // × closes, Esc closes, backdrop tap closes, swipe left/right navigates.
   (function() {
-    const strips = document.querySelectorAll('.galerie__strip');
-    if (!strips.length) return;
-    document.documentElement.classList.add('js-ready');
+    const cells = document.querySelectorAll('[data-gallery-item]');
+    const lb    = document.getElementById('galleryLightbox');
+    if (!cells.length || !lb) return;
 
-    // Only animate while the gallery is on-screen
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          strips.forEach(s => {
-            s.style.animationPlayState =
-              s.querySelector('.galerie__track').style.animationPlayState =
-                e.isIntersecting ? 'running' : 'paused';
-          });
-        });
-      }, { threshold: 0 });
-      strips.forEach(s => io.observe(s));
+    const img    = lb.querySelector('.lightbox__img');
+    const btnX   = lb.querySelector('.lightbox__close');
+    const btnPrev = lb.querySelector('.lightbox__prev');
+    const btnNext = lb.querySelector('.lightbox__next');
+
+    // Build the source list once
+    const sources = Array.from(cells).map(c => ({
+      src: c.querySelector('img').src,
+      alt: c.querySelector('img').alt || ''
+    }));
+    let idx = 0;
+
+    function show(i) {
+      idx = (i + sources.length) % sources.length;
+      img.src = sources[idx].src;
+      img.alt = sources[idx].alt;
     }
+    function open(i) {
+      show(i);
+      lb.hidden = false;
+      lb.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => lb.classList.add('is-open'));
+      document.documentElement.style.overflow = 'hidden';
+    }
+    function close() {
+      lb.classList.remove('is-open');
+      setTimeout(() => {
+        lb.hidden = true;
+        lb.setAttribute('aria-hidden', 'true');
+        document.documentElement.style.overflow = '';
+      }, 250);
+    }
+    function next() { show(idx + 1); }
+    function prev() { show(idx - 1); }
+
+    cells.forEach((c, i) => c.addEventListener('click', () => open(i)));
+    btnX.addEventListener('click', close);
+    btnPrev.addEventListener('click', prev);
+    btnNext.addEventListener('click', next);
+    // Click backdrop (but NOT image) to close
+    lb.addEventListener('click', (e) => {
+      if (e.target === lb) close();
+    });
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowRight') next();
+      else if (e.key === 'ArrowLeft') prev();
+    });
+    // Touch swipe (mobile)
+    let touchStartX = 0;
+    img.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    img.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
+    }, { passive: true });
   })();
 
   // ====== HERO PARALLAX (osmosupply style) ======
@@ -1256,6 +1367,12 @@
     setTimeout(() => targets.forEach(t => t.classList.add('is-revealed')), 1800);
   })();
 </script>
+
+<!-- Sticky "Call" button — mobile only, always reachable 1-tap dial -->
+<a class="sticky-call" href="tel:0955820214" aria-label="Appeler La Petite Auberge de Flo">
+  <span class="sticky-call__icon" aria-hidden="true">📞</span>
+  <span class="sticky-call__label" data-i18n="sticky.call">Appeler</span>
+</a>
 
 </body>
 </html>
