@@ -14,6 +14,7 @@ window.I18N = {
     "nav.galerie": "Galerie",
     "nav.contact": "Contact",
     "nav.reserve": "Réserver",
+    "sticky.call": "Appeler",
 
     "hero.eyebrow": "— Depuis toujours, en plein cœur du Forez —",
     "hero.title1": "Bienvenue à la",
@@ -264,6 +265,7 @@ window.I18N = {
     "nav.galerie": "Gallery",
     "nav.contact": "Contact",
     "nav.reserve": "Book a table",
+    "sticky.call": "Call",
 
     "hero.eyebrow": "— Always there, in the heart of the Forez —",
     "hero.title1": "Welcome to",
@@ -514,6 +516,7 @@ window.I18N = {
     "nav.galerie": "Galerie",
     "nav.contact": "Kontakt",
     "nav.reserve": "Reservieren",
+    "sticky.call": "Anrufen",
 
     "hero.eyebrow": "— Seit jeher mitten im Forez —",
     "hero.title1": "Willkommen in der",
@@ -764,6 +767,7 @@ window.I18N = {
     "nav.galerie": "Galleria",
     "nav.contact": "Contatti",
     "nav.reserve": "Prenota",
+    "sticky.call": "Chiama",
 
     "hero.eyebrow": "— Da sempre, nel cuore del Forez —",
     "hero.title1": "Benvenuti alla",
@@ -1054,9 +1058,14 @@ window.I18N = {
     // <html lang="..">
     document.documentElement.lang = window.I18N[lang]?.htmlLang || lang;
 
-    // Mark active button
+    // Mark active button (legacy 4-button design — still used on some pages)
     document.querySelectorAll("[data-lang]").forEach(b => {
       b.classList.toggle("is-active", b.getAttribute("data-lang") === lang);
+    });
+
+    // Sync the dropdown <select> value if present (modern design)
+    document.querySelectorAll(".lang-switch__select").forEach(sel => {
+      if (sel.value !== lang) sel.value = lang;
     });
 
     localStorage.setItem("auberge_lang", lang);
@@ -1065,8 +1074,13 @@ window.I18N = {
   function init() {
     const initial = getLang();
     applyTranslations(initial);
+    // Legacy buttons
     document.querySelectorAll("[data-lang]").forEach(b => {
       b.addEventListener("click", () => applyTranslations(b.getAttribute("data-lang")));
+    });
+    // Modern dropdown
+    document.querySelectorAll(".lang-switch__select").forEach(sel => {
+      sel.addEventListener("change", () => applyTranslations(sel.value));
     });
   }
 
