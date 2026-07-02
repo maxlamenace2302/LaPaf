@@ -159,7 +159,7 @@
     listReservations, updateStatus, updateInternalNotes,
     subscribeReservations,
     subscribePush, unsubscribePush,
-    getServiceState, setServiceClosed,
+    getServiceState, setServiceClosed, setOfflineCouverts,
     getDefaultCapacities, setDefaultCapacities,
   } from './supabase.js';
 
@@ -483,15 +483,18 @@
     renderList();
   }
 
-  // Helper : pour une date + service, retourne { current, max, closed }
+  // Helper : pour une date + service, retourne { current, max, closed, offline }
+  // `offline` = couverts pris par téléphone / agenda papier (hors appli), déjà
+  // inclus dans `current` pour que la capacité affichée reflète la réalité.
   function capacityFor(date, service) {
-    const current = state.reservations
+    const appGuests = state.reservations
       .filter(r => r.date === date && r.service === service && (r.status === 'en_attente' || r.status === 'confirmee'))
       .reduce((s, r) => s + r.guests, 0);
-    const ov = state.overrides.find(o => o.date === date && o.service === service);
-    const max    = ov?.max_couverts ?? state.defaults[service];
-    const closed = ov?.manually_closed === true;
-    return { current, max, closed };
+    const ov      = state.overrides.find(o => o.date === date && o.service === service);
+    const offline = ov?.offline_couverts ?? 0;
+    const max     = ov?.max_couverts ?? state.defaults[service];
+    const closed  = ov?.manually_closed === true;
+    return { current: appGuests + offline, max, closed, offline };
   }
 
   function isToday(d) {
@@ -645,28 +648,39 @@
       </section>`;
   }
 
-  // Per-day capacity chip with toggle "Ouvert / Complet"
+  // Per-day capacity chip with toggle "Ouvert / Complet" + ajustement agenda papier
   function capacityChipHtml(date, service, cap) {
-    const { current, max, closed } = cap;
+    const { current, max, closed, offline } = cap;
     const full   = max != null && current >= max;
     const isFull = closed || full;
     const cls    = isFull ? 'adm-cap--full' : (max != null && current / max >= 0.85 ? 'adm-cap--warn' : 'adm-cap--ok');
     const label  = service === 'midi' ? 'Midi' : 'Soir';
-    const stateLabel = closed ? 'Complet (manuel)' : (full ? 'Complet (capacité)' : `${current}/${max ?? '∞'} couverts`);
-    const btnLabel   = closed ? 'Rouvrir' : 'Marquer complet';
+    const stateLabel  = closed ? 'Complet (manuel)' : (full ? 'Complet (capacité)' : `${current}/${max ?? '∞'} couverts`);
+    const offlineNote = offline > 0 ? `<span class="adm-cap__offline">dont ${offline} par tél./agenda</span>` : '';
+    const btnLabel     = closed ? 'Rouvrir' : 'Marquer complet';
     return `
       <div class="adm-cap ${cls}">
         <div class="adm-cap__head">
           <span class="adm-cap__service">${label}</span>
           <span class="adm-cap__count">${stateLabel}</span>
+          ${offlineNote}
         </div>
-        <button class="adm-cap__btn" type="button"
-                data-cap-action="toggle"
-                data-cap-date="${date}"
-                data-cap-service="${service}"
-                data-cap-closed="${closed}">
-          ${btnLabel}
-        </button>
+        <div class="adm-cap__actions">
+          <button class="adm-cap__btn adm-cap__btn--ghost" type="button"
+                  data-cap-action="offline"
+                  data-cap-date="${date}"
+                  data-cap-service="${service}"
+                  data-cap-offline="${offline}">
+            ✎ Agenda
+          </button>
+          <button class="adm-cap__btn" type="button"
+                  data-cap-action="toggle"
+                  data-cap-date="${date}"
+                  data-cap-service="${service}"
+                  data-cap-closed="${closed}">
+            ${btnLabel}
+          </button>
+        </div>
       </div>`;
   }
 
@@ -759,6 +773,35 @@
       alert('Erreur : ' + err.message);
       cap.disabled = false;
       cap.textContent = original;
+    }
+  });
+
+  // ---------- Capacity: couverts pris par téléphone / agenda papier ----------
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-cap-action="offline"]');
+    if (!btn) return;
+    e.stopPropagation();
+    const date    = btn.dataset.capDate;
+    const service = btn.dataset.capService;
+    const label   = service === 'midi' ? 'Midi' : 'Soir';
+    const dateFmt = new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const input = prompt(
+      `Combien de couverts sont déjà pris par téléphone ou sur l'agenda papier pour le service ${label} du ${dateFmt} ?\n(Ce nombre s'ajoute aux réservations de l'appli pour calculer la capacité restante.)`,
+      btn.dataset.capOffline || '0'
+    );
+    if (input === null) return; // annulé
+    const n = parseInt(input, 10);
+    if (Number.isNaN(n) || n < 0) { alert('Merci d\'entrer un nombre entier positif ou nul.'); return; }
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Enregistrement…';
+    try {
+      await setOfflineCouverts(date, service, n);
+      await refresh();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+      btn.disabled = false;
+      btn.textContent = original;
     }
   });
 
