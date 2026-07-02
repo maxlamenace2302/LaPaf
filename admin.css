@@ -364,6 +364,55 @@ body.adminpage {
 }
 .adm-filters__inner::-webkit-scrollbar { display: none; }
 
+/* ============================================================
+   DATE SEARCH
+   ============================================================ */
+.adm-datesearch {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: .65rem clamp(1rem, 3vw, 2rem) 0;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.adm-datesearch__icon {
+  font-size: .95rem;
+  opacity: .55;
+  flex-shrink: 0;
+}
+.adm-datesearch__input {
+  flex: 1;
+  max-width: 220px;
+  padding: .5rem .7rem;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-family: var(--f-sans);
+  font-size: .85rem;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+.adm-datesearch__input:focus {
+  outline: none;
+  border-color: var(--aubergine);
+  box-shadow: 0 0 0 4px rgba(58, 26, 42, .1);
+}
+.adm-datesearch__clear {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  background: var(--cream-2);
+  color: var(--ink-soft);
+  border: none;
+  border-radius: 50%;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.adm-datesearch__clear:hover { background: var(--cream-3); color: var(--ink); }
+
 .adm-chip {
   flex-shrink: 0;
   padding: .5rem 1rem;
@@ -1129,6 +1178,12 @@ body.adminpage {
   font-family: var(--f-sans);
   font-size: .95rem;
   margin: 0;
+}
+.adm-empty--inline {
+  padding: 2.5rem 1.5rem;
+  background: var(--cream-2);
+  border-radius: 12px;
+  margin-bottom: 1rem;
 }
 
 /* ============================================================
