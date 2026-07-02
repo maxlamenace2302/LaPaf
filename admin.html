@@ -110,6 +110,11 @@
   </div>
 
   <nav class="adm-filters" aria-label="Filtres">
+    <div class="adm-datesearch">
+      <span class="adm-datesearch__icon" aria-hidden="true">🔎</span>
+      <input type="date" class="adm-datesearch__input" id="dateSearchInput" aria-label="Chercher une date" />
+      <button class="adm-datesearch__clear" type="button" id="dateSearchClear" aria-label="Effacer la recherche" hidden>✕</button>
+    </div>
     <div class="adm-filters__inner" id="filterChips">
       <button class="adm-chip is-active" type="button" data-filter="all">Toutes <span class="adm-chip__count" data-count="all">0</span></button>
       <button class="adm-chip" type="button" data-filter="pending">À traiter <span class="adm-chip__count" data-count="pending">0</span></button>
@@ -167,6 +172,7 @@
     overrides:    [],   // service_overrides rows (per-day "complet" or custom max)
     defaults:     { midi: 30, soir: 40 },
     filter: 'all',
+    dateSearch: null,   // if set, overrides the filter chips and shows a single day
     currentId: null,
     unsubscribe: null,
   };
@@ -429,10 +435,31 @@
 
   function setFilter(f) {
     state.filter = f;
+    state.dateSearch = null;
+    $('#dateSearchInput').value = '';
+    $('#dateSearchClear').hidden = true;
     $$('#filterChips [data-filter]').forEach(c =>
       c.classList.toggle('is-active', c.dataset.filter === f));
     renderList();
   }
+
+  // ---------- Date search ----------
+  // Cherche une date précise (passée ou future n'a pas de sens ici, on ne
+  // propose que des dates >= aujourd'hui). Contrairement aux chips, ça montre
+  // le jour même s'il n'a AUCUNE réservation, avec la capacité + le bouton
+  // "Marquer complet" — ce qui permet de fermer un jour à l'avance.
+  $('#dateSearchInput').min = new Date().toISOString().slice(0, 10);
+  $('#dateSearchInput').addEventListener('change', (e) => {
+    const v = e.target.value;
+    state.dateSearch = v || null;
+    $('#dateSearchClear').hidden = !v;
+    if (v) {
+      state.filter = null;
+      $$('#filterChips [data-filter]').forEach(c => c.classList.remove('is-active'));
+    }
+    renderList();
+  });
+  $('#dateSearchClear').addEventListener('click', () => setFilter('all'));
 
   // ---------- Data fetch + render ----------
   async function refresh() {
@@ -532,6 +559,8 @@
   }
 
   function renderList() {
+    if (state.dateSearch) { renderDateSearch(state.dateSearch); return; }
+
     const rows = filtered();
     if (!rows.length) {
       renderEmpty('Aucune réservation', state.filter === 'all'
@@ -578,6 +607,42 @@
     }).join('');
 
     $('#dashList').innerHTML = html;
+  }
+
+  // Affiche un jour précis choisi via la recherche par date — même s'il n'a
+  // aucune réservation, pour pouvoir le marquer "complet" à l'avance.
+  function renderDateSearch(date) {
+    const rows = state.reservations.filter(r => r.date === date);
+    const today = new Date().toISOString().slice(0, 10);
+    const dayFmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const label = dayFmt.format(new Date(date + 'T00:00:00')).replace(/^./, c => c.toUpperCase());
+    const guests = rows.reduce((s, r) => s + r.guests, 0);
+
+    const cardsHtml = rows.length
+      ? `<div class="adm-cards">${rows.map(cardHtml).join('')}</div>`
+      : `<div class="adm-empty adm-empty--inline">
+           <div class="adm-empty__icon">🗓️</div>
+           <h2 class="adm-empty__title">Aucune réservation ce jour</h2>
+           <p class="adm-empty__text">Vous pouvez tout de même marquer un service complet ci-dessus, à l'avance.</p>
+         </div>`;
+
+    // On ne propose la capacité que pour les dates >= aujourd'hui (le champ
+    // le garantit déjà, mais on se protège si l'input est modifié à la main).
+    const capacityHtml = date < today ? '' : `
+      <div class="adm-capacity">
+        ${capacityChipHtml(date, 'midi', capacityFor(date, 'midi'))}
+        ${capacityChipHtml(date, 'soir', capacityFor(date, 'soir'))}
+      </div>`;
+
+    $('#dashList').innerHTML = `
+      <section class="adm-day">
+        <header class="adm-day__header">
+          <h2 class="adm-day__title">${label}</h2>
+          <div class="adm-day__meta">${rows.length ? `<strong>${rows.length} réservation${rows.length > 1 ? 's' : ''}</strong> · ${guests} couvert${guests > 1 ? 's' : ''}` : 'Aucune réservation'}</div>
+        </header>
+        ${capacityHtml}
+        ${cardsHtml}
+      </section>`;
   }
 
   // Per-day capacity chip with toggle "Ouvert / Complet"
