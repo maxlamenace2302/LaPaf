@@ -138,6 +138,22 @@ export async function setServiceMax(date, service, max) {
   if (error) throw error;
 }
 
+// Chef records covers already taken outside the app (phone call, paper agenda)
+// for a given day/service — added on top of the app's own reservations when
+// computing remaining capacity, so the public form and the dashboard stay
+// consistent with what's actually booked.
+export async function setOfflineCouverts(date, service, count) {
+  const row = {
+    date, service,
+    offline_couverts: Number(count) || 0,
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await supabase
+    .from('service_overrides')
+    .upsert(row, { onConflict: 'date,service' });
+  if (error) throw error;
+}
+
 // Read the default global maxes (used by the settings panel)
 export async function getDefaultCapacities() {
   const { data, error } = await supabase

@@ -506,9 +506,8 @@ body.adminpage {
 }
 .adm-cap {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
+  flex-direction: column;
+  gap: .6rem;
   padding: .7rem .9rem;
   border-radius: 10px;
   border: 1.5px solid;
@@ -517,7 +516,7 @@ body.adminpage {
 .adm-cap__head {
   display: flex;
   flex-direction: column;
-  gap: .1rem;
+  gap: .15rem;
   min-width: 0;
 }
 .adm-cap__service {
@@ -530,9 +529,18 @@ body.adminpage {
   font-size: .9rem;
   font-weight: 600;
 }
+.adm-cap__offline {
+  font-size: .72rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.adm-cap__actions {
+  display: flex;
+  gap: .5rem;
+}
 .adm-cap__btn {
-  flex-shrink: 0;
-  padding: .45rem .8rem;
+  flex: 1;
+  padding: .45rem .6rem;
   border-radius: 6px;
   border: 1.5px solid;
   background: transparent;
@@ -562,6 +570,17 @@ body.adminpage {
 .adm-cap--full .adm-cap__count   { color: var(--adm-danger); font-weight: 700; }
 .adm-cap--full .adm-cap__btn     { color: var(--adm-success); border-color: var(--adm-success); background: #fff; }
 .adm-cap--full .adm-cap__btn:hover { background: var(--adm-success); color: #fff; }
+
+/* Secondary "Agenda" button stays neutral regardless of the cap's open/full state */
+.adm-cap .adm-cap__btn--ghost {
+  color: var(--ink-soft);
+  border-color: var(--line-strong);
+  background: #fff;
+}
+.adm-cap .adm-cap__btn--ghost:hover {
+  background: var(--cream-2);
+  color: var(--ink);
+}
 
 @media (max-width: 480px) {
   .adm-capacity { grid-template-columns: 1fr; }
