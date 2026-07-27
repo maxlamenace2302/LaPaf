@@ -75,6 +75,7 @@
       </a>
 
       <div class="adm-topbar__right">
+        <button class="adm-iconbtn" id="addResBtn" title="Ajouter une réservation" type="button">＋</button>
         <button class="adm-iconbtn" id="notifBtn" title="Réservations à traiter" type="button">🔔</button>
         <button class="adm-iconbtn" id="refreshBtn" title="Rafraîchir" type="button">⟳</button>
         <button class="adm-iconbtn" id="settingsBtn" title="Réglages" type="button">⚙</button>
@@ -162,6 +163,7 @@
     getServiceState, setServiceClosed, setOfflineCouverts,
     getDefaultCapacities, setDefaultCapacities,
     listClosures, addWeeklyClosure, addRangeClosure, removeClosure,
+    createReservationAsChef,
   } from './supabase.js';
 
   const $  = (s, r = document) => r.querySelector(s);
@@ -296,6 +298,7 @@
     document.querySelector('[data-card]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   $('#settingsBtn').addEventListener('click', openSettings);
+  $('#addResBtn').addEventListener('click', openAddReservation);
 
   // ---------- Settings sheet ----------
   async function getPushState() {
@@ -946,6 +949,141 @@
       openSheet(id);
     }
   });
+
+  // ---------- Add reservation manually (appel sans papier, client au comptoir...) ----------
+  function serviceFromTime(time) {
+    if (!time) return null;
+    const h = parseInt(time.split(':')[0], 10);
+    return h < 16 ? 'midi' : 'soir';
+  }
+
+  function timeOptionsHtml() {
+    return `
+      <option value="">— Choisir un créneau —</option>
+      <optgroup label="Midi">
+        <option value="12:00">12h00</option>
+        <option value="12:30">12h30</option>
+        <option value="13:00">13h00</option>
+        <option value="13:30">13h30</option>
+      </optgroup>
+      <optgroup label="Soir">
+        <option value="19:00">19h00</option>
+        <option value="19:30">19h30</option>
+        <option value="20:00">20h00</option>
+        <option value="20:30">20h30</option>
+        <option value="21:00">21h00</option>
+        <option value="21:30">21h30</option>
+      </optgroup>`;
+  }
+
+  // Fermeture (récurrente ou par période) qui s'applique à cette date/service, s'il y en a une
+  function closureNoteFor(date, service) {
+    if (!date) return null;
+    const weekday = new Date(date + 'T00:00:00').getDay();
+    return state.closures.find(c => {
+      if (c.service && c.service !== service) return false;
+      if (c.kind === 'weekly') return c.weekday === weekday;
+      if (c.kind === 'range') return date >= c.start_date && date <= c.end_date;
+      return false;
+    }) || null;
+  }
+
+  function openAddReservation() {
+    $('#sheetInner').innerHTML = `
+      <p class="adm-sheet__eyebrow">— Nouvelle réservation —</p>
+      <h2 class="adm-sheet__title">Ajouter <em>à la main</em></h2>
+      <p class="adm-settings-help">Pour un appel reçu sans papier sous la main, ou un client venu directement. Elle apparaît directement comme confirmée.</p>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Date &amp; créneau</p>
+        <div class="adm-form-row">
+          <input type="date" id="arDate" class="adm-form-input" min="${new Date().toISOString().slice(0,10)}" />
+          <select id="arTime" class="adm-form-input">${timeOptionsHtml()}</select>
+        </div>
+        <p class="adm-settings-help" id="arCapacityHint" hidden></p>
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Nombre de personnes</p>
+        <input type="number" id="arGuests" class="adm-form-input" min="1" max="40" value="2" />
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Nom du client</p>
+        <input type="text" id="arName" class="adm-form-input" placeholder="Nom" />
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Téléphone</p>
+        <input type="tel" id="arPhone" class="adm-form-input" placeholder="06…" />
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Email (facultatif)</p>
+        <input type="email" id="arEmail" class="adm-form-input" placeholder="facultatif" />
+      </div>
+
+      <div class="adm-sheet__field adm-sheet__notes-internal">
+        <p class="adm-sheet__field-label">Demandes particulières (facultatif)</p>
+        <textarea id="arNotes" placeholder="Allergies, table près de la fenêtre…"></textarea>
+      </div>
+
+      <div class="adm-sheet__actions">
+        <button class="adm-btn adm-btn--success adm-btn--full" type="button" id="arSubmit">Ajouter la réservation</button>
+      </div>`;
+
+    function updateHint() {
+      const date = $('#arDate').value;
+      const service = serviceFromTime($('#arTime').value);
+      const hint = $('#arCapacityHint');
+      if (!date || !service) { hint.hidden = true; return; }
+      const closure = closureNoteFor(date, service);
+      const cap = capacityFor(date, service);
+      hint.hidden = false;
+      if (closure || cap.closed) {
+        hint.textContent = `⚠ Ce service est fermé (${closure?.reason || 'fermeture manuelle'}) — l'ajout forcera quand même la réservation.`;
+      } else {
+        hint.textContent = `${cap.current}${cap.max != null ? ' / ' + cap.max : ''} couverts déjà pris sur ce service.`;
+      }
+    }
+    $('#arDate').addEventListener('change', updateHint);
+    $('#arTime').addEventListener('change', updateHint);
+
+    $('#arSubmit').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const date = $('#arDate').value;
+      const time = $('#arTime').value;
+      const service = serviceFromTime(time);
+      const guests = parseInt($('#arGuests').value, 10);
+      const name = $('#arName').value.trim();
+      const phone = $('#arPhone').value.trim();
+      const email = $('#arEmail').value.trim();
+      const notes = $('#arNotes').value.trim();
+
+      if (!date || !service) { alert('Choisis une date et un créneau.'); return; }
+      if (!guests || guests < 1) { alert('Nombre de personnes invalide.'); return; }
+      if (!name) { alert('Le nom du client est obligatoire.'); return; }
+      if (!phone) { alert('Le téléphone est obligatoire.'); return; }
+
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Ajout…';
+      try {
+        await createReservationAsChef({ date, time, service, guests, name, phone, email, notes });
+        await refresh();
+        closeSheet();
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+
+    $('#detailSheet').classList.add('is-open');
+    $('#sheetBackdrop').classList.add('is-open');
+    $('#detailSheet').setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
 
   // ---------- Detail sheet ----------
   function openSheet(id) {
