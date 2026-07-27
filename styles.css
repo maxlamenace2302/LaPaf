@@ -1679,6 +1679,13 @@ html.js-ready .formule:nth-child(4).is-visible { transition-delay: 270ms; }
   }
 }
 
+/* MOBILE : keep only the first 4 photos (no duplicates visible).
+   The lightbox JS auto-detects visibility, so navigation cycles
+   through 4 photos on phone, all 14 on desktop. */
+@media (max-width: 699px) {
+  .galerie__cell:nth-child(n+5) { display: none; }
+}
+
 .galerie__cell {
   position: relative;
   display: block;

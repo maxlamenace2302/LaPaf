@@ -204,7 +204,7 @@
 </footer>
 
 <script type="module">
-  import { createReservation, getServiceState } from './supabase.js';
+  import { createReservation, getServiceState, listClosures } from './supabase.js';
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -217,6 +217,32 @@
   const timeInput    = document.getElementById('rf-time');
   const guestsInput  = document.getElementById('rf-guests');
   const availBox     = document.getElementById('reserveAvail');
+
+  // ----- Fermetures (récurrentes + par période) -----
+  // Chargées une fois au chargement de la page : sert à griser immédiatement
+  // un jour fermé dès que le client choisit sa date, sans attendre le réseau.
+  // getServiceState() côté serveur reste la source de vérité au moment de l'envoi.
+  let closures = [];
+  try { closures = await listClosures(); } catch (e) { console.warn('[closures] fetch failed', e); }
+
+  function closuresForDate(dateStr) {
+    if (!dateStr) return [];
+    const weekday = new Date(dateStr + 'T00:00:00').getDay(); // 0 = dimanche ... 6 = samedi
+    return closures.filter(c => (
+      c.kind === 'weekly' ? c.weekday === weekday
+      : c.kind === 'range' ? dateStr >= c.start_date && dateStr <= c.end_date
+      : false
+    ));
+  }
+
+  // true si TOUS les services sont fermés ce jour-là (une fermeture sans service
+  // précis, ou une fermeture midi + une fermeture soir cumulées)
+  function isDateFullyClosed(dateStr) {
+    const list = closuresForDate(dateStr);
+    if (list.some(c => !c.service)) return true;
+    const closedServices = new Set(list.map(c => c.service));
+    return closedServices.has('midi') && closedServices.has('soir');
+  }
 
   // 12:00–15:59 = midi, 16:00+ = soir (boundary chosen safely below the 19h soir start)
   function serviceFromTime(time) {
@@ -280,7 +306,15 @@
 
       // Note: on ne révèle PAS les chiffres de capacité côté client.
       // Le chef seul voit "8/30 couverts" dans son dashboard.
-      if (state.manually_closed) {
+      if (state.manually_closed && (state.closed_reason === 'closed_weekly' || state.closed_reason === 'closed_period')) {
+        canSubmit = false;
+        setAvail({
+          level: 'full',
+          text: state.closed_note
+            ? `Nous sommes fermés ce jour-là — ${state.closed_note}. Appelez-nous au 09 55 82 02 14 pour un cas particulier.`
+            : `Nous sommes fermés ce jour-là. Appelez-nous au 09 55 82 02 14 pour un cas particulier.`,
+        });
+      } else if (state.manually_closed) {
         canSubmit = false;
         setAvail({
           level: 'full',
@@ -327,7 +361,29 @@
     clearTimeout(availTimer);
     availTimer = setTimeout(checkAvailability, 300);
   }
-  dateInput.addEventListener('change', debouncedCheck);
+
+  // Dès que la date change, on grise immédiatement le créneau horaire si le
+  // jour est entièrement fermé (pas besoin d'attendre le round-trip réseau).
+  function handleDateChange() {
+    const date = dateInput.value;
+    if (isDateFullyClosed(date)) {
+      timeInput.value = '';
+      timeInput.disabled = true;
+      canSubmit = false;
+      const closure = closuresForDate(date)[0];
+      setAvail({
+        level: 'full',
+        text: closure?.reason
+          ? `Nous sommes fermés ce jour-là — ${closure.reason}. Appelez-nous au 09 55 82 02 14 pour un cas particulier.`
+          : `Nous sommes fermés ce jour-là. Appelez-nous au 09 55 82 02 14 pour un cas particulier.`,
+      });
+      updateSubmitBlock();
+    } else {
+      timeInput.disabled = false;
+      debouncedCheck();
+    }
+  }
+  dateInput.addEventListener('change', handleDateChange);
   timeInput.addEventListener('change', debouncedCheck);
   guestsInput.addEventListener('input',  debouncedCheck);
 

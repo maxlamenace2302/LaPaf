@@ -1182,20 +1182,32 @@
     const btnPrev = lb.querySelector('.lightbox__prev');
     const btnNext = lb.querySelector('.lightbox__next');
 
-    // Build the source list once
-    const sources = Array.from(cells).map(c => ({
-      src: c.querySelector('img').src,
-      alt: c.querySelector('img').alt || ''
-    }));
+    // Source list is REBUILT each time the lightbox opens, based on
+    // currently-visible cells. On mobile we hide cells 5+ via CSS, so
+    // navigation cycles only through the 4 visible photos. On desktop
+    // all 14 are visible. The browser-reported visibility (offsetParent)
+    // is the source of truth — no need to duplicate the breakpoint here.
+    let sources = [];
     let idx = 0;
 
+    function rebuildSources(clickedCell) {
+      const visible = Array.from(cells).filter(c => c.offsetParent !== null);
+      sources = visible.map(c => ({
+        src: c.querySelector('img').src,
+        alt: c.querySelector('img').alt || ''
+      }));
+      idx = clickedCell ? Math.max(0, visible.indexOf(clickedCell)) : 0;
+    }
+
     function show(i) {
+      if (!sources.length) return;
       idx = (i + sources.length) % sources.length;
       img.src = sources[idx].src;
       img.alt = sources[idx].alt;
     }
-    function open(i) {
-      show(i);
+    function open(clickedCell) {
+      rebuildSources(clickedCell);
+      show(idx);
       lb.hidden = false;
       lb.setAttribute('aria-hidden', 'false');
       requestAnimationFrame(() => lb.classList.add('is-open'));
@@ -1212,7 +1224,7 @@
     function next() { show(idx + 1); }
     function prev() { show(idx - 1); }
 
-    cells.forEach((c, i) => c.addEventListener('click', () => open(i)));
+    cells.forEach(c => c.addEventListener('click', () => open(c)));
     btnX.addEventListener('click', close);
     btnPrev.addEventListener('click', prev);
     btnNext.addEventListener('click', next);
