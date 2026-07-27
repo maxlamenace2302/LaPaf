@@ -98,6 +98,28 @@ export async function updateInternalNotes(id, internal_notes) {
   return data;
 }
 
+// Chef ajoute une réservation lui-même depuis le dashboard (appel reçu sans
+// papier sous la main, ou client venu directement) — évite de repasser par
+// le formulaire public. Contrairement à createReservation (anon), on est en
+// authenticated donc on peut relire la ligne créée (.select().single()).
+// Statut par défaut "confirmee" : le chef vient de parler au client, ce n'est
+// pas une demande "en attente" à valider.
+export async function createReservationAsChef({ date, time, service, guests, name, phone, email, notes }) {
+  const row = {
+    date, time, service,
+    guests: Number(guests),
+    name: name.trim(),
+    phone: phone.trim(),
+    email: email?.trim() || null,
+    notes: notes?.trim() || null,
+    lang: 'fr',
+    status: 'confirmee',
+  };
+  const { data, error } = await supabase.from('reservations').insert(row).select().single();
+  if (error) throw error;
+  return data;
+}
+
 // ---------- Service capacity (couverts, complet/ouvert) ----------
 
 // Returns: { available, manually_closed, current_couverts, max_couverts, remaining }

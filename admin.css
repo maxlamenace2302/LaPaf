@@ -1027,6 +1027,26 @@ body.adminpage {
   color: var(--ink);
   resize: vertical;
 }
+.adm-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+}
+.adm-form-input {
+  width: 100%;
+  padding: .75rem .85rem;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-family: var(--f-sans);
+  font-size: .9rem;
+  color: var(--ink);
+}
+.adm-form-input:focus {
+  outline: none;
+  border-color: var(--aubergine);
+}
+
 .adm-sheet__notes-internal textarea:focus {
   outline: none;
   border-color: var(--aubergine);

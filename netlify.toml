@@ -8,6 +8,17 @@
   command = ""
 
 # --- HTTP headers ---
+# Baseline security headers on every response. No CSP here yet: the site
+# loads Supabase from esm.sh and embeds a Google Maps iframe, so a script-src/
+# frame-src allowlist needs to be built and tested against those, not guessed.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+
 # The service worker MUST NOT be cached aggressively, otherwise users
 # stay stuck on the old version. We tell browsers to revalidate every time.
 [[headers]]
