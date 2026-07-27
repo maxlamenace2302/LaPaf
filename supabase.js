@@ -154,6 +154,51 @@ export async function setOfflineCouverts(date, service, count) {
   if (error) throw error;
 }
 
+// ---------- Closures (fermetures récurrentes / par période) ----------
+// Table `restaurant_closures` : lecture publique (le formulaire grise les jours
+// fermés), écriture réservée au chef authentifié. Voir get_service_state pour
+// la vérification serveur qui fait foi (ce cache client n'est qu'un confort UX).
+
+export async function listClosures() {
+  const { data, error } = await supabase
+    .from('restaurant_closures')
+    .select('*')
+    .order('kind', { ascending: true })
+    .order('weekday', { ascending: true })
+    .order('start_date', { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+// Ferme un jour de la semaine de façon récurrente (ex. tous les lundis).
+// service = null → toute la journée (les deux services).
+export async function addWeeklyClosure(weekday, service, reason) {
+  const { data: { user } } = await supabase.auth.getUser();
+  const row = {
+    kind: 'weekly', weekday, service: service || null,
+    reason: reason?.trim() || null, created_by: user?.id || null,
+  };
+  const { error } = await supabase.from('restaurant_closures').insert(row);
+  if (error) throw error;
+}
+
+// Ferme une période (congés, jours fériés...). service = null → les deux services.
+export async function addRangeClosure(startDate, endDate, service, reason) {
+  const { data: { user } } = await supabase.auth.getUser();
+  const row = {
+    kind: 'range', start_date: startDate, end_date: endDate,
+    service: service || null, reason: reason?.trim() || null,
+    created_by: user?.id || null,
+  };
+  const { error } = await supabase.from('restaurant_closures').insert(row);
+  if (error) throw error;
+}
+
+export async function removeClosure(id) {
+  const { error } = await supabase.from('restaurant_closures').delete().eq('id', id);
+  if (error) throw error;
+}
+
 // Read the default global maxes (used by the settings panel)
 export async function getDefaultCapacities() {
   const { data, error } = await supabase

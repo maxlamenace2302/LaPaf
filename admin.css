@@ -1173,6 +1173,82 @@ body.adminpage {
   letter-spacing: .04em;
 }
 
+/* ---- Fermetures : jours récurrents + périodes exceptionnelles ---- */
+.adm-weekday-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: .4rem;
+  margin-bottom: .5rem;
+}
+.adm-weekday-btn {
+  font-family: var(--f-sans);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  padding: .6rem .2rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  background: var(--cream-2);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.adm-weekday-btn:hover { border-color: var(--line-strong); }
+.adm-weekday-btn.is-closed {
+  background: var(--adm-danger-soft);
+  border-color: var(--adm-danger);
+  color: var(--adm-danger);
+}
+.adm-weekday-btn__sub {
+  display: block;
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  margin-top: .15rem;
+  opacity: .8;
+}
+
+.adm-closure-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-bottom: .85rem;
+}
+.adm-closure-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .65rem .85rem;
+  background: var(--cream-2);
+  border-radius: 8px;
+  font-family: var(--f-sans);
+  font-size: .82rem;
+  color: var(--ink);
+}
+.adm-closure-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+}
+.adm-closure-form input[type="date"],
+.adm-closure-form input[type="text"] {
+  font-family: var(--f-sans);
+  font-size: .85rem;
+  padding: .6rem .7rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  background: var(--cream-2);
+  color: var(--ink);
+  width: 100%;
+}
+.adm-closure-form input[type="text"] {
+  grid-column: 1 / -1;
+}
+.adm-closure-form .adm-btn {
+  grid-column: 1 / -1;
+}
+
 /* ============================================================
    EMPTY STATE
    ============================================================ */

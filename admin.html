@@ -161,15 +161,23 @@
     subscribePush, unsubscribePush,
     getServiceState, setServiceClosed, setOfflineCouverts,
     getDefaultCapacities, setDefaultCapacities,
+    listClosures, addWeeklyClosure, addRangeClosure, removeClosure,
   } from './supabase.js';
 
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
+  const WEEKDAYS = [
+    { dow: 1, short: 'Lun' }, { dow: 2, short: 'Mar' }, { dow: 3, short: 'Mer' },
+    { dow: 4, short: 'Jeu' }, { dow: 5, short: 'Ven' }, { dow: 6, short: 'Sam' },
+    { dow: 0, short: 'Dim' },
+  ];
+
   // ---------- App state ----------
   const state = {
     reservations: [],
     overrides:    [],   // service_overrides rows (per-day "complet" or custom max)
+    closures:     [],   // restaurant_closures rows (fermetures récurrentes/période)
     defaults:     { midi: 30, soir: 40 },
     filter: 'all',
     dateSearch: null,   // if set, overrides the filter chips and shows a single day
@@ -314,6 +322,16 @@
     error:           { dot: 'var(--adm-danger)',  title: 'Erreur de configuration', desc: "Quelque chose s'est mal passé. Recharge la page.", btn: '', action: '' },
   };
 
+  // Fermeture hebdo "toute la journée" (service = null) pour ce jour, si elle existe
+  function weeklyClosureFor(dow) {
+    return state.closures.find(c => c.kind === 'weekly' && c.weekday === dow && !c.service) || null;
+  }
+
+  function formatClosureRange(c) {
+    const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    return c.start_date === c.end_date ? fmt(c.start_date) : `${fmt(c.start_date)} → ${fmt(c.end_date)}`;
+  }
+
   async function openSettings() {
     const session = await getSession();
     const userEmail = session?.user?.email || '—';
@@ -341,6 +359,41 @@
         </div>
         <button class="adm-btn adm-btn--success adm-btn--full" type="button" id="saveCapBtn">Enregistrer</button>
         <p class="adm-settings-saved" id="capSaved" hidden>✓ Enregistré</p>
+      </div>
+
+      <div class="adm-settings-section">
+        <p class="adm-settings-label">Jours fermés chaque semaine</p>
+        <p class="adm-settings-help">Coche les jours où le restaurant est fermé <em>toute la journée</em> — les réservations sont bloquées automatiquement sur le site, plus besoin de fermer chaque date une par une.</p>
+        <div class="adm-weekday-grid" id="weekdayGrid">
+          ${WEEKDAYS.map(w => {
+            const full = weeklyClosureFor(w.dow);
+            return `<button type="button" class="adm-weekday-btn ${full ? 'is-closed' : ''}" data-weekday="${w.dow}">${w.short}</button>`;
+          }).join('')}
+        </div>
+        ${(() => {
+          const partial = state.closures.filter(c => c.kind === 'weekly' && c.service);
+          if (!partial.length) return '';
+          const label = c => `${WEEKDAYS.find(w => w.dow === c.weekday)?.short || c.weekday} — pas de service ${c.service}${c.reason ? ` (${esc(c.reason)})` : ''}`;
+          return `<p class="adm-settings-help">Fermetures partielles déjà en place (à ajuster avec Max si besoin) : ${partial.map(label).join(', ')}.</p>`;
+        })()}
+      </div>
+
+      <div class="adm-settings-section">
+        <p class="adm-settings-label">Fermetures exceptionnelles</p>
+        <p class="adm-settings-help">Congés, jours fériés… bloque une période entière en une seule fois.</p>
+        <div class="adm-closure-list" id="closureRangeList">
+          ${state.closures.filter(c => c.kind === 'range').map(c => `
+            <div class="adm-closure-item">
+              <span>${formatClosureRange(c)}${c.reason ? ` — ${esc(c.reason)}` : ''}</span>
+              <button type="button" class="adm-iconbtn" data-remove-closure="${c.id}" title="Supprimer">✕</button>
+            </div>`).join('') || '<p class="adm-settings-help">Aucune période fermée à venir.</p>'}
+        </div>
+        <div class="adm-closure-form">
+          <input type="date" id="closureStart" min="${new Date().toISOString().slice(0,10)}" />
+          <input type="date" id="closureEnd" min="${new Date().toISOString().slice(0,10)}" />
+          <input type="text" id="closureReason" placeholder="Raison (ex. congés d'été)" maxlength="200" />
+          <button class="adm-btn adm-btn--success adm-btn--full" type="button" id="addClosureBtn">Fermer cette période</button>
+        </div>
       </div>
 
       <div class="adm-settings-section">
@@ -420,6 +473,67 @@
       showLogin();
     });
 
+    // Toggle fermeture hebdo (jour entier) au clic sur un bouton de jour
+    $$('#weekdayGrid [data-weekday]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const dow = parseInt(btn.dataset.weekday, 10);
+        const existing = weeklyClosureFor(dow);
+        btn.disabled = true;
+        try {
+          if (existing) {
+            await removeClosure(existing.id);
+          } else {
+            await addWeeklyClosure(dow, null, 'Fermeture hebdomadaire');
+          }
+          state.closures = await listClosures();
+          openSettings(); // re-render la fiche avec le nouvel état
+          refresh();      // met à jour le dashboard (dates fermées visibles ailleurs)
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Ajouter une fermeture par période (congés, jours fériés...)
+    $('#addClosureBtn').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const start = $('#closureStart').value;
+      const end = $('#closureEnd').value || start;
+      const reason = $('#closureReason').value;
+      if (!start) { alert('Choisis une date de début.'); return; }
+      if (end < start) { alert('La date de fin doit être après la date de début.'); return; }
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Enregistrement…';
+      try {
+        await addRangeClosure(start, end, null, reason);
+        state.closures = await listClosures();
+        openSettings();
+        refresh();
+      } catch (err) {
+        alert('Erreur : ' + err.message);
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+
+    // Supprimer une fermeture par période
+    $$('#closureRangeList [data-remove-closure]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          await removeClosure(btn.dataset.removeClosure);
+          state.closures = await listClosures();
+          openSettings();
+          refresh();
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+
     $('#detailSheet').classList.add('is-open');
     $('#sheetBackdrop').classList.add('is-open');
     $('#detailSheet').setAttribute('aria-hidden', 'false');
@@ -465,14 +579,16 @@
   async function refresh() {
     try {
       const today = new Date().toISOString().slice(0, 10);
-      const [reservations, ovResp, defaults] = await Promise.all([
+      const [reservations, ovResp, defaults, closures] = await Promise.all([
         listReservations(),
         supabase.from('service_overrides').select('*').gte('date', today),
         getDefaultCapacities(),
+        listClosures(),
       ]);
       state.reservations = reservations;
       state.overrides    = ovResp.data || [];
       state.defaults     = defaults;
+      state.closures     = closures;
     } catch (e) {
       console.error(e);
       renderEmpty('Erreur', 'Impossible de charger les réservations : ' + e.message);
