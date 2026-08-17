@@ -122,10 +122,17 @@ export async function createReservationAsChef({ date, time, service, guests, nam
 
 // ---------- Service capacity (couverts, complet/ouvert) ----------
 
-// Returns: { available, manually_closed, current_couverts, max_couverts, remaining }
-export async function getServiceState(date, service) {
+// Returns: { available, manually_closed, closed_reason, closed_note,
+//            has_limit, is_full, almost_full, fits }
+//
+// Passer `guests` permet au serveur de répondre `fits` (ce groupe tient-il ?)
+// sans que le client ait besoin de connaître la place restante. Le formulaire
+// public doit s'en tenir à ces verdicts : les chiffres de salle
+// (current_couverts / max_couverts / remaining) sont encore renvoyés pour
+// compatibilité, mais ils partiront — ne pas s'y appuyer.
+export async function getServiceState(date, service, guests = null) {
   const { data, error } = await supabase.rpc('get_service_state', {
-    p_date: date, p_service: service,
+    p_date: date, p_service: service, p_guests: guests,
   });
   if (error) throw error;
   return data;

@@ -300,12 +300,13 @@
     }
     setAvail({ level: 'loading', text: 'Vérification de la disponibilité…' });
     try {
-      const state = await getServiceState(date, service);
-      availState = state;
       const guests = Number(guestsInput.value) || 0;
+      const state = await getServiceState(date, service, guests || null);
+      availState = state;
 
-      // Note: on ne révèle PAS les chiffres de capacité côté client.
-      // Le chef seul voit "8/30 couverts" dans son dashboard.
+      // Note: on ne révèle PAS les chiffres de capacité côté client, et on ne
+      // les lit même plus. Le serveur renvoie des verdicts (is_full,
+      // almost_full, fits) ; les chiffres bruts sont en sursis côté RPC.
       if (state.manually_closed && (state.closed_reason === 'closed_weekly' || state.closed_reason === 'closed_period')) {
         canSubmit = false;
         setAvail({
@@ -320,19 +321,19 @@
           level: 'full',
           text: `Désolé, ce service est complet. Appelez-nous au 09 55 82 02 14 — il y a peut-être de la place avec un peu de souplesse.`,
         });
-      } else if (state.max_couverts != null && state.remaining <= 0) {
+      } else if (state.is_full) {
         canSubmit = false;
         setAvail({
           level: 'full',
           text: `Désolé, ce service est complet. Appelez-nous au 09 55 82 02 14 pour vérifier les annulations.`,
         });
-      } else if (state.max_couverts != null && guests > 0 && guests > state.remaining) {
+      } else if (guests > 0 && state.fits === false) {
         canSubmit = false;
         setAvail({
           level: 'full',
           text: `Désolé, nous ne pouvons pas accueillir un groupe de cette taille à ce service. Appelez-nous au 09 55 82 02 14, on peut peut-être s'arranger.`,
         });
-      } else if (state.max_couverts != null && state.remaining <= 5) {
+      } else if (state.almost_full) {
         canSubmit = true;
         setAvail({
           level: 'warn',
