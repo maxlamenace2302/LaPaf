@@ -392,6 +392,28 @@ body.adminpage [hidden] { display: none !important; }
   color: var(--adm-danger);
 }
 
+/* Les deux ronds de décision, sur une demande encore à valider. Ils prennent
+   la place de la table et du pointage : tant qu'on n'a pas dit oui, il n'y a
+   ni table à poser ni arrivée à pointer. */
+.cah-row__decide {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  border: 1.5px solid transparent;
+  line-height: 1;
+}
+.cah-row__decide--yes { background: var(--adm-success); border-color: var(--adm-success); color: #fff; }
+.cah-row__decide--no  { background: #fff; border-color: var(--adm-danger); color: var(--adm-danger); }
+.cah-row__decide:disabled { opacity: .45; cursor: default; }
+.cah-row__decide:focus-visible { outline: 2px solid var(--aubergine); outline-offset: 2px; }
+
 /* une ligne pointée s'estompe : ce qui reste net est ce qui reste à faire */
 .cah-row.is-done .cah-row__name,
 .cah-row.is-done .cah-row__time { opacity: .5; }
@@ -770,6 +792,30 @@ body.adminpage [hidden] { display: none !important; }
   color: var(--coral-deep);
   line-height: 1.25;
 }
+
+/* Suppression : volontairement discrète et en bas du tiroir. C'est le seul
+   geste irréversible de l'application — il ne doit pas se trouver sous le
+   pouce à côté de « Arrivé » pendant un service. */
+.cah-delete {
+  display: block;
+  width: 100%;
+  margin-top: 22px;
+  padding: 11px 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  color: var(--adm-danger);
+  font-family: var(--f-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+}
+.cah-delete:hover { background: var(--adm-danger-soft); }
+.cah-delete:disabled { opacity: .5; cursor: default; }
+
+/* Dans « À traiter », la carte entière ouvre le détail. */
+.cah-card[data-row] { cursor: pointer; }
 
 /* ============================================================
    ACCESSIBILITÉ
