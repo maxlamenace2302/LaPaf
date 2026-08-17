@@ -142,6 +142,17 @@ export async function updateReservation(id, patch) {
   return data;
 }
 
+// Suppression définitive d'une ligne. Irréversible, et pas anodine : la ligne
+// disparaît aussi de `v_service_activite` et donc de `get_previsions`, qui
+// s'appuient sur l'historique des réservations. Pour une réservation qui ne
+// viendra pas mais qui a bien existé, préférer `updateStatus(id, 'annulee')`
+// ou le pointage 'absent' — les deux gardent la trace d'affluence.
+// L'appelant DOIT demander confirmation avant.
+export async function deleteReservation(id) {
+  const { error } = await supabase.from('reservations').delete().eq('id', id);
+  if (error) throw error;
+}
+
 // Mémo du jour (plat du jour, groupe attendu, gâteau à prévoir…). Stocké dans
 // service_overrides.notes — PK (date, service), donc un mémo par page de cahier.
 // La colonne n'est plus lisible par `anon` : elle contient des noms de clients.

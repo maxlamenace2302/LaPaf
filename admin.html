@@ -196,7 +196,7 @@
     subscribeReservations,
     subscribePush, unsubscribePush,
     setServiceClosed, setOfflineCouverts, setServiceNotes,
-    setTableNo, setAttendance, updateReservation,
+    setTableNo, setAttendance, updateReservation, deleteReservation,
     getDefaultCapacities, setDefaultCapacities,
     listClosures, addWeeklyClosure, addRangeClosure, removeClosure,
     createReservationAsChef,
@@ -609,10 +609,30 @@
     if (r.status === 'en_attente') cls.push('is-pending');
 
     const note  = (r.notes || '').trim() || (r.internal_notes || '').trim();
-    const table = (r.table_no || '').trim();
-    const check = r.attendance === 'arrive' ? '✓' : (r.attendance === 'absent' ? '✕' : '');
-    const checkCls = r.attendance === 'arrive' ? 'is-arrive' : (r.attendance === 'absent' ? 'is-absent' : '');
-    const checkLabel = r.attendance === 'arrive' ? 'arrivé' : (r.attendance === 'absent' ? 'pas venu' : 'pas encore pointé');
+    const isPending = r.status === 'en_attente';
+
+    // Une demande non validée se tranche depuis le cahier : deux ronds à la
+    // place de la table et du pointage. Elle n'a pas encore de table — on ne
+    // place personne avant d'avoir dit oui — donc la largeur ne bouge pas.
+    let tail;
+    if (isPending) {
+      tail = `
+        <button class="cah-row__decide cah-row__decide--yes" type="button"
+                data-action="confirm" data-id="${r.id}"
+                aria-label="Valider la réservation de ${esc(r.name)}">✓</button>
+        <button class="cah-row__decide cah-row__decide--no" type="button"
+                data-action="refuse" data-id="${r.id}"
+                aria-label="Refuser la réservation de ${esc(r.name)}">✕</button>`;
+    } else {
+      const table = (r.table_no || '').trim();
+      const check = r.attendance === 'arrive' ? '✓' : (r.attendance === 'absent' ? '✕' : '');
+      const checkCls = r.attendance === 'arrive' ? 'is-arrive' : (r.attendance === 'absent' ? 'is-absent' : '');
+      const checkLabel = r.attendance === 'arrive' ? 'arrivé' : (r.attendance === 'absent' ? 'pas venu' : 'pas encore pointé');
+      tail = `
+        <span class="cah-row__table ${table ? 'is-set' : ''}">${table ? esc(table) : '–'}</span>
+        <button class="cah-row__check ${checkCls}" type="button" data-check="${r.id}"
+                aria-label="Pointage : ${checkLabel}">${check}</button>`;
+    }
 
     return `
       <div class="${cls.join(' ')}" data-row="${r.id}" role="button" tabindex="0"
@@ -621,14 +641,12 @@
         <div class="cah-row__time">${timeLabel(r)}</div>
         <div class="cah-row__pax">${r.guests}</div>
         <div class="cah-row__id">
-          <div class="cah-row__name">${esc(r.name)}${r.status === 'en_attente' ? ' · à valider' : ''}</div>
+          <div class="cah-row__name">${esc(r.name)}${isPending ? ' · à valider' : ''}</div>
           ${note ? `<div class="cah-row__note">${esc(note)}</div>` : ''}
         </div>
         <a class="cah-row__tel" href="${esc(telHref(r.phone))}" data-stop
            aria-label="Appeler ${esc(r.name)}">📞</a>
-        <span class="cah-row__table ${table ? 'is-set' : ''}">${table ? esc(table) : '–'}</span>
-        <button class="cah-row__check ${checkCls}" type="button" data-check="${r.id}"
-                aria-label="Pointage : ${checkLabel}">${check}</button>
+        ${tail}
       </div>`;
   }
 
@@ -717,8 +735,11 @@
   });
 
   // --- ouverture d'une ligne ---
+  // Les deux écouteurs de clic vivent sur `document` : un stopPropagation dans
+  // l'autre handler ne suffirait pas à empêcher celui-ci de tirer. D'où ce
+  // garde explicite sur les commandes posées à même la ligne.
   document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-stop], [data-check]')) return;
+    if (e.target.closest('[data-stop], [data-check], [data-action]')) return;
     const row = e.target.closest('[data-row]');
     if (row) openRowSheet(row.dataset.row);
   });
@@ -807,7 +828,7 @@
       ].filter(Boolean).join(' · ');
 
       return `
-        <article class="cah-card ${over ? 'cah-card--over' : ''}">
+        <article class="cah-card ${over ? 'cah-card--over' : ''}" data-row="${r.id}">
           <div class="cah-card__top">
             <div class="cah-card__when">${fmtDayShort(r.date)} · ${timeLabel(r)}</div>
             <div class="cah-card__ago">${relTime(r.created_at)}</div>
@@ -817,7 +838,7 @@
           ${r.notes ? `<p class="cah-card__note">${esc(r.notes)}</p>` : ''}
           <div class="cah-btnrow">
             <button class="adm-btn adm-btn--success" type="button" data-action="confirm" data-id="${r.id}">✓ Valider</button>
-            <a class="adm-btn adm-btn--call" href="${esc(telHref(r.phone))}" aria-label="Appeler">📞</a>
+            <a class="adm-btn adm-btn--call" href="${esc(telHref(r.phone))}" data-stop aria-label="Appeler">📞</a>
             <button class="adm-btn adm-btn--danger" type="button" data-action="refuse" data-id="${r.id}" aria-label="Refuser">✕</button>
           </div>
         </article>`;
@@ -1244,6 +1265,7 @@
         </div>
         ${r.status !== 'en_attente' && r.status !== 'confirmee' ? `
         <button class="adm-btn adm-btn--ghost adm-btn--full" type="button" id="reopenBtn" style="margin-top:8px">Remettre en attente</button>` : ''}
+        <button class="cah-delete" type="button" data-delete="${r.id}">Supprimer cette réservation</button>
       </div>`;
 
     let saveTimer;
@@ -1295,6 +1317,43 @@
       renderAll();
     } catch (err) {
       alert('Erreur : ' + err.message);
+    }
+  });
+
+  // --- suppression définitive ---
+  // Irréversible, et la ligne quitte aussi l'historique et les prévisions : le
+  // message le dit en toutes lettres plutôt qu'un « Êtes-vous sûr ? » qu'on
+  // valide sans lire. Pour un client qui a annulé, le pointage « pas venu » ou
+  // le statut « annulée » gardent la trace d'affluence — c'est presque toujours
+  // ce qu'il faut, la suppression sert aux doublons et aux erreurs de saisie.
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-delete]');
+    if (!btn) return;
+    e.stopPropagation();
+    const id = btn.dataset.delete;
+    const r  = state.reservations.find(x => x.id === id);
+    if (!r) return;
+
+    const ok = confirm(
+      `Supprimer définitivement la réservation de ${r.name} ?\n\n`
+      + `${r.guests} personne${r.guests > 1 ? 's' : ''} · ${fmtDay(r.date)} · ${timeLabel(r)}\n\n`
+      + `La ligne disparaît du cahier, de l'historique et des prévisions d'affluence. `
+      + `On ne peut pas revenir en arrière.\n\n`
+      + `Si le client a simplement annulé, fermez cette fenêtre et utilisez plutôt `
+      + `le pointage « pas venu » : la trace du service est conservée.`
+    );
+    if (!ok) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Suppression…';
+    try {
+      await deleteReservation(id);
+      closeSheet();
+      await refresh();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+      btn.disabled = false;
+      btn.textContent = 'Supprimer cette réservation';
     }
   });
 
