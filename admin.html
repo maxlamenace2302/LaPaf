@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Tableau de bord — La Petite Auberge de Flo</title>
-<meta name="description" content="Tableau de bord chef — gestion des réservations." />
+<title>Cahier — La Petite Auberge de Flo</title>
+<meta name="description" content="Tableau de bord chef — cahier de réservation." />
 <meta name="theme-color" content="#3A1A2A" />
 <meta name="robots" content="noindex, nofollow" />
 
@@ -17,15 +17,18 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<!-- Charte réelle de l'auberge : Boogaloo (titres) + Poppins (corps).
+     Caveat sert aux commentaires manuscrits du cahier. -->
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
 
 <link rel="stylesheet" href="styles.css" />
 <link rel="stylesheet" href="admin.css" />
+<link rel="stylesheet" href="cahier.css" />
 </head>
 <body class="adminpage">
 
 <!-- ============================================================
-     LOGIN SCREEN
+     ÉCRAN DE CONNEXION
      ============================================================ -->
 <section id="login-screen" class="screen">
   <div class="adm-login-card">
@@ -38,7 +41,7 @@
     </div>
 
     <p class="adm-login-eyebrow">— Espace chef —</p>
-    <h1 class="adm-login-title">Connectez-vous à votre <em>tableau de bord</em></h1>
+    <h1 class="adm-login-title">Connectez-vous à votre <em>cahier</em></h1>
 
     <form id="loginForm" novalidate>
       <div class="adm-form-field">
@@ -57,96 +60,128 @@
 
 
 <!-- ============================================================
-     DASHBOARD SCREEN
+     APPLICATION — 4 onglets fixes
      ============================================================ -->
-<section id="dashboard-screen" class="screen">
+<section id="app-screen" class="screen">
+  <div class="cah-body">
 
-  <header class="adm-topbar">
-    <div class="adm-topbar__inner">
-      <a class="adm-brand" href="#">
-        <img src="assets/logo.jpg" alt="" />
-        <div>
-          <div class="adm-brand-text">
-            <span class="adm-brand-line1">Petite Auberge</span>
-            <span class="adm-brand-line2">de Flo</span>
+    <!-- ---------- ONGLET 1 : CAHIER ---------- -->
+    <section class="cah-tab is-active" id="tab-cahier">
+      <header class="cah-top">
+        <div class="cah-top__row">
+          <h1 class="cah-top__title"><span id="cahDate">—</span><small id="cahWeek"></small></h1>
+          <div class="cah-top__nav">
+            <button class="cah-navbtn" type="button" id="cahPrev" aria-label="Jour précédent">‹</button>
+            <label class="cah-navbtn cah-datepick" title="Choisir une date">
+              <span aria-hidden="true">📅</span>
+              <input type="date" id="cahDateInput" aria-label="Aller à une date" />
+            </label>
+            <button class="cah-navbtn" type="button" id="cahNext" aria-label="Jour suivant">›</button>
           </div>
-          <div class="adm-brand-context">Tableau de bord chef</div>
         </div>
-      </a>
 
-      <div class="adm-topbar__right">
-        <button class="adm-iconbtn" id="addResBtn" title="Ajouter une réservation" type="button">＋</button>
-        <button class="adm-iconbtn" id="notifBtn" title="Réservations à traiter" type="button">🔔</button>
-        <button class="adm-iconbtn" id="refreshBtn" title="Rafraîchir" type="button">⟳</button>
-        <button class="adm-iconbtn" id="settingsBtn" title="Réglages" type="button">⚙</button>
-      </div>
-    </div>
-  </header>
+        <div class="cah-seg" id="cahSeg" role="tablist" aria-label="Service">
+          <button type="button" data-service="midi">Midi <span id="cahSegMidi"></span></button>
+          <button type="button" data-service="soir">Soir <span id="cahSegSoir"></span></button>
+        </div>
 
-  <div class="adm-summary">
-    <div class="adm-summary__inner">
-      <div class="adm-summary__date">
-        <div class="adm-summary__day" id="sumDay">—</div>
-        <div class="adm-summary__date-detail" id="sumDetail">Chargement…</div>
+        <div class="cah-recap" id="cahRecap"></div>
+      </header>
+
+      <div class="cah-paper">
+        <div class="cah-margin" aria-hidden="true"></div>
+
+        <div class="cah-closed-banner" id="cahClosed" hidden></div>
+
+        <div class="cah-memo">
+          <span class="cah-memo__label">Mémo du jour</span>
+          <span class="cah-memo__saved" id="cahMemoSaved" hidden>✓ enregistré</span>
+          <textarea id="cahMemoInput" rows="1" maxlength="500"
+                    placeholder="Plat du jour, groupe attendu…"
+                    aria-label="Mémo du jour"></textarea>
+        </div>
+
+        <div class="cah-rows" id="cahRows"></div>
+        <div class="cah-foot" id="cahFoot"></div>
       </div>
-      <div class="adm-stats">
-        <div class="adm-stat">
-          <div class="adm-stat__num" id="statMidi">—</div>
-          <div class="adm-stat__label">Couverts midi</div>
+    </section>
+
+    <!-- ---------- ONGLET 2 : À TRAITER ---------- -->
+    <section class="cah-tab" id="tab-inbox">
+      <header class="cah-top">
+        <div class="cah-top__row">
+          <h1 class="cah-top__title">À traiter<small id="inboxSub">—</small></h1>
+          <div class="cah-top__nav">
+            <button class="cah-navbtn" type="button" data-refresh aria-label="Rafraîchir">⟳</button>
+          </div>
         </div>
-        <div class="adm-stat">
-          <div class="adm-stat__num" id="statSoir">—</div>
-          <div class="adm-stat__label">Couverts soir</div>
+      </header>
+
+      <div class="cah-plain">
+        <div class="cah-search">
+          <span aria-hidden="true">🔎</span>
+          <input type="search" id="inboxSearch" placeholder="Chercher un nom ou un numéro…" aria-label="Chercher une demande" />
         </div>
-        <div class="adm-stat">
-          <div class="adm-stat__num adm-stat__num--warn" id="statPending">—</div>
-          <div class="adm-stat__label">À traiter</div>
-        </div>
-        <div class="adm-stat">
-          <div class="adm-stat__num adm-stat__num--ok" id="statConfirmed">—</div>
-          <div class="adm-stat__label">Validées</div>
-        </div>
+        <div class="cah-hdr2"><h4>Demandes reçues</h4><em>plus ancienne d'abord</em></div>
+        <div id="inboxList"></div>
       </div>
-    </div>
+    </section>
+
+    <!-- ---------- ONGLET 3 : HISTORIQUE ---------- -->
+    <section class="cah-tab" id="tab-history">
+      <header class="cah-top">
+        <div class="cah-top__row">
+          <h1 class="cah-top__title">Historique<small>Ce qui s'est passé</small></h1>
+          <div class="cah-top__nav">
+            <button class="cah-navbtn" type="button" data-refresh aria-label="Rafraîchir">⟳</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="cah-plain">
+        <div class="cah-search">
+          <span aria-hidden="true">🔎</span>
+          <input type="search" id="histSearch" placeholder="Chercher un nom ou un numéro…" aria-label="Chercher une réservation" />
+        </div>
+        <div class="cah-range" id="histRange">
+          <button type="button" data-range="7" class="is-on">7 jours</button>
+          <button type="button" data-range="30">30 jours</button>
+        </div>
+        <div id="histBody"></div>
+      </div>
+    </section>
+
+    <!-- ---------- ONGLET 4 : RÉGLAGES ---------- -->
+    <section class="cah-tab" id="tab-settings">
+      <header class="cah-top">
+        <div class="cah-top__row">
+          <h1 class="cah-top__title">Réglages<small>Capacité, fermetures, compte</small></h1>
+        </div>
+      </header>
+      <div class="cah-plain" id="settingsBody"></div>
+    </section>
+
   </div>
 
-  <nav class="adm-filters" aria-label="Filtres">
-    <div class="adm-datesearch">
-      <span class="adm-datesearch__icon" aria-hidden="true">🔎</span>
-      <input type="date" class="adm-datesearch__input" id="dateSearchInput" aria-label="Chercher une date" />
-      <button class="adm-datesearch__clear" type="button" id="dateSearchClear" aria-label="Effacer la recherche" hidden>✕</button>
-    </div>
-    <div class="adm-filters__inner" id="filterChips">
-      <button class="adm-chip is-active" type="button" data-filter="all">Toutes <span class="adm-chip__count" data-count="all">0</span></button>
-      <button class="adm-chip" type="button" data-filter="pending">À traiter <span class="adm-chip__count" data-count="pending">0</span></button>
-      <button class="adm-chip" type="button" data-filter="confirmed">Confirmées <span class="adm-chip__count" data-count="confirmed">0</span></button>
-      <button class="adm-chip" type="button" data-filter="today">Aujourd'hui <span class="adm-chip__count" data-count="today">0</span></button>
-      <button class="adm-chip" type="button" data-filter="week">Cette semaine <span class="adm-chip__count" data-count="week">0</span></button>
-      <button class="adm-chip" type="button" data-filter="refused">Refusées <span class="adm-chip__count" data-count="refused">0</span></button>
-    </div>
-  </nav>
+  <button class="cah-fab" type="button" id="fabAdd" aria-label="Ajouter une réservation">＋</button>
 
-  <main class="adm-main" id="dashList">
-    <div class="adm-empty">
-      <div class="adm-empty__icon">⏳</div>
-      <h2 class="adm-empty__title">Chargement…</h2>
-      <p class="adm-empty__text">On récupère vos réservations depuis Supabase.</p>
-    </div>
-  </main>
+  <nav class="cah-tabs" aria-label="Navigation principale">
+    <button class="cah-tabbtn is-on" type="button" data-tab="cahier"><i aria-hidden="true">📖</i><span>Cahier</span></button>
+    <button class="cah-tabbtn" type="button" data-tab="inbox"><i aria-hidden="true">📥</i><span>À traiter</span><b class="cah-tabbtn__dot" id="inboxDot" hidden>0</b></button>
+    <button class="cah-tabbtn" type="button" data-tab="history"><i aria-hidden="true">📊</i><span>Historique</span></button>
+    <button class="cah-tabbtn" type="button" data-tab="settings"><i aria-hidden="true">⚙</i><span>Réglages</span></button>
+  </nav>
 </section>
 
 
 <!-- ============================================================
-     DETAIL SHEET
+     TIROIR DE DÉTAIL
      ============================================================ -->
 <div class="adm-sheet-backdrop" id="sheetBackdrop"></div>
 <aside class="adm-sheet" id="detailSheet" aria-hidden="true">
   <div class="adm-sheet__grip"></div>
   <button class="adm-sheet__close" type="button" id="sheetClose" aria-label="Fermer">✕</button>
-
-  <div class="adm-sheet__inner" id="sheetInner">
-    <!-- rendered by JS -->
-  </div>
+  <div class="adm-sheet__inner" id="sheetInner"><!-- rendu par JS --></div>
 </aside>
 
 
@@ -160,7 +195,8 @@
     listReservations, updateStatus, updateInternalNotes,
     subscribeReservations,
     subscribePush, unsubscribePush,
-    getServiceState, setServiceClosed, setOfflineCouverts,
+    setServiceClosed, setOfflineCouverts, setServiceNotes,
+    setTableNo, setAttendance, updateReservation,
     getDefaultCapacities, setDefaultCapacities,
     listClosures, addWeeklyClosure, addRangeClosure, removeClosure,
     createReservationAsChef,
@@ -175,47 +211,83 @@
     { dow: 0, short: 'Dim' },
   ];
 
-  // ---------- App state ----------
+  // ============================================================
+  // DATES — toujours le jour civil à Paris, jamais UTC ni le fuseau
+  // de la machine. Minuit UTC = 2 h du matin à Paris en été : sans ça,
+  // le cahier bascule de page en plein service du soir.
+  // ============================================================
+  const TZ = 'Europe/Paris';
+  const ISO_FMT = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
+  const HOUR_FMT = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', hour12: false });
+
+  function todayISO() { return ISO_FMT.format(new Date()); }
+
+  // Décalage en jours sur une date ISO, via midi UTC : jamais de saut d'heure d'été.
+  function addDays(iso, n) {
+    const d = new Date(iso + 'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function currentService() {
+    return parseInt(HOUR_FMT.format(new Date()), 10) < 15 ? 'midi' : 'soir';
+  }
+
+  const DAY_FMT      = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const DAY_FMT_SHORT= new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+
+  function fmtDay(iso)      { return DAY_FMT.format(new Date(iso + 'T12:00:00')).replace(/^./, c => c.toUpperCase()); }
+  function fmtDayShort(iso) { return DAY_FMT_SHORT.format(new Date(iso + 'T12:00:00')).replace(/^./, c => c.toUpperCase()); }
+
+  // Numéro de semaine ISO 8601 (celui du calendrier mural, semaine au jeudi).
+  function isoWeek(iso) {
+    const d = new Date(iso + 'T12:00:00Z');
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) + 3);
+    const firstThu = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+    firstThu.setUTCDate(firstThu.getUTCDate() - ((firstThu.getUTCDay() + 6) % 7) + 3);
+    return 1 + Math.round((d - firstThu) / (7 * 86400000));
+  }
+
+  // ============================================================
+  // ÉTAT
+  // ============================================================
+  const HISTORY_DAYS = 30;   // profondeur chargée par défaut
+
   const state = {
     reservations: [],
-    overrides:    [],   // service_overrides rows (per-day "complet" or custom max)
-    closures:     [],   // restaurant_closures rows (fermetures récurrentes/période)
+    overrides:    [],
+    closures:     [],
     defaults:     { midi: 30, soir: 40 },
-    filter: 'all',
-    dateSearch: null,   // if set, overrides the filter chips and shows a single day
-    currentId: null,
-    unsubscribe: null,
+    fromDate:     addDays(todayISO(), -HISTORY_DAYS),
+    tab:          'cahier',
+    cursorDate:   todayISO(),
+    cursorService: currentService(),
+    histRange:    7,
+    currentId:    null,
+    unsubscribe:  null,
+    memoFocused:  false,
+    renderPending: false,
   };
 
   // ---------- PWA service worker ----------
-  // Enregistre le "majordome silencieux" qui gère le cache + le mode offline.
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW register failed', e));
     });
   }
 
-  // ---------- Notifications in-app sur nouvelle résa ----------
-  // Si la permission est accordée, on affiche une notif système quand une
-  // INSERT arrive via Supabase Realtime — même si l'onglet est en arrière-plan.
+  // ---------- Notifications ----------
   async function ensureNotifPermission() {
     if (!('Notification' in window)) return false;
     if (Notification.permission === 'granted') return true;
     if (Notification.permission === 'denied')  return false;
-    const r = await Notification.requestPermission();
-    return r === 'granted';
+    return (await Notification.requestPermission()) === 'granted';
   }
 
-  // Push notifications en arrière-plan (Web Push) — fonctionnent même app fermée.
-  // Auto-souscription au login : si la permission est accordée, on enregistre
-  // la subscription dans Supabase. L'Edge Function s'en sert pour envoyer les
-  // notifs à chaque nouvelle réservation.
   async function ensurePushSubscription() {
     try {
-      const ok = await ensureNotifPermission();
-      if (!ok) return;
+      if (!(await ensureNotifPermission())) return;
       await subscribePush();
-      console.log('[push] souscrit avec succès');
     } catch (e) {
       console.warn('[push] souscription échouée :', e.message);
     }
@@ -223,39 +295,37 @@
 
   let firstLoadDone = false;
   function onRealtimeChange(payload) {
-    // skip the events that fire during initial subscription
     if (!firstLoadDone) return;
     if (payload.eventType === 'INSERT') {
       const r = payload.new;
-      const body = `${r.name} · ${r.guests} pers. · ${new Date(r.date).toLocaleDateString('fr-FR')} (${r.service})`;
+      const body = `${r.name} · ${r.guests} pers. · ${fmtDayShort(r.date)} (${r.service})`;
       if (Notification.permission === 'granted') {
         new Notification('Nouvelle réservation !', { body, icon: 'assets/icon-192.png', tag: r.id });
       }
-      try { new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=').play(); } catch (_) {}
     }
   }
 
-  // ---------- Routing: login vs dashboard ----------
+  // ============================================================
+  // ROUTAGE LOGIN / APP
+  // ============================================================
   async function route() {
     const session = await getSession();
-    if (session) await openDashboard();
+    if (session) await openApp();
     else showLogin();
   }
 
   function showLogin() {
     if (state.unsubscribe) { state.unsubscribe(); state.unsubscribe = null; }
-    $('#dashboard-screen').classList.remove('is-active');
+    $('#app-screen').classList.remove('is-active');
     $('#login-screen').classList.add('is-active');
     window.scrollTo(0, 0);
   }
 
-  async function openDashboard() {
+  async function openApp() {
     $('#login-screen').classList.remove('is-active');
-    $('#dashboard-screen').classList.add('is-active');
+    $('#app-screen').classList.add('is-active');
     window.scrollTo(0, 0);
     await refresh();
-    // Ask once for notification permission + register the push subscription
-    // (so the chef gets buzzed even when the app is closed).
     ensurePushSubscription();
     if (!state.unsubscribe) {
       firstLoadDone = false;
@@ -263,12 +333,10 @@
         onRealtimeChange(payload);
         refresh();
       });
-      // mark first burst of "events" as done after a short delay
       setTimeout(() => { firstLoadDone = true; }, 1500);
     }
   }
 
-  // ---------- Login form ----------
   $('#loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = $('#loginSubmit');
@@ -279,7 +347,7 @@
     btn.textContent = 'Connexion…';
     try {
       await signIn($('#login-email').value, $('#login-pwd').value);
-      await openDashboard();
+      await openApp();
     } catch (e2) {
       err.textContent = e2.message === 'Invalid login credentials'
         ? 'Email ou mot de passe incorrect.'
@@ -291,25 +359,594 @@
     }
   });
 
-  // ---------- Topbar buttons ----------
-  $('#refreshBtn').addEventListener('click', () => refresh());
-  $('#notifBtn').addEventListener('click', () => {
-    setFilter('pending');
-    document.querySelector('[data-card]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-  $('#settingsBtn').addEventListener('click', openSettings);
-  $('#addResBtn').addEventListener('click', openAddReservation);
+  // ============================================================
+  // CHARGEMENT DES DONNÉES
+  // ============================================================
+  async function refresh() {
+    try {
+      const [reservations, ovResp, defaults, closures] = await Promise.all([
+        listReservations({ fromDate: state.fromDate }),
+        supabase.from('service_overrides').select('*').gte('date', state.fromDate),
+        getDefaultCapacities(),
+        listClosures(),
+      ]);
+      if (ovResp.error) throw ovResp.error;
+      state.reservations = reservations;
+      state.overrides    = ovResp.data || [];
+      state.defaults     = defaults;
+      state.closures     = closures;
+    } catch (e) {
+      console.error(e);
+      $('#cahRows').innerHTML = emptyHtml('⚠️', 'Chargement impossible', esc(e.message));
+      return;
+    }
+    renderAll();
+  }
 
-  // ---------- Settings sheet ----------
+  // Le cahier peut remonter plus loin que ce qui est chargé : on élargit la
+  // fenêtre et on recharge, plutôt que d'afficher une page faussement vide.
+  async function ensureLoadedUpTo(date) {
+    if (date >= state.fromDate) return;
+    state.fromDate = addDays(date, -7);
+    await refresh();
+  }
+
+  function renderAll() {
+    // Ne pas réécrire le mémo sous les doigts du chef pendant qu'il le tape.
+    if (state.memoFocused) { state.renderPending = true; return; }
+    state.renderPending = false;
+    renderTabBadge();
+    if (state.tab === 'cahier')   renderCahier();
+    if (state.tab === 'inbox')    renderInbox();
+    if (state.tab === 'history')  renderHistory();
+    if (state.tab === 'settings') renderSettings();
+  }
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  function timeLabel(r) {
+    if (r?.time) {
+      const [h, m] = r.time.split(':');
+      return `${parseInt(h, 10)}h${m}`;
+    }
+    return r?.service === 'midi' ? '12h00' : '19h30';
+  }
+
+  function relTime(iso) {
+    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (mins < 1)    return "à l'instant";
+    if (mins < 60)   return `il y a ${mins} min`;
+    if (mins < 1440) return `il y a ${Math.floor(mins / 60)} h`;
+    return `il y a ${Math.floor(mins / 1440)} j`;
+  }
+
+  function telHref(phone) { return 'tel:' + String(phone || '').replace(/[^\d+]/g, ''); }
+
+  function smsBody(r) {
+    return encodeURIComponent(
+      `Bonjour ${r.name}, votre réservation du ${fmtDayShort(r.date)} (${r.service}) pour ${r.guests} personne${r.guests > 1 ? 's' : ''} est bien confirmée. À bientôt ! La Petite Auberge de Flo`
+    );
+  }
+
+  function emptyHtml(icon, title, text) {
+    return `<div class="cah-empty">
+      <div class="cah-empty__icon">${icon}</div>
+      <h2 class="cah-empty__title">${title}</h2>
+      <p class="cah-empty__text">${text}</p>
+    </div>`;
+  }
+
+  // Une réservation "au cahier" = confirmée ou en attente. Refusées et annulées
+  // n'occupent pas de table et ne doivent pas fausser la lecture du service.
+  function bookedRows(date, service) {
+    return state.reservations
+      .filter(r => r.date === date && r.service === service
+                && (r.status === 'confirmee' || r.status === 'en_attente'))
+      .sort((a, b) => String(a.time || '').localeCompare(String(b.time || ''))
+                   || String(a.created_at).localeCompare(String(b.created_at)));
+  }
+
+  function overrideFor(date, service) {
+    return state.overrides.find(o => o.date === date && o.service === service) || null;
+  }
+
+  function capacityFor(date, service) {
+    const appGuests = bookedRows(date, service).reduce((s, r) => s + r.guests, 0);
+    const ov      = overrideFor(date, service);
+    const offline = ov?.offline_couverts ?? 0;
+    const max     = ov?.max_couverts ?? state.defaults[service];
+    const closed  = ov?.manually_closed === true;
+    return { current: appGuests + offline, appGuests, max, closed, offline };
+  }
+
+  function closureFor(date, service) {
+    const weekday = new Date(date + 'T12:00:00Z').getUTCDay();
+    return state.closures.find(c => {
+      if (c.service && c.service !== service) return false;
+      if (c.kind === 'weekly') return c.weekday === weekday;
+      if (c.kind === 'range')  return date >= c.start_date && date <= c.end_date;
+      return false;
+    }) || null;
+  }
+
+  function pendingCount() {
+    return state.reservations.filter(r => r.status === 'en_attente').length;
+  }
+
+  function renderTabBadge() {
+    const n = pendingCount();
+    const dot = $('#inboxDot');
+    dot.hidden = n === 0;
+    dot.textContent = n;
+    $('#inboxSub').textContent = n === 0
+      ? 'rien en attente'
+      : `${n} demande${n > 1 ? 's' : ''} en attente`;
+  }
+
+  // ============================================================
+  // ONGLETS
+  // ============================================================
+  function setTab(name) {
+    state.tab = name;
+    $$('.cah-tab').forEach(s => s.classList.toggle('is-active', s.id === 'tab-' + name));
+    $$('.cah-tabbtn').forEach(b => b.classList.toggle('is-on', b.dataset.tab === name));
+    $('#fabAdd').hidden = (name !== 'cahier' && name !== 'inbox');
+    window.scrollTo(0, 0);
+    renderAll();
+  }
+
+  $$('.cah-tabbtn').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  $$('[data-refresh]').forEach(b => b.addEventListener('click', () => refresh()));
+
+  // ============================================================
+  // ONGLET 1 — LE CAHIER
+  // ============================================================
+  function renderCahier() {
+    const date = state.cursorDate;
+    const svc  = state.cursorService;
+
+    // — en-tête —
+    const today = todayISO();
+    let dayName = fmtDay(date);
+    if (date === today)               dayName = "Aujourd'hui";
+    else if (date === addDays(today, 1))  dayName = 'Demain';
+    else if (date === addDays(today, -1)) dayName = 'Hier';
+    $('#cahDate').textContent = dayName;
+    $('#cahWeek').textContent = (date === today || date === addDays(today, 1) || date === addDays(today, -1))
+      ? `${fmtDay(date)} · semaine ${isoWeek(date)}`
+      : `Semaine ${isoWeek(date)}`;
+    $('#cahDateInput').value = date;
+
+    const midiCap = capacityFor(date, 'midi');
+    const soirCap = capacityFor(date, 'soir');
+    $('#cahSegMidi').textContent = `· ${midiCap.current}`;
+    $('#cahSegSoir').textContent = `· ${soirCap.current}`;
+    $$('#cahSeg button').forEach(b => b.classList.toggle('is-on', b.dataset.service === svc));
+
+    // — récap : quatre chiffres, toujours pour le service affiché —
+    const rows = bookedRows(date, svc);
+    const cap  = svc === 'midi' ? midiCap : soirCap;
+    const tables = new Set(rows.map(r => (r.table_no || '').trim()).filter(Boolean)).size;
+
+    const byTime = new Map();
+    for (const r of rows) byTime.set(r.time, (byTime.get(r.time) || 0) + r.guests);
+    let peak = '—';
+    if (byTime.size) {
+      const best = [...byTime.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))[0];
+      peak = timeLabel({ time: best[0] });
+    }
+
+    // Un service fermé n'a pas de place « restante » : afficher un nombre
+    // laisserait croire qu'on peut encore prendre des couverts. Les fermetures
+    // récurrentes et par période comptent autant que la fermeture manuelle.
+    const closure = closureFor(date, svc);
+    const closedAnyway = cap.closed || !!closure;
+    const isFull = closedAnyway || (cap.max != null && cap.current >= cap.max);
+    const remaining = closedAnyway ? '—'
+                    : (cap.max == null ? '∞' : Math.max(0, cap.max - cap.current));
+
+    $('#cahRecap').innerHTML = `
+      <div><b>${cap.current}</b><span>Couverts</span></div>
+      <div><b>${tables || '—'}</b><span>Tables</span></div>
+      <div><b>${peak}</b><span>Pic</span></div>
+      <div class="${isFull ? 'is-full' : ''}"><b>${remaining}</b><span>Restants</span></div>`;
+
+    // — bandeau de fermeture —
+    const banner = $('#cahClosed');
+    if (closedAnyway) {
+      banner.hidden = false;
+      banner.textContent = cap.closed
+        ? 'Service marqué complet — le formulaire du site refuse les nouvelles demandes.'
+        : `Restaurant fermé ce ${svc}${closure.reason ? ` — ${closure.reason}` : ''}.`;
+    } else {
+      banner.hidden = true;
+    }
+
+    // — mémo du jour —
+    const memo = overrideFor(date, svc)?.notes || '';
+    const memoInput = $('#cahMemoInput');
+    if (!state.memoFocused && memoInput.value !== memo) {
+      memoInput.value = memo;
+      autosizeMemo();
+    }
+
+    // — les lignes réglées —
+    const MIN_ROWS = 6;
+    const lines = rows.map((r, i) => rowHtml(r, i + 1));
+    for (let i = rows.length; i < MIN_ROWS; i++) {
+      lines.push(`<div class="cah-row cah-row--empty">
+        <div class="cah-row__n">${i + 1}</div>
+        <div class="cah-row__time"></div>
+        <div class="cah-row__id">ligne libre…</div>
+      </div>`);
+    }
+    $('#cahRows').innerHTML = lines.join('');
+
+    // — pied de page —
+    $('#cahFoot').innerHTML = `
+      <button class="cah-foot__offline" type="button" data-cah-offline
+              aria-label="Modifier les couverts pris hors application">
+        ${cap.offline > 0
+          ? `+ ${cap.offline} couvert${cap.offline > 1 ? 's' : ''} hors application`
+          : '<u>aucun couvert hors application</u>'}
+      </button>
+      <div class="cah-foot__actions">
+        <button class="cah-foot__btn ${cap.closed ? 'cah-foot__btn--closed' : ''}" type="button" data-cah-toggle-closed>
+          ${cap.closed ? 'Rouvrir le service' : 'Marquer complet'}
+        </button>
+      </div>`;
+  }
+
+  function rowHtml(r, n) {
+    const cls = ['cah-row'];
+    if (r.attendance === 'arrive') cls.push('is-done');
+    if (r.attendance === 'absent') cls.push('is-absent');
+    if (r.status === 'en_attente') cls.push('is-pending');
+
+    const note  = (r.notes || '').trim() || (r.internal_notes || '').trim();
+    const table = (r.table_no || '').trim();
+    const check = r.attendance === 'arrive' ? '✓' : (r.attendance === 'absent' ? '✕' : '');
+    const checkCls = r.attendance === 'arrive' ? 'is-arrive' : (r.attendance === 'absent' ? 'is-absent' : '');
+    const checkLabel = r.attendance === 'arrive' ? 'arrivé' : (r.attendance === 'absent' ? 'pas venu' : 'pas encore pointé');
+
+    return `
+      <div class="${cls.join(' ')}" data-row="${r.id}" role="button" tabindex="0"
+           aria-label="${esc(r.name)}, ${r.guests} personnes à ${timeLabel(r)}">
+        <div class="cah-row__n">${n}</div>
+        <div class="cah-row__time">${timeLabel(r)}</div>
+        <div class="cah-row__pax">${r.guests}</div>
+        <div class="cah-row__id">
+          <div class="cah-row__name">${esc(r.name)}${r.status === 'en_attente' ? ' · à valider' : ''}</div>
+          ${note ? `<div class="cah-row__note">${esc(note)}</div>` : ''}
+        </div>
+        <a class="cah-row__tel" href="${esc(telHref(r.phone))}" data-stop
+           aria-label="Appeler ${esc(r.name)}">📞</a>
+        <span class="cah-row__table ${table ? 'is-set' : ''}">${table ? esc(table) : '–'}</span>
+        <button class="cah-row__check ${checkCls}" type="button" data-check="${r.id}"
+                aria-label="Pointage : ${checkLabel}">${check}</button>
+      </div>`;
+  }
+
+  function autosizeMemo() {
+    const el = $('#cahMemoInput');
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  // --- navigation dans le cahier ---
+  $('#cahPrev').addEventListener('click', async () => {
+    state.cursorDate = addDays(state.cursorDate, -1);
+    await ensureLoadedUpTo(state.cursorDate);
+    renderAll();
+  });
+  $('#cahNext').addEventListener('click', () => {
+    state.cursorDate = addDays(state.cursorDate, 1);
+    renderAll();
+  });
+  $('#cahDateInput').addEventListener('change', async (e) => {
+    if (!e.target.value) return;
+    state.cursorDate = e.target.value;
+    await ensureLoadedUpTo(state.cursorDate);
+    renderAll();
+  });
+  $('#cahSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-service]');
+    if (!b) return;
+    state.cursorService = b.dataset.service;
+    renderAll();
+  });
+
+  // --- mémo du jour, enregistré au fil de la frappe ---
+  let memoTimer;
+  $('#cahMemoInput').addEventListener('focus', () => { state.memoFocused = true; });
+  $('#cahMemoInput').addEventListener('blur', () => {
+    state.memoFocused = false;
+    if (state.renderPending) renderAll();
+  });
+  $('#cahMemoInput').addEventListener('input', (e) => {
+    autosizeMemo();
+    clearTimeout(memoTimer);
+    const date = state.cursorDate, svc = state.cursorService, value = e.target.value;
+    memoTimer = setTimeout(async () => {
+      try {
+        await setServiceNotes(date, svc, value);
+        // On tient le cache local à jour pour ne pas perdre le mémo au re-render.
+        const ov = overrideFor(date, svc);
+        if (ov) ov.notes = value.trim() || null;
+        else state.overrides.push({ date, service: svc, notes: value.trim() || null, offline_couverts: 0, manually_closed: false, max_couverts: null });
+        const saved = $('#cahMemoSaved');
+        saved.hidden = false;
+        setTimeout(() => { saved.hidden = true; }, 1600);
+      } catch (err) {
+        alert("Le mémo n'a pas pu être enregistré : " + err.message);
+      }
+    }, 700);
+  });
+
+  // --- pointage : vide → arrivé → pas venu → vide ---
+  // Tout ce qui n'est ni 'arrive' ni 'absent' compte comme non pointé : une
+  // colonne absente ou une valeur inattendue ne doit pas geler le bouton.
+  function nextAttendance(current) {
+    if (current === 'arrive') return 'absent';
+    if (current === 'absent') return null;
+    return 'arrive';
+  }
+
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-check]');
+    if (!btn) return;
+    e.stopPropagation();
+    const id = btn.dataset.check;
+    const r  = state.reservations.find(x => x.id === id);
+    if (!r) return;
+    btn.disabled = true;
+    try {
+      const updated = await setAttendance(id, nextAttendance(r.attendance));
+      r.attendance    = updated.attendance;
+      r.attendance_at = updated.attendance_at;
+      renderAll();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+      btn.disabled = false;
+    }
+  });
+
+  // --- ouverture d'une ligne ---
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-stop], [data-check]')) return;
+    const row = e.target.closest('[data-row]');
+    if (row) openRowSheet(row.dataset.row);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const row = e.target.closest?.('[data-row]');
+    if (!row) return;
+    e.preventDefault();
+    openRowSheet(row.dataset.row);
+  });
+
+  // --- couverts hors application ---
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-cah-offline]');
+    if (!btn) return;
+    const date = state.cursorDate, svc = state.cursorService;
+    const cap = capacityFor(date, svc);
+    const input = prompt(
+      `Combien de couverts sont déjà pris hors application (téléphone, agenda papier) pour le service ${svc} du ${fmtDay(date)} ?\n\nCe nombre s'ajoute aux lignes du cahier pour calculer la place restante — ne comptez pas deux fois une réservation déjà écrite ci-dessus.`,
+      String(cap.offline)
+    );
+    if (input === null) return;
+    const n = parseInt(input, 10);
+    if (Number.isNaN(n) || n < 0) { alert('Merci d\'entrer un nombre entier positif ou nul.'); return; }
+    btn.disabled = true;
+    try {
+      await setOfflineCouverts(date, svc, n);
+      await refresh();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+      btn.disabled = false;
+    }
+  });
+
+  // --- ouvrir / fermer le service ---
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-cah-toggle-closed]');
+    if (!btn) return;
+    const date = state.cursorDate, svc = state.cursorService;
+    const wasClosed = capacityFor(date, svc).closed;
+    btn.disabled = true;
+    btn.textContent = wasClosed ? 'Réouverture…' : 'Fermeture…';
+    try {
+      await setServiceClosed(date, svc, !wasClosed);
+      await refresh();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+      btn.disabled = false;
+    }
+  });
+
+  // ============================================================
+  // ONGLET 2 — À TRAITER
+  // ============================================================
+  function matchesSearch(r, q) {
+    if (!q) return true;
+    const needle = q.trim().toLowerCase();
+    if (!needle) return true;
+    const digits = needle.replace(/\D/g, '');
+    const phoneDigits = String(r.phone || '').replace(/\D/g, '');
+    return String(r.name || '').toLowerCase().includes(needle)
+        || (digits.length >= 3 && phoneDigits.includes(digits));
+  }
+
+  function renderInbox() {
+    const q = $('#inboxSearch').value;
+    const rows = state.reservations
+      .filter(r => r.status === 'en_attente')
+      .filter(r => matchesSearch(r, q))
+      .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+
+    if (!rows.length) {
+      $('#inboxList').innerHTML = q
+        ? emptyHtml('🔎', 'Aucun résultat', 'Aucune demande en attente ne correspond à cette recherche.')
+        : emptyHtml('✅', 'Rien à traiter', 'Toutes les demandes sont validées. Le cahier est à jour.');
+      return;
+    }
+
+    $('#inboxList').innerHTML = rows.map(r => {
+      const cap = capacityFor(r.date, r.service);
+      const over = cap.max != null && cap.current > cap.max;
+      const meta = [
+        esc(r.phone),
+        r.lang && r.lang !== 'fr' ? `demande en ${r.lang.toUpperCase()}` : null,
+        over ? '⚠ dépasse la capacité du service' : null,
+      ].filter(Boolean).join(' · ');
+
+      return `
+        <article class="cah-card ${over ? 'cah-card--over' : ''}">
+          <div class="cah-card__top">
+            <div class="cah-card__when">${fmtDayShort(r.date)} · ${timeLabel(r)}</div>
+            <div class="cah-card__ago">${relTime(r.created_at)}</div>
+          </div>
+          <p class="cah-card__name">${esc(r.name)} · ${r.guests} personne${r.guests > 1 ? 's' : ''}</p>
+          <p class="cah-card__meta">${meta}</p>
+          ${r.notes ? `<p class="cah-card__note">${esc(r.notes)}</p>` : ''}
+          <div class="cah-btnrow">
+            <button class="adm-btn adm-btn--success" type="button" data-action="confirm" data-id="${r.id}">✓ Valider</button>
+            <a class="adm-btn adm-btn--call" href="${esc(telHref(r.phone))}" aria-label="Appeler">📞</a>
+            <button class="adm-btn adm-btn--danger" type="button" data-action="refuse" data-id="${r.id}" aria-label="Refuser">✕</button>
+          </div>
+        </article>`;
+    }).join('');
+  }
+
+  $('#inboxSearch').addEventListener('input', () => renderInbox());
+
+  // ============================================================
+  // ONGLET 3 — HISTORIQUE
+  // ============================================================
+  function renderHistory() {
+    const q = $('#histSearch').value.trim();
+
+    // La recherche balaie tout ce qui est chargé, passé comme à venir : c'est
+    // elle qui répond à « le monsieur qui a appelé la semaine dernière ».
+    if (q) {
+      const hits = state.reservations
+        .filter(r => matchesSearch(r, q))
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      $('#histBody').innerHTML = hits.length
+        ? `<div class="cah-hdr2"><h4>${hits.length} résultat${hits.length > 1 ? 's' : ''}</h4><em>plus récent d'abord</em></div>
+           <div class="cah-daylist">${hits.map(r => `
+             <button class="cah-dayrow" type="button" data-goto-date="${r.date}" data-goto-service="${r.service}">
+               <strong>${esc(r.name)} — ${r.guests} pers.</strong>
+               <span>${fmtDayShort(r.date)} · ${timeLabel(r)}</span>
+             </button>`).join('')}</div>`
+        : emptyHtml('🔎', 'Aucun résultat', `Rien ne correspond à « ${esc(q)} » sur les ${HISTORY_DAYS} derniers jours.`);
+      return;
+    }
+
+    const today = todayISO();
+    const from  = addDays(today, -state.histRange);
+    const past  = state.reservations.filter(r => r.date >= from && r.date < today);
+    const kept  = past.filter(r => r.status === 'confirmee' || r.status === 'en_attente');
+
+    const couverts = kept.reduce((s, r) => s + r.guests, 0);
+    const midi = kept.filter(r => r.service === 'midi').reduce((s, r) => s + r.guests, 0);
+    const soir = couverts - midi;
+
+    const servicesTenus = new Set(kept.map(r => r.date + r.service)).size;
+    const moyenne = servicesTenus ? Math.round(couverts / servicesTenus) : 0;
+
+    // Le taux de no-show ne se calcule que sur les lignes réellement pointées.
+    // Sans pointage, afficher 0 % serait un chiffre faux qui se lit comme une donnée.
+    const pointees = kept.filter(r => r.attendance === 'arrive' || r.attendance === 'absent');
+    const absents  = kept.filter(r => r.attendance === 'absent');
+    const noShow = pointees.length
+      ? `${Math.round((absents.length / pointees.length) * 100)} %`
+      : '—';
+    const noShowNote = pointees.length
+      ? `${absents.length} absent${absents.length > 1 ? 's' : ''} sur ${pointees.length} ligne${pointees.length > 1 ? 's' : ''} pointée${pointees.length > 1 ? 's' : ''}`
+      : 'aucune ligne pointée sur la période';
+
+    // graphe : couverts par jour, midi + soir empilés
+    const days = [];
+    for (let i = state.histRange; i >= 1; i--) days.push(addDays(today, -i));
+    const perDay = days.map(d => ({
+      date: d,
+      midi: kept.filter(r => r.date === d && r.service === 'midi').reduce((s, r) => s + r.guests, 0),
+      soir: kept.filter(r => r.date === d && r.service === 'soir').reduce((s, r) => s + r.guests, 0),
+    }));
+    const maxDay = Math.max(1, ...perDay.map(d => d.midi + d.soir));
+
+    const chart = perDay.map(d => {
+      const total = d.midi + d.soir;
+      const h = Math.round((total / maxDay) * 100);
+      const midiPart = total ? Math.round((d.midi / total) * h) : 0;
+      return `<div class="cah-chart__bar" title="${fmtDayShort(d.date)} : ${total} couverts">
+        ${d.soir ? `<div class="cah-chart__fill cah-chart__fill--soir" style="height:${h - midiPart}%"></div>` : ''}
+        ${d.midi ? `<div class="cah-chart__fill" style="height:${midiPart}%"></div>` : ''}
+        <div class="cah-chart__label">${d.date.slice(8)}</div>
+      </div>`;
+    }).join('');
+
+    const dayList = [...new Set(past.map(r => r.date))]
+      .sort((a, b) => b.localeCompare(a))
+      .map(d => {
+        const list = kept.filter(r => r.date === d);
+        const g = list.reduce((s, r) => s + r.guests, 0);
+        return `<button class="cah-dayrow" type="button" data-goto-date="${d}">
+          <strong>${fmtDay(d)}</strong>
+          <span>${list.length} résa · ${g} couverts</span>
+        </button>`;
+      }).join('');
+
+    $('#histBody').innerHTML = `
+      <div class="cah-kpis">
+        <div class="cah-kpi"><b>${couverts}</b><span>Couverts</span><em>sur ${state.histRange} jours</em></div>
+        <div class="cah-kpi"><b>${moyenne}</b><span>Moyenne</span><em>par service tenu</em></div>
+        <div class="cah-kpi"><b>${noShow}</b><span>No-show</span><em>${noShowNote}</em></div>
+        <div class="cah-kpi"><b>${midi} / ${soir}</b><span>Midi / Soir</span><em>répartition des couverts</em></div>
+      </div>
+      <div class="cah-chart">${chart}</div>
+      <div class="cah-hdr2"><h4>Jours passés</h4><em>appuyer pour rouvrir la page</em></div>
+      ${dayList ? `<div class="cah-daylist">${dayList}</div>`
+                : emptyHtml('📭', 'Rien sur la période', 'Aucune réservation sur ces derniers jours.')}`;
+  }
+
+  $('#histSearch').addEventListener('input', () => renderHistory());
+  $('#histRange').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-range]');
+    if (!b) return;
+    state.histRange = parseInt(b.dataset.range, 10);
+    $$('#histRange button').forEach(x => x.classList.toggle('is-on', x === b));
+    renderHistory();
+  });
+
+  // Retour au cahier depuis l'historique
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-goto-date]');
+    if (!b) return;
+    state.cursorDate = b.dataset.gotoDate;
+    if (b.dataset.gotoService) state.cursorService = b.dataset.gotoService;
+    await ensureLoadedUpTo(state.cursorDate);
+    setTab('cahier');
+  });
+
+  // ============================================================
+  // ONGLET 4 — RÉGLAGES
+  // ============================================================
   async function getPushState() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return 'unsupported';
-    const perm = Notification.permission;
-    if (perm === 'denied') return 'blocked';
+    if (Notification.permission === 'denied') return 'blocked';
     try {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
-      if (sub && perm === 'granted') return 'on';
-      if (perm === 'granted') return 'permission-only';
+      if (sub && Notification.permission === 'granted') return 'on';
+      if (Notification.permission === 'granted') return 'permission-only';
       return 'off';
     } catch (e) {
       return 'error';
@@ -317,37 +954,32 @@
   }
 
   const PUSH_LABELS = {
-    on:              { dot: 'var(--adm-success)', title: 'Notifications activées', desc: "Tu reçois une notif sur ce téléphone à chaque nouvelle réservation, même app fermée.", btn: 'Désactiver', action: 'disable' },
-    'permission-only': { dot: 'var(--adm-warning)', title: 'Pas encore souscrit', desc: "Permission accordée, mais ce téléphone n'est pas enregistré. Tape sur \"Activer\".", btn: 'Activer', action: 'enable' },
-    off:             { dot: 'var(--ink-soft)',    title: 'Notifications désactivées', desc: "Active-les pour recevoir une notif à chaque nouvelle réservation, même app fermée.", btn: 'Activer', action: 'enable' },
-    blocked:         { dot: 'var(--adm-danger)',  title: 'Bloquées par iOS / le navigateur', desc: "Tu as refusé la permission. Va dans les Réglages iOS → Notifications → Auberge Flo pour réautoriser.", btn: '', action: '' },
-    unsupported:     { dot: 'var(--ink-soft)',    title: 'Push non supporté', desc: "Ce navigateur ne supporte pas les notifications web. Sur iPhone, il faut iOS 16.4+ et installer l'app depuis l'écran d'accueil.", btn: '', action: '' },
-    error:           { dot: 'var(--adm-danger)',  title: 'Erreur de configuration', desc: "Quelque chose s'est mal passé. Recharge la page.", btn: '', action: '' },
+    on:                { dot: 'var(--adm-success)', title: 'Notifications activées', desc: "Tu reçois une notif sur ce téléphone à chaque nouvelle réservation, même app fermée.", btn: 'Désactiver', action: 'disable' },
+    'permission-only': { dot: 'var(--adm-warning)', title: 'Pas encore souscrit', desc: "Permission accordée, mais ce téléphone n'est pas enregistré. Tape sur « Activer ».", btn: 'Activer', action: 'enable' },
+    off:               { dot: 'var(--ink-soft)',    title: 'Notifications désactivées', desc: "Active-les pour être prévenu à chaque nouvelle réservation, même app fermée.", btn: 'Activer', action: 'enable' },
+    blocked:           { dot: 'var(--adm-danger)',  title: 'Bloquées par iOS / le navigateur', desc: "Tu as refusé la permission. Réglages iOS → Notifications → Auberge Flo pour réautoriser.", btn: '', action: '' },
+    unsupported:       { dot: 'var(--ink-soft)',    title: 'Push non supporté', desc: "Ce navigateur ne supporte pas les notifications web. Sur iPhone : iOS 16.4+ et app installée depuis l'écran d'accueil.", btn: '', action: '' },
+    error:             { dot: 'var(--adm-danger)',  title: 'Erreur de configuration', desc: "Quelque chose s'est mal passé. Recharge la page.", btn: '', action: '' },
   };
 
-  // Fermeture hebdo "toute la journée" (service = null) pour ce jour, si elle existe
   function weeklyClosureFor(dow) {
     return state.closures.find(c => c.kind === 'weekly' && c.weekday === dow && !c.service) || null;
   }
 
   function formatClosureRange(c) {
-    const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    const fmt = d => new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
     return c.start_date === c.end_date ? fmt(c.start_date) : `${fmt(c.start_date)} → ${fmt(c.end_date)}`;
   }
 
-  async function openSettings() {
+  async function renderSettings() {
     const session = await getSession();
     const userEmail = session?.user?.email || '—';
-    const pushState = await getPushState();
-    const p = PUSH_LABELS[pushState];
+    const p = PUSH_LABELS[await getPushState()];
 
-    $('#sheetInner').innerHTML = `
-      <p class="adm-sheet__eyebrow">— Réglages —</p>
-      <h2 class="adm-sheet__title">Compte, capacité &amp; <em>notifications</em></h2>
-
+    $('#settingsBody').innerHTML = `
       <div class="adm-settings-section">
         <p class="adm-settings-label">Capacité par défaut</p>
-        <p class="adm-settings-help">Nombre maximum de couverts acceptés <em>par défaut</em> pour chaque service. Tu peux fermer un jour précis depuis le dashboard si besoin (bouton "Marquer complet").</p>
+        <p class="adm-settings-help">Nombre maximum de couverts acceptés <em>par défaut</em> pour chaque service. Un jour précis se ferme depuis le cahier, bouton « Marquer complet ».</p>
         <div class="adm-settings-capacity">
           <label class="adm-settings-capfield">
             <span>Midi</span>
@@ -366,24 +998,21 @@
 
       <div class="adm-settings-section">
         <p class="adm-settings-label">Jours fermés chaque semaine</p>
-        <p class="adm-settings-help">Coche les jours où le restaurant est fermé <em>toute la journée</em> — les réservations sont bloquées automatiquement sur le site, plus besoin de fermer chaque date une par une.</p>
+        <p class="adm-settings-help">Coche les jours où le restaurant est fermé <em>toute la journée</em> — les réservations sont bloquées automatiquement sur le site.</p>
         <div class="adm-weekday-grid" id="weekdayGrid">
-          ${WEEKDAYS.map(w => {
-            const full = weeklyClosureFor(w.dow);
-            return `<button type="button" class="adm-weekday-btn ${full ? 'is-closed' : ''}" data-weekday="${w.dow}">${w.short}</button>`;
-          }).join('')}
+          ${WEEKDAYS.map(w => `<button type="button" class="adm-weekday-btn ${weeklyClosureFor(w.dow) ? 'is-closed' : ''}" data-weekday="${w.dow}">${w.short}</button>`).join('')}
         </div>
         ${(() => {
           const partial = state.closures.filter(c => c.kind === 'weekly' && c.service);
           if (!partial.length) return '';
           const label = c => `${WEEKDAYS.find(w => w.dow === c.weekday)?.short || c.weekday} — pas de service ${c.service}${c.reason ? ` (${esc(c.reason)})` : ''}`;
-          return `<p class="adm-settings-help">Fermetures partielles déjà en place (à ajuster avec Max si besoin) : ${partial.map(label).join(', ')}.</p>`;
+          return `<p class="adm-settings-help">Fermetures partielles déjà en place : ${partial.map(label).join(', ')}.</p>`;
         })()}
       </div>
 
       <div class="adm-settings-section">
         <p class="adm-settings-label">Fermetures exceptionnelles</p>
-        <p class="adm-settings-help">Congés, jours fériés… bloque une période entière en une seule fois.</p>
+        <p class="adm-settings-help">Congés, jours fériés… bloque une période entière en une fois.</p>
         <div class="adm-closure-list" id="closureRangeList">
           ${state.closures.filter(c => c.kind === 'range').map(c => `
             <div class="adm-closure-item">
@@ -392,8 +1021,8 @@
             </div>`).join('') || '<p class="adm-settings-help">Aucune période fermée à venir.</p>'}
         </div>
         <div class="adm-closure-form">
-          <input type="date" id="closureStart" min="${new Date().toISOString().slice(0,10)}" />
-          <input type="date" id="closureEnd" min="${new Date().toISOString().slice(0,10)}" />
+          <input type="date" id="closureStart" min="${todayISO()}" />
+          <input type="date" id="closureEnd" min="${todayISO()}" />
           <input type="text" id="closureReason" placeholder="Raison (ex. congés d'été)" maxlength="200" />
           <button class="adm-btn adm-btn--success adm-btn--full" type="button" id="addClosureBtn">Fermer cette période</button>
         </div>
@@ -403,10 +1032,7 @@
         <p class="adm-settings-label">Notifications push</p>
         <div class="adm-settings-row">
           <span class="adm-settings-dot" style="background:${p.dot}"></span>
-          <div class="adm-settings-text">
-            <strong>${p.title}</strong>
-            <span>${p.desc}</span>
-          </div>
+          <div class="adm-settings-text"><strong>${p.title}</strong><span>${p.desc}</span></div>
         </div>
         ${p.btn ? `<button class="adm-btn adm-btn--${p.action === 'enable' ? 'success' : 'ghost'} adm-btn--full" type="button" data-push-action="${p.action}">${p.btn}</button>` : ''}
       </div>
@@ -415,17 +1041,13 @@
         <p class="adm-settings-label">Compte connecté</p>
         <div class="adm-settings-row">
           <span class="adm-settings-dot" style="background:var(--adm-success)"></span>
-          <div class="adm-settings-text">
-            <strong>${esc(userEmail)}</strong>
-            <span>Session active sur cet appareil.</span>
-          </div>
+          <div class="adm-settings-text"><strong>${esc(userEmail)}</strong><span>Session active sur cet appareil.</span></div>
         </div>
         <button class="adm-btn adm-btn--danger adm-btn--full" type="button" id="signoutBtn">Se déconnecter</button>
       </div>
 
-      <p class="adm-settings-version">La Petite Auberge de Flo · Tableau de bord chef · v1.1</p>`;
+      <p class="adm-settings-version">La Petite Auberge de Flo · Cahier du chef · v2.0</p>`;
 
-    // Save default capacity
     $('#saveCapBtn').addEventListener('click', async (e) => {
       const btn = e.currentTarget;
       const midi = parseInt($('#capMidi').value, 10) || 0;
@@ -438,7 +1060,6 @@
         state.defaults = { midi, soir };
         $('#capSaved').hidden = false;
         setTimeout(() => { $('#capSaved').hidden = true; }, 2000);
-        refresh(); // re-render dashboard with new caps
       } catch (err) {
         alert('Erreur : ' + err.message);
       } finally {
@@ -448,21 +1069,19 @@
     });
 
     $('[data-push-action]')?.addEventListener('click', async (e) => {
-      const action = e.currentTarget.dataset.pushAction;
       const btn = e.currentTarget;
+      const action = btn.dataset.pushAction;
       btn.disabled = true;
       const original = btn.textContent;
       btn.textContent = action === 'enable' ? 'Activation…' : 'Désactivation…';
       try {
         if (action === 'enable') {
-          const granted = await ensureNotifPermission();
-          if (!granted) throw new Error('Permission refusée');
+          if (!(await ensureNotifPermission())) throw new Error('Permission refusée');
           await subscribePush();
         } else {
           await unsubscribePush();
         }
-        // re-render the sheet to show the new state
-        openSettings();
+        renderSettings();
       } catch (err) {
         alert('Erreur : ' + err.message);
         btn.disabled = false;
@@ -471,26 +1090,20 @@
     });
 
     $('#signoutBtn').addEventListener('click', async () => {
-      closeSheet();
       try { await signOut(); } catch (_) {}
       showLogin();
     });
 
-    // Toggle fermeture hebdo (jour entier) au clic sur un bouton de jour
     $$('#weekdayGrid [data-weekday]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const dow = parseInt(btn.dataset.weekday, 10);
         const existing = weeklyClosureFor(dow);
         btn.disabled = true;
         try {
-          if (existing) {
-            await removeClosure(existing.id);
-          } else {
-            await addWeeklyClosure(dow, null, 'Fermeture hebdomadaire');
-          }
+          if (existing) await removeClosure(existing.id);
+          else          await addWeeklyClosure(dow, null, 'Fermeture hebdomadaire');
           state.closures = await listClosures();
-          openSettings(); // re-render la fiche avec le nouvel état
-          refresh();      // met à jour le dashboard (dates fermées visibles ailleurs)
+          renderSettings();
         } catch (err) {
           alert('Erreur : ' + err.message);
           btn.disabled = false;
@@ -498,7 +1111,6 @@
       });
     });
 
-    // Ajouter une fermeture par période (congés, jours fériés...)
     $('#addClosureBtn').addEventListener('click', async (e) => {
       const btn = e.currentTarget;
       const start = $('#closureStart').value;
@@ -512,8 +1124,7 @@
       try {
         await addRangeClosure(start, end, null, reason);
         state.closures = await listClosures();
-        openSettings();
-        refresh();
+        renderSettings();
       } catch (err) {
         alert('Erreur : ' + err.message);
         btn.disabled = false;
@@ -521,632 +1132,133 @@
       }
     });
 
-    // Supprimer une fermeture par période
     $$('#closureRangeList [data-remove-closure]').forEach(btn => {
       btn.addEventListener('click', async () => {
         btn.disabled = true;
         try {
           await removeClosure(btn.dataset.removeClosure);
           state.closures = await listClosures();
-          openSettings();
-          refresh();
+          renderSettings();
         } catch (err) {
           alert('Erreur : ' + err.message);
           btn.disabled = false;
         }
       });
     });
-
-    $('#detailSheet').classList.add('is-open');
-    $('#sheetBackdrop').classList.add('is-open');
-    $('#detailSheet').setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
   }
 
-  // ---------- Filter chips ----------
-  $('#filterChips').addEventListener('click', (e) => {
-    const chip = e.target.closest('[data-filter]');
-    if (!chip) return;
-    setFilter(chip.dataset.filter);
-  });
-
-  function setFilter(f) {
-    state.filter = f;
-    state.dateSearch = null;
-    $('#dateSearchInput').value = '';
-    $('#dateSearchClear').hidden = true;
-    $$('#filterChips [data-filter]').forEach(c =>
-      c.classList.toggle('is-active', c.dataset.filter === f));
-    renderList();
-  }
-
-  // ---------- Date search ----------
-  // Cherche une date précise (passée ou future n'a pas de sens ici, on ne
-  // propose que des dates >= aujourd'hui). Contrairement aux chips, ça montre
-  // le jour même s'il n'a AUCUNE réservation, avec la capacité + le bouton
-  // "Marquer complet" — ce qui permet de fermer un jour à l'avance.
-  $('#dateSearchInput').min = new Date().toISOString().slice(0, 10);
-  $('#dateSearchInput').addEventListener('change', (e) => {
-    const v = e.target.value;
-    state.dateSearch = v || null;
-    $('#dateSearchClear').hidden = !v;
-    if (v) {
-      state.filter = null;
-      $$('#filterChips [data-filter]').forEach(c => c.classList.remove('is-active'));
-    }
-    renderList();
-  });
-  $('#dateSearchClear').addEventListener('click', () => setFilter('all'));
-
-  // ---------- Data fetch + render ----------
-  async function refresh() {
-    try {
-      const today = new Date().toISOString().slice(0, 10);
-      const [reservations, ovResp, defaults, closures] = await Promise.all([
-        listReservations(),
-        supabase.from('service_overrides').select('*').gte('date', today),
-        getDefaultCapacities(),
-        listClosures(),
-      ]);
-      state.reservations = reservations;
-      state.overrides    = ovResp.data || [];
-      state.defaults     = defaults;
-      state.closures     = closures;
-    } catch (e) {
-      console.error(e);
-      renderEmpty('Erreur', 'Impossible de charger les réservations : ' + e.message);
-      return;
-    }
-    renderSummary();
-    renderCounts();
-    renderList();
-  }
-
-  // Helper : pour une date + service, retourne { current, max, closed, offline }
-  // `offline` = couverts pris par téléphone / agenda papier (hors appli), déjà
-  // inclus dans `current` pour que la capacité affichée reflète la réalité.
-  function capacityFor(date, service) {
-    const appGuests = state.reservations
-      .filter(r => r.date === date && r.service === service && (r.status === 'en_attente' || r.status === 'confirmee'))
-      .reduce((s, r) => s + r.guests, 0);
-    const ov      = state.overrides.find(o => o.date === date && o.service === service);
-    const offline = ov?.offline_couverts ?? 0;
-    const max     = ov?.max_couverts ?? state.defaults[service];
-    const closed  = ov?.manually_closed === true;
-    return { current: appGuests + offline, max, closed, offline };
-  }
-
-  function isToday(d) {
-    return d === new Date().toISOString().slice(0, 10);
-  }
-  function isThisWeek(d) {
-    const t = new Date();
-    const end = new Date(t.getTime() + 7 * 86400000).toISOString().slice(0, 10);
-    return d >= t.toISOString().slice(0, 10) && d <= end;
-  }
-
-  function renderSummary() {
-    const today = new Date();
-    const fmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    $('#sumDay').textContent = fmt.format(today).replace(/^./, c => c.toUpperCase());
-    const week = Math.ceil((((today - new Date(today.getFullYear(), 0, 1)) / 86400000) + new Date(today.getFullYear(), 0, 1).getDay() + 1) / 7);
-    const todays = state.reservations.filter(r => isToday(r.date));
-    const midi = todays.filter(r => r.service === 'midi').reduce((s, r) => s + r.guests, 0);
-    const soir = todays.filter(r => r.service === 'soir').reduce((s, r) => s + r.guests, 0);
-    const services = [midi && 'midi', soir && 'soir'].filter(Boolean).join(' + ') || 'aucun service prévu';
-    $('#sumDetail').textContent = `Semaine ${week} · service ${services} aujourd'hui`;
-    $('#statMidi').textContent = midi;
-    $('#statSoir').textContent = soir;
-    const pending = state.reservations.filter(r => r.status === 'en_attente').length;
-    $('#statPending').textContent   = pending;
-    $('#statConfirmed').textContent = state.reservations.filter(r => r.status === 'confirmee').length;
-    const bell = $('#notifBtn');
-    if (pending > 0) bell.dataset.badge = pending; else delete bell.dataset.badge;
-  }
-
-  function renderCounts() {
-    const counts = {
-      all:       state.reservations.length,
-      pending:   state.reservations.filter(r => r.status === 'en_attente').length,
-      confirmed: state.reservations.filter(r => r.status === 'confirmee').length,
-      refused:   state.reservations.filter(r => r.status === 'refusee').length,
-      today:     state.reservations.filter(r => isToday(r.date)).length,
-      week:      state.reservations.filter(r => isThisWeek(r.date)).length,
-    };
-    Object.entries(counts).forEach(([k, v]) => {
-      const el = document.querySelector(`[data-count="${k}"]`);
-      if (el) el.textContent = v;
-    });
-  }
-
-  function filtered() {
-    const r = state.reservations;
-    switch (state.filter) {
-      case 'pending':   return r.filter(x => x.status === 'en_attente');
-      case 'confirmed': return r.filter(x => x.status === 'confirmee');
-      case 'refused':   return r.filter(x => x.status === 'refusee');
-      case 'today':     return r.filter(x => isToday(x.date));
-      case 'week':      return r.filter(x => isThisWeek(x.date));
-      default:          return r;
-    }
-  }
-
-  function renderEmpty(title, text) {
-    $('#dashList').innerHTML = `
-      <div class="adm-empty">
-        <div class="adm-empty__icon">📭</div>
-        <h2 class="adm-empty__title">${title}</h2>
-        <p class="adm-empty__text">${text}</p>
-      </div>`;
-  }
-
-  function renderList() {
-    if (state.dateSearch) { renderDateSearch(state.dateSearch); return; }
-
-    const rows = filtered();
-    if (!rows.length) {
-      renderEmpty('Aucune réservation', state.filter === 'all'
-        ? 'Aucune réservation à venir pour l\'instant.'
-        : 'Aucune réservation ne correspond à ce filtre.');
-      return;
-    }
-
-    // group by day
-    const groups = new Map();
-    for (const r of rows) {
-      if (!groups.has(r.date)) groups.set(r.date, []);
-      groups.get(r.date).push(r);
-    }
-    const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-
-    const dayFmt  = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    const sortedDates = [...groups.keys()].sort();
-
-    const html = sortedDates.map(date => {
-      const list = groups.get(date);
-      const guests = list.reduce((s, r) => s + r.guests, 0);
-      let label, sub;
-      if (date === today)         { label = "Aujourd'hui"; sub = dayFmt.format(new Date(date)).replace(/^./, c => c.toUpperCase()); }
-      else if (date === tomorrow) { label = "Demain";      sub = dayFmt.format(new Date(date)).replace(/^./, c => c.toUpperCase()); }
-      else                        { label = dayFmt.format(new Date(date)).replace(/^./, c => c.toUpperCase()); sub = ''; }
-
-      const cards = list.map(cardHtml).join('');
-      const midi = capacityFor(date, 'midi');
-      const soir = capacityFor(date, 'soir');
-      return `
-        <section class="adm-day">
-          <header class="adm-day__header">
-            <h2 class="adm-day__title">${label}${sub ? `<span class="adm-day__date">${sub}</span>` : ''}</h2>
-            <div class="adm-day__meta"><strong>${list.length} réservation${list.length > 1 ? 's' : ''}</strong> · ${guests} couvert${guests > 1 ? 's' : ''}</div>
-          </header>
-          <div class="adm-capacity">
-            ${capacityChipHtml(date, 'midi', midi)}
-            ${capacityChipHtml(date, 'soir', soir)}
-          </div>
-          <div class="adm-cards">${cards}</div>
-        </section>`;
-    }).join('');
-
-    $('#dashList').innerHTML = html;
-  }
-
-  // Affiche un jour précis choisi via la recherche par date — même s'il n'a
-  // aucune réservation, pour pouvoir le marquer "complet" à l'avance.
-  function renderDateSearch(date) {
-    const rows = state.reservations.filter(r => r.date === date);
-    const today = new Date().toISOString().slice(0, 10);
-    const dayFmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    const label = dayFmt.format(new Date(date + 'T00:00:00')).replace(/^./, c => c.toUpperCase());
-    const guests = rows.reduce((s, r) => s + r.guests, 0);
-
-    const cardsHtml = rows.length
-      ? `<div class="adm-cards">${rows.map(cardHtml).join('')}</div>`
-      : `<div class="adm-empty adm-empty--inline">
-           <div class="adm-empty__icon">🗓️</div>
-           <h2 class="adm-empty__title">Aucune réservation ce jour</h2>
-           <p class="adm-empty__text">Vous pouvez tout de même marquer un service complet ci-dessus, à l'avance.</p>
-         </div>`;
-
-    // On ne propose la capacité que pour les dates >= aujourd'hui (le champ
-    // le garantit déjà, mais on se protège si l'input est modifié à la main).
-    const capacityHtml = date < today ? '' : `
-      <div class="adm-capacity">
-        ${capacityChipHtml(date, 'midi', capacityFor(date, 'midi'))}
-        ${capacityChipHtml(date, 'soir', capacityFor(date, 'soir'))}
-      </div>`;
-
-    $('#dashList').innerHTML = `
-      <section class="adm-day">
-        <header class="adm-day__header">
-          <h2 class="adm-day__title">${label}</h2>
-          <div class="adm-day__meta">${rows.length ? `<strong>${rows.length} réservation${rows.length > 1 ? 's' : ''}</strong> · ${guests} couvert${guests > 1 ? 's' : ''}` : 'Aucune réservation'}</div>
-        </header>
-        ${capacityHtml}
-        ${cardsHtml}
-      </section>`;
-  }
-
-  // Per-day capacity chip with toggle "Ouvert / Complet" + ajustement agenda papier
-  function capacityChipHtml(date, service, cap) {
-    const { current, max, closed, offline } = cap;
-    const full   = max != null && current >= max;
-    const isFull = closed || full;
-    const cls    = isFull ? 'adm-cap--full' : (max != null && current / max >= 0.85 ? 'adm-cap--warn' : 'adm-cap--ok');
-    const label  = service === 'midi' ? 'Midi' : 'Soir';
-    const stateLabel  = closed ? 'Complet (manuel)' : (full ? 'Complet (capacité)' : `${current}/${max ?? '∞'} couverts`);
-    const offlineNote = offline > 0 ? `<span class="adm-cap__offline">dont ${offline} par tél./agenda</span>` : '';
-    const btnLabel     = closed ? 'Rouvrir' : 'Marquer complet';
-    return `
-      <div class="adm-cap ${cls}">
-        <div class="adm-cap__head">
-          <span class="adm-cap__service">${label}</span>
-          <span class="adm-cap__count">${stateLabel}</span>
-          ${offlineNote}
-        </div>
-        <div class="adm-cap__actions">
-          <button class="adm-cap__btn adm-cap__btn--ghost" type="button"
-                  data-cap-action="offline"
-                  data-cap-date="${date}"
-                  data-cap-service="${service}"
-                  data-cap-offline="${offline}">
-            ✎ Agenda
-          </button>
-          <button class="adm-cap__btn" type="button"
-                  data-cap-action="toggle"
-                  data-cap-date="${date}"
-                  data-cap-service="${service}"
-                  data-cap-closed="${closed}">
-            ${btnLabel}
-          </button>
-        </div>
-      </div>`;
-  }
-
-  // ---------- Helpers ----------
-  const STATUS_CLASS = { en_attente: 'pending', confirmee: 'confirmed', refusee: 'refused', annulee: 'cancelled' };
-  const STATUS_LABEL = { en_attente: '⏱ À traiter', confirmee: '✓ Confirmée', refusee: '✕ Refusée', annulee: '✕ Annulée' };
-
-  function esc(s) {
-    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-  }
-  function timeLabel(reservation) {
-    // Prefer the exact time stored on the row; fall back to service default for legacy rows.
-    if (reservation?.time) {
-      const [h, m] = reservation.time.split(':');
-      return `${parseInt(h, 10)}h${m}`;
-    }
-    return reservation?.service === 'midi' ? '12h00' : '19h30';
-  }
-  function relTime(iso) {
-    const d = new Date(iso);
-    const mins = Math.floor((Date.now() - d.getTime()) / 60000);
-    if (mins < 1)    return "à l'instant";
-    if (mins < 60)   return `il y a ${mins} min`;
-    if (mins < 1440) return `il y a ${Math.floor(mins / 60)}h`;
-    return `il y a ${Math.floor(mins / 1440)} j.`;
-  }
-  function smsBody(r) {
-    const dateFmt = new Date(r.date).toLocaleDateString('fr-FR');
-    return encodeURIComponent(
-      `Bonjour ${r.name}, votre réservation du ${dateFmt} (${r.service}) pour ${r.guests} personne${r.guests > 1 ? 's' : ''} est bien confirmée. À bientôt ! La Petite Auberge de Flo`
-    );
-  }
-
-  function cardHtml(r) {
-    const cls    = STATUS_CLASS[r.status] || 'pending';
-    const isNew  = r.status === 'en_attente' && (Date.now() - new Date(r.created_at).getTime()) < 4 * 3600 * 1000;
-    const phone  = (r.phone || '').replace(/[^\d+]/g, '');
-    const badges = [];
-    if (isNew) badges.push(`<span class="adm-badge adm-badge--new">Nouvelle</span>`);
-    badges.push(`<span class="adm-badge adm-badge--${cls}">${STATUS_LABEL[r.status] || r.status}</span>`);
-    if (r.lang) badges.push(`<span class="adm-badge adm-badge--lang">${r.lang.toUpperCase()}</span>`);
-
-    let actions;
-    if (r.status === 'en_attente') {
-      actions = `
-        <a class="adm-btn adm-btn--call" href="tel:${esc(phone)}">📞 Appeler</a>
-        <a class="adm-btn adm-btn--sms"  href="sms:${esc(phone)}?body=${smsBody(r)}">💬 SMS</a>
-        <button class="adm-btn adm-btn--success" type="button" data-action="confirm" data-id="${r.id}">✓ Valider</button>
-        <button class="adm-btn adm-btn--danger"  type="button" data-action="refuse"  data-id="${r.id}">✕ Refuser</button>`;
-    } else {
-      actions = `
-        <a class="adm-btn adm-btn--call" href="tel:${esc(phone)}">📞 Appeler</a>
-        <button class="adm-btn adm-btn--ghost" type="button" data-action="details" data-id="${r.id}">Détails</button>`;
-    }
-
-    return `
-      <article class="adm-card adm-card--${cls}" data-card="${r.id}">
-        <div class="adm-card__row1">
-          <div class="adm-card__time">${timeLabel(r)}</div>
-          <div class="adm-card__guests"><strong>${r.guests}</strong> pers.</div>
-        </div>
-        <div class="adm-card__badge-row">${badges.join('')}</div>
-        <h3 class="adm-card__name">${esc(r.name)}</h3>
-        <a class="adm-card__phone" href="tel:${esc(phone)}">${esc(r.phone)}</a>
-        ${r.email ? `<a class="adm-card__email" href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}
-        ${r.notes ? `<p class="adm-card__notes">${esc(r.notes)}</p>` : ''}
-        <div class="adm-card__meta">
-          <span class="adm-card__meta-item">Service <strong>${r.service}</strong></span>
-          <span class="adm-card__meta-item">Reçue <strong>${relTime(r.created_at)}</strong></span>
-        </div>
-        <div class="adm-card__actions">${actions}</div>
-      </article>`;
-  }
-
-  // ---------- Capacity toggle (Ouvert ↔ Complet) ----------
+  // ============================================================
+  // ACTIONS VALIDER / REFUSER (délégation, tous onglets)
+  // ============================================================
   document.addEventListener('click', async (e) => {
-    const cap = e.target.closest('[data-cap-action="toggle"]');
-    if (!cap) return;
-    e.stopPropagation();
-    const date    = cap.dataset.capDate;
-    const service = cap.dataset.capService;
-    const wasClosed = cap.dataset.capClosed === 'true';
-    cap.disabled = true;
-    const original = cap.textContent.trim();
-    cap.textContent = wasClosed ? 'Réouverture…' : 'Fermeture…';
-    try {
-      await setServiceClosed(date, service, !wasClosed);
-      await refresh();
-    } catch (err) {
-      alert('Erreur : ' + err.message);
-      cap.disabled = false;
-      cap.textContent = original;
-    }
-  });
-
-  // ---------- Capacity: couverts pris par téléphone / agenda papier ----------
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('[data-cap-action="offline"]');
+    const btn = e.target.closest('[data-action="confirm"], [data-action="refuse"]');
     if (!btn) return;
     e.stopPropagation();
-    const date    = btn.dataset.capDate;
-    const service = btn.dataset.capService;
-    const label   = service === 'midi' ? 'Midi' : 'Soir';
-    const dateFmt = new Date(date + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    const input = prompt(
-      `Combien de couverts sont déjà pris par téléphone ou sur l'agenda papier pour le service ${label} du ${dateFmt} ?\n(Ce nombre s'ajoute aux réservations de l'appli pour calculer la capacité restante.)`,
-      btn.dataset.capOffline || '0'
-    );
-    if (input === null) return; // annulé
-    const n = parseInt(input, 10);
-    if (Number.isNaN(n) || n < 0) { alert('Merci d\'entrer un nombre entier positif ou nul.'); return; }
     btn.disabled = true;
-    const original = btn.textContent;
-    btn.textContent = 'Enregistrement…';
     try {
-      await setOfflineCouverts(date, service, n);
+      await updateStatus(btn.dataset.id, btn.dataset.action === 'confirm' ? 'confirmee' : 'refusee');
       await refresh();
+      if ($('#detailSheet').classList.contains('is-open')) closeSheet();
     } catch (err) {
       alert('Erreur : ' + err.message);
       btn.disabled = false;
-      btn.textContent = original;
     }
   });
 
-  // ---------- Card actions (event delegation) ----------
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('[data-action]');
-    if (!btn) {
-      // Open detail sheet on card body click (ignore clicks on phone/email/buttons)
-      const card = e.target.closest('.adm-card');
-      if (card && !e.target.closest('.adm-btn, a')) openSheet(card.dataset.card);
-      return;
+  // ============================================================
+  // TIROIR : DÉTAIL D'UNE LIGNE
+  // ============================================================
+  const STATUS_LABEL = { en_attente: 'À valider', confirmee: 'Confirmée', refusee: 'Refusée', annulee: 'Annulée' };
+
+  // Les puces de table proposées sont les valeurs les plus saisies récemment :
+  // l'application apprend le plan de salle par l'usage, sans paramétrage.
+  function frequentTables() {
+    const since = addDays(todayISO(), -30);
+    const counts = new Map();
+    for (const r of state.reservations) {
+      const t = (r.table_no || '').trim();
+      if (!t || r.date < since) continue;
+      counts.set(t, (counts.get(t) || 0) + 1);
     }
-    e.stopPropagation();
-    const id = btn.dataset.id;
-    const action = btn.dataset.action;
-    if (action === 'confirm' || action === 'refuse') {
-      btn.disabled = true;
-      try {
-        await updateStatus(id, action === 'confirm' ? 'confirmee' : 'refusee');
-        await refresh();
-      } catch (err) {
-        alert('Erreur : ' + err.message);
-        btn.disabled = false;
-      }
-    } else if (action === 'details') {
-      openSheet(id);
-    }
-  });
-
-  // ---------- Add reservation manually (appel sans papier, client au comptoir...) ----------
-  function serviceFromTime(time) {
-    if (!time) return null;
-    const h = parseInt(time.split(':')[0], 10);
-    return h < 16 ? 'midi' : 'soir';
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'fr', { numeric: true }))
+      .slice(0, 6)
+      .map(e => e[0]);
   }
 
-  function timeOptionsHtml() {
-    return `
-      <option value="">— Choisir un créneau —</option>
-      <optgroup label="Midi">
-        <option value="12:00">12h00</option>
-        <option value="12:30">12h30</option>
-        <option value="13:00">13h00</option>
-        <option value="13:30">13h30</option>
-      </optgroup>
-      <optgroup label="Soir">
-        <option value="19:00">19h00</option>
-        <option value="19:30">19h30</option>
-        <option value="20:00">20h00</option>
-        <option value="20:30">20h30</option>
-        <option value="21:00">21h00</option>
-        <option value="21:30">21h30</option>
-      </optgroup>`;
-  }
-
-  // Fermeture (récurrente ou par période) qui s'applique à cette date/service, s'il y en a une
-  function closureNoteFor(date, service) {
-    if (!date) return null;
-    const weekday = new Date(date + 'T00:00:00').getDay();
-    return state.closures.find(c => {
-      if (c.service && c.service !== service) return false;
-      if (c.kind === 'weekly') return c.weekday === weekday;
-      if (c.kind === 'range') return date >= c.start_date && date <= c.end_date;
-      return false;
-    }) || null;
-  }
-
-  function openAddReservation() {
-    $('#sheetInner').innerHTML = `
-      <p class="adm-sheet__eyebrow">— Nouvelle réservation —</p>
-      <h2 class="adm-sheet__title">Ajouter <em>à la main</em></h2>
-      <p class="adm-settings-help">Pour un appel reçu sans papier sous la main, ou un client venu directement. Elle apparaît directement comme confirmée.</p>
-
-      <div class="adm-sheet__field">
-        <p class="adm-sheet__field-label">Date &amp; créneau</p>
-        <div class="adm-form-row">
-          <input type="date" id="arDate" class="adm-form-input" min="${new Date().toISOString().slice(0,10)}" />
-          <select id="arTime" class="adm-form-input">${timeOptionsHtml()}</select>
-        </div>
-        <p class="adm-settings-help" id="arCapacityHint" hidden></p>
-      </div>
-
-      <div class="adm-sheet__field">
-        <p class="adm-sheet__field-label">Nombre de personnes</p>
-        <input type="number" id="arGuests" class="adm-form-input" min="1" max="40" value="2" />
-      </div>
-
-      <div class="adm-sheet__field">
-        <p class="adm-sheet__field-label">Nom du client</p>
-        <input type="text" id="arName" class="adm-form-input" placeholder="Nom" />
-      </div>
-
-      <div class="adm-sheet__field">
-        <p class="adm-sheet__field-label">Téléphone</p>
-        <input type="tel" id="arPhone" class="adm-form-input" placeholder="06…" />
-      </div>
-
-      <div class="adm-sheet__field">
-        <p class="adm-sheet__field-label">Email (facultatif)</p>
-        <input type="email" id="arEmail" class="adm-form-input" placeholder="facultatif" />
-      </div>
-
-      <div class="adm-sheet__field adm-sheet__notes-internal">
-        <p class="adm-sheet__field-label">Demandes particulières (facultatif)</p>
-        <textarea id="arNotes" placeholder="Allergies, table près de la fenêtre…"></textarea>
-      </div>
-
-      <div class="adm-sheet__actions">
-        <button class="adm-btn adm-btn--success adm-btn--full" type="button" id="arSubmit">Ajouter la réservation</button>
-      </div>`;
-
-    function updateHint() {
-      const date = $('#arDate').value;
-      const service = serviceFromTime($('#arTime').value);
-      const hint = $('#arCapacityHint');
-      if (!date || !service) { hint.hidden = true; return; }
-      const closure = closureNoteFor(date, service);
-      const cap = capacityFor(date, service);
-      hint.hidden = false;
-      if (closure || cap.closed) {
-        hint.textContent = `⚠ Ce service est fermé (${closure?.reason || 'fermeture manuelle'}) — l'ajout forcera quand même la réservation.`;
-      } else {
-        hint.textContent = `${cap.current}${cap.max != null ? ' / ' + cap.max : ''} couverts déjà pris sur ce service.`;
-      }
-    }
-    $('#arDate').addEventListener('change', updateHint);
-    $('#arTime').addEventListener('change', updateHint);
-
-    $('#arSubmit').addEventListener('click', async (e) => {
-      const btn = e.currentTarget;
-      const date = $('#arDate').value;
-      const time = $('#arTime').value;
-      const service = serviceFromTime(time);
-      const guests = parseInt($('#arGuests').value, 10);
-      const name = $('#arName').value.trim();
-      const phone = $('#arPhone').value.trim();
-      const email = $('#arEmail').value.trim();
-      const notes = $('#arNotes').value.trim();
-
-      if (!date || !service) { alert('Choisis une date et un créneau.'); return; }
-      if (!guests || guests < 1) { alert('Nombre de personnes invalide.'); return; }
-      if (!name) { alert('Le nom du client est obligatoire.'); return; }
-      if (!phone) { alert('Le téléphone est obligatoire.'); return; }
-
-      btn.disabled = true;
-      const orig = btn.textContent;
-      btn.textContent = 'Ajout…';
-      try {
-        await createReservationAsChef({ date, time, service, guests, name, phone, email, notes });
-        await refresh();
-        closeSheet();
-      } catch (err) {
-        alert('Erreur : ' + err.message);
-        btn.disabled = false;
-        btn.textContent = orig;
-      }
-    });
-
-    $('#detailSheet').classList.add('is-open');
-    $('#sheetBackdrop').classList.add('is-open');
-    $('#detailSheet').setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-  }
-
-  // ---------- Detail sheet ----------
-  function openSheet(id) {
+  function openRowSheet(id) {
     const r = state.reservations.find(x => x.id === id);
     if (!r) return;
     state.currentId = id;
 
-    const dateFmt = new Date(r.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    const phone   = (r.phone || '').replace(/[^\d+]/g, '');
+    const table = (r.table_no || '').trim();
+    const picks = frequentTables();
+    if (table && !picks.includes(table)) picks.unshift(table);
+
     const isPending = r.status === 'en_attente';
 
-    const actionsHtml = isPending
-      ? `<a class="adm-btn adm-btn--call" href="tel:${esc(phone)}">📞 Appeler</a>
-         <a class="adm-btn adm-btn--sms"  href="sms:${esc(phone)}?body=${smsBody(r)}">💬 SMS</a>
-         <button class="adm-btn adm-btn--success adm-btn--full" type="button" data-action="confirm" data-id="${r.id}">✓ Valider la réservation</button>
-         <button class="adm-btn adm-btn--danger  adm-btn--full" type="button" data-action="refuse"  data-id="${r.id}">✕ Refuser la réservation</button>`
-      : `<a class="adm-btn adm-btn--call adm-btn--full" href="tel:${esc(phone)}">📞 Appeler ${esc(r.name)}</a>
-         <button class="adm-btn adm-btn--ghost adm-btn--full" type="button" id="reopenBtn">Remettre en attente</button>`;
-
     $('#sheetInner').innerHTML = `
-      <p class="adm-sheet__eyebrow">— Réservation —</p>
+      <p class="adm-sheet__eyebrow">— ${fmtDay(r.date)} · ${r.service} —</p>
       <h2 class="adm-sheet__title">${esc(r.name)}</h2>
 
-      <div class="adm-sheet__big-row">
-        <div class="adm-sheet__big-time">${timeLabel(r)}</div>
-        <div class="adm-sheet__big-meta">
-          <strong>${r.guests} personne${r.guests > 1 ? 's' : ''}</strong>
-          <span>${dateFmt.replace(/^./, c => c.toUpperCase())}</span>
+      <div class="cah-stat3">
+        <div><b>${r.guests}</b><span>Personnes</span></div>
+        <div><b>${timeLabel(r)}</b><span>Arrivée</span></div>
+        <div><b>${table || '—'}</b><span>Table</span></div>
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Numéro de table</p>
+        <div class="cah-tablepick" id="tablePick">
+          ${picks.map(t => `<button type="button" data-table="${esc(t)}" class="${t === table ? 'is-on' : ''}">${esc(t)}</button>`).join('')}
+          <button type="button" class="is-free" data-table-free>saisir…</button>
+          ${table ? '<button type="button" class="is-free" data-table-clear>effacer</button>' : ''}
         </div>
       </div>
 
       <div class="adm-sheet__field">
         <p class="adm-sheet__field-label">Téléphone</p>
-        <p class="adm-sheet__field-value"><a href="tel:${esc(phone)}">${esc(r.phone)}</a></p>
+        <p class="adm-sheet__field-value"><a href="${esc(telHref(r.phone))}">${esc(r.phone)}</a></p>
       </div>
-      ${r.email ? `
-      <div class="adm-sheet__field">
-        <p class="adm-sheet__field-label">Email</p>
-        <p class="adm-sheet__field-value"><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></p>
-      </div>` : ''}
-      ${r.notes ? `
-      <div class="adm-sheet__field">
-        <p class="adm-sheet__field-label">Demande du client</p>
-        <div class="adm-sheet__notes">${esc(r.notes)}</div>
-      </div>` : ''}
+      ${r.email ? `<div class="adm-sheet__field"><p class="adm-sheet__field-label">Email</p><p class="adm-sheet__field-value"><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></p></div>` : ''}
+      ${r.notes ? `<div class="adm-sheet__field"><p class="adm-sheet__field-label">Demande du client</p><div class="cah-sheet-note">${esc(r.notes)}</div></div>` : ''}
 
       <div class="adm-sheet__field adm-sheet__notes-internal">
         <p class="adm-sheet__field-label">Note interne (visible uniquement par vous)</p>
-        <textarea id="sheetNotes" placeholder="Ex : table près de la fenêtre réservée, prévenir la cuisine pour le gâteau…">${esc(r.internal_notes || '')}</textarea>
+        <textarea id="sheetNotes" placeholder="Ex : habitués, aiment la salle du fond…">${esc(r.internal_notes || '')}</textarea>
       </div>
 
-      <div class="adm-sheet__actions">${actionsHtml}</div>`;
+      <div class="adm-sheet__actions cah-actions">
+        <div class="cah-btnrow" style="margin-bottom:8px">
+          <a class="adm-btn adm-btn--call" href="${esc(telHref(r.phone))}">📞 Appeler</a>
+          <button class="adm-btn adm-btn--ghost" type="button" id="editBtn">✎ Modifier</button>
+        </div>
+        ${isPending ? `
+        <div class="cah-btnrow" style="margin-bottom:8px">
+          <button class="adm-btn adm-btn--success" type="button" data-action="confirm" data-id="${r.id}">✓ Valider</button>
+          <button class="adm-btn adm-btn--danger"  type="button" data-action="refuse"  data-id="${r.id}">✕ Refuser</button>
+        </div>` : ''}
+        <div class="cah-btnrow">
+          <button class="adm-btn ${r.attendance === 'arrive' ? 'adm-btn--success' : 'adm-btn--ghost'}" type="button" data-set-attendance="arrive" data-id="${r.id}">✓ Arrivé</button>
+          <button class="adm-btn ${r.attendance === 'absent' ? 'adm-btn--danger'  : 'adm-btn--ghost'}" type="button" data-set-attendance="absent" data-id="${r.id}">✕ Pas venu</button>
+        </div>
+        ${r.status !== 'en_attente' && r.status !== 'confirmee' ? `
+        <button class="adm-btn adm-btn--ghost adm-btn--full" type="button" id="reopenBtn" style="margin-top:8px">Remettre en attente</button>` : ''}
+      </div>`;
 
-    // Debounced save of internal notes
     let saveTimer;
     $('#sheetNotes').addEventListener('input', (e) => {
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
-        try { await updateInternalNotes(id, e.target.value); } catch (_) {}
+        try {
+          await updateInternalNotes(id, e.target.value);
+          r.internal_notes = e.target.value;
+        } catch (_) {}
       }, 600);
     });
 
-    // Re-open (set status back to en_attente)
+    $('#editBtn').addEventListener('click', () => openEditReservation(id));
+
     $('#reopenBtn')?.addEventListener('click', async () => {
       try {
         await updateStatus(id, 'en_attente');
@@ -1155,6 +1267,251 @@
       } catch (err) { alert('Erreur : ' + err.message); }
     });
 
+    openSheet();
+  }
+
+  // --- choix du numéro de table ---
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-table], [data-table-free], [data-table-clear]');
+    if (!btn || !state.currentId) return;
+    const id = state.currentId;
+    let value;
+    if (btn.hasAttribute('data-table-clear')) {
+      value = '';
+    } else if (btn.hasAttribute('data-table-free')) {
+      const input = prompt('Numéro de table (« 12 », « 3+4 », « terrasse »…)', '');
+      if (input === null) return;
+      value = input.trim().slice(0, 20);
+    } else {
+      const r = state.reservations.find(x => x.id === id);
+      // Retaper la table déjà posée l'enlève — pas de bouton « effacer » à chercher.
+      value = (r?.table_no || '').trim() === btn.dataset.table ? '' : btn.dataset.table;
+    }
+    try {
+      const updated = await setTableNo(id, value);
+      const r = state.reservations.find(x => x.id === id);
+      if (r) r.table_no = updated.table_no;
+      openRowSheet(id);
+      renderAll();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+    }
+  });
+
+  // --- pointage depuis le tiroir ---
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-set-attendance]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const r = state.reservations.find(x => x.id === id);
+    if (!r) return;
+    const wanted = btn.dataset.setAttendance;
+    btn.disabled = true;
+    try {
+      const updated = await setAttendance(id, r.attendance === wanted ? null : wanted);
+      r.attendance = updated.attendance;
+      r.attendance_at = updated.attendance_at;
+      openRowSheet(id);
+      renderAll();
+    } catch (err) {
+      alert('Erreur : ' + err.message);
+      btn.disabled = false;
+    }
+  });
+
+  // ============================================================
+  // TIROIR : AJOUT ET MODIFICATION
+  // ============================================================
+  function serviceFromTime(time) {
+    if (!time) return null;
+    return parseInt(time.split(':')[0], 10) < 16 ? 'midi' : 'soir';
+  }
+
+  function timeOptionsHtml(selected) {
+    const slots = [
+      ['Midi', ['12:00', '12:30', '13:00', '13:30']],
+      ['Soir', ['19:00', '19:30', '20:00', '20:30', '21:00', '21:30']],
+    ];
+    const sel = (selected || '').slice(0, 5);
+    return `<option value="">— Choisir un créneau —</option>` + slots.map(([label, values]) =>
+      `<optgroup label="${label}">${values.map(v =>
+        `<option value="${v}" ${v === sel ? 'selected' : ''}>${v.replace(':', 'h')}</option>`).join('')}</optgroup>`
+    ).join('');
+  }
+
+  function reservationFormHtml({ eyebrow, title, help, r, submitLabel }) {
+    return `
+      <p class="adm-sheet__eyebrow">— ${eyebrow} —</p>
+      <h2 class="adm-sheet__title">${title}</h2>
+      ${help ? `<p class="adm-settings-help">${help}</p>` : ''}
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Date &amp; créneau</p>
+        <div class="adm-form-row">
+          <input type="date" id="arDate" class="adm-form-input" value="${esc(r?.date || '')}" />
+          <select id="arTime" class="adm-form-input">${timeOptionsHtml(r?.time)}</select>
+        </div>
+        <p class="adm-settings-help" id="arCapacityHint" hidden></p>
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Nombre de personnes</p>
+        <input type="number" id="arGuests" class="adm-form-input" min="1" max="40" value="${r?.guests ?? 2}" />
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Nom du client</p>
+        <input type="text" id="arName" class="adm-form-input" placeholder="Nom" value="${esc(r?.name || '')}" />
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Téléphone</p>
+        <input type="tel" id="arPhone" class="adm-form-input" placeholder="06…" value="${esc(r?.phone || '')}" />
+      </div>
+
+      <div class="adm-sheet__field">
+        <p class="adm-sheet__field-label">Email (facultatif)</p>
+        <input type="email" id="arEmail" class="adm-form-input" placeholder="facultatif" value="${esc(r?.email || '')}" />
+      </div>
+
+      <div class="adm-sheet__field adm-sheet__notes-internal">
+        <p class="adm-sheet__field-label">Demandes particulières (facultatif)</p>
+        <textarea id="arNotes" placeholder="Allergies, table près de la fenêtre…">${esc(r?.notes || '')}</textarea>
+      </div>
+
+      <div class="adm-sheet__actions">
+        <button class="adm-btn adm-btn--success adm-btn--full" type="button" id="arSubmit">${submitLabel}</button>
+      </div>`;
+  }
+
+  function wireCapacityHint() {
+    function update() {
+      const date = $('#arDate').value;
+      const service = serviceFromTime($('#arTime').value);
+      const hint = $('#arCapacityHint');
+      if (!date || !service) { hint.hidden = true; return; }
+      const closure = closureFor(date, service);
+      const cap = capacityFor(date, service);
+      hint.hidden = false;
+      hint.textContent = (closure || cap.closed)
+        ? `⚠ Ce service est fermé (${closure?.reason || 'fermeture manuelle'}) — l'enregistrement passera quand même.`
+        : `${cap.current}${cap.max != null ? ' / ' + cap.max : ''} couverts déjà pris sur ce service.`;
+    }
+    $('#arDate').addEventListener('change', update);
+    $('#arTime').addEventListener('change', update);
+    update();
+  }
+
+  function readForm() {
+    const time = $('#arTime').value;
+    return {
+      date:    $('#arDate').value,
+      time,
+      service: serviceFromTime(time),
+      guests:  parseInt($('#arGuests').value, 10),
+      name:    $('#arName').value.trim(),
+      phone:   $('#arPhone').value.trim(),
+      email:   $('#arEmail').value.trim() || null,
+      notes:   $('#arNotes').value.trim() || null,
+    };
+  }
+
+  // Les bornes reprennent les contraintes CHECK de la table : mieux vaut un
+  // message clair ici qu'une erreur Postgres brute dans une alerte.
+  function validateForm(f) {
+    if (!f.date || !f.service)   return 'Choisis une date et un créneau.';
+    if (!f.guests || f.guests < 1 || f.guests > 40) return 'Nombre de personnes invalide (1 à 40).';
+    if (!f.name)                 return 'Le nom du client est obligatoire.';
+    if (f.name.length > 120)     return 'Le nom est trop long (120 caractères maximum).';
+    if (f.phone.length < 5)      return 'Le téléphone est obligatoire (5 caractères minimum).';
+    if (f.phone.length > 30)     return 'Le téléphone est trop long (30 caractères maximum).';
+    if (f.notes && f.notes.length > 2000) return 'La demande particulière est trop longue (2000 caractères maximum).';
+    return null;
+  }
+
+  // Pré-rempli avec la date et le service de la page affichée : deux champs de
+  // moins à chaque appel reçu pendant le service.
+  function openAddReservation() {
+    const svc = state.cursorService;
+    const draft = { date: state.cursorDate, time: svc === 'midi' ? '12:30' : '19:30' };
+
+    $('#sheetInner').innerHTML = reservationFormHtml({
+      eyebrow: 'Nouvelle réservation',
+      title: 'Ajouter <em>à la main</em>',
+      help: 'Pour un appel reçu ou un client au comptoir. Elle arrive directement confirmée dans le cahier.',
+      r: draft,
+      submitLabel: 'Ajouter au cahier',
+    });
+    wireCapacityHint();
+
+    $('#arSubmit').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const f = readForm();
+      const err = validateForm(f);
+      if (err) { alert(err); return; }
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Ajout…';
+      try {
+        await createReservationAsChef(f);
+        state.cursorDate = f.date;
+        state.cursorService = f.service;
+        await refresh();
+        closeSheet();
+        setTab('cahier');
+      } catch (e2) {
+        alert('Erreur : ' + e2.message);
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+
+    openSheet();
+  }
+
+  function openEditReservation(id) {
+    const r = state.reservations.find(x => x.id === id);
+    if (!r) return;
+
+    $('#sheetInner').innerHTML = reservationFormHtml({
+      eyebrow: 'Modification',
+      title: `Corriger <em>${esc(r.name)}</em>`,
+      help: 'Le client rappelle pour changer l\'heure ou le nombre de personnes.',
+      r,
+      submitLabel: 'Enregistrer les modifications',
+    });
+    wireCapacityHint();
+
+    $('#arSubmit').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const f = readForm();
+      const err = validateForm(f);
+      if (err) { alert(err); return; }
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Enregistrement…';
+      try {
+        await updateReservation(id, f);
+        state.cursorDate = f.date;
+        state.cursorService = f.service;
+        await refresh();
+        openRowSheet(id);
+      } catch (e2) {
+        alert('Erreur : ' + e2.message);
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+
+    openSheet();
+  }
+
+  $('#fabAdd').addEventListener('click', openAddReservation);
+
+  // ============================================================
+  // MÉCANIQUE DU TIROIR
+  // ============================================================
+  function openSheet() {
     $('#detailSheet').classList.add('is-open');
     $('#sheetBackdrop').classList.add('is-open');
     $('#detailSheet').setAttribute('aria-hidden', 'false');
@@ -1171,13 +1528,14 @@
   $('#sheetBackdrop').addEventListener('click', closeSheet);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
 
-  // ---------- Auth state changes (handles session expiry, multi-tab) ----------
+  // ============================================================
+  // SESSION
+  // ============================================================
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') showLogin();
-    if (event === 'SIGNED_IN' && !$('#dashboard-screen').classList.contains('is-active')) openDashboard();
+    if (event === 'SIGNED_IN' && !$('#app-screen').classList.contains('is-active')) openApp();
   });
 
-  // ---------- Go! ----------
   route();
 </script>
 

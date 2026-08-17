@@ -87,6 +87,77 @@ export async function updateStatus(id, status) {
   return data;
 }
 
+// ---------- Mode cahier ----------
+
+// Numéro de table, texte libre ("12", "3+4", "terrasse"). Chaîne vide = on efface.
+export async function setTableNo(id, tableNo) {
+  const value = (tableNo ?? '').trim();
+  const { data, error } = await supabase
+    .from('reservations')
+    .update({ table_no: value === '' ? null : value.slice(0, 20) })
+    .eq('id', id)
+    .select('id, table_no')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// Pointage de présence. `attendance` vaut 'arrive', 'absent' ou null (pas encore
+// pointé). Volontairement SÉPARÉ de `status` : une réservation peut être
+// confirmée ET absente — c'est justement le no-show qu'on cherche à mesurer.
+export async function setAttendance(id, attendance) {
+  if (attendance !== null && attendance !== 'arrive' && attendance !== 'absent') {
+    throw new Error(`Pointage invalide : ${attendance}`);
+  }
+  const { data, error } = await supabase
+    .from('reservations')
+    .update({
+      attendance,
+      attendance_at: attendance === null ? null : new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select('id, attendance, attendance_at')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// Correction d'une ligne existante (le client rappelle : "finalement on sera 6").
+// Liste blanche de champs : on ne laisse pas passer status, handled_by, source…
+const EDITABLE_FIELDS = ['date', 'time', 'service', 'guests', 'name', 'phone', 'email', 'notes'];
+
+export async function updateReservation(id, patch) {
+  const clean = {};
+  for (const k of EDITABLE_FIELDS) {
+    if (patch[k] !== undefined) clean[k] = patch[k];
+  }
+  if (!Object.keys(clean).length) throw new Error('Rien à modifier.');
+  const { data, error } = await supabase
+    .from('reservations')
+    .update(clean)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+// Mémo du jour (plat du jour, groupe attendu, gâteau à prévoir…). Stocké dans
+// service_overrides.notes — PK (date, service), donc un mémo par page de cahier.
+// La colonne n'est plus lisible par `anon` : elle contient des noms de clients.
+export async function setServiceNotes(date, service, notes) {
+  const value = (notes ?? '').trim();
+  const row = {
+    date, service,
+    notes: value === '' ? null : value.slice(0, 500),
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await supabase
+    .from('service_overrides')
+    .upsert(row, { onConflict: 'date,service' });
+  if (error) throw error;
+}
+
 export async function updateInternalNotes(id, internal_notes) {
   const { data, error } = await supabase
     .from('reservations')
