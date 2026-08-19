@@ -427,10 +427,64 @@
 
   function telHref(phone) { return 'tel:' + String(phone || '').replace(/[^\d+]/g, ''); }
 
-  function smsBody(r) {
-    return encodeURIComponent(
-      `Bonjour ${r.name}, votre réservation du ${fmtDayShort(r.date)} (${r.service}) pour ${r.guests} personne${r.guests > 1 ? 's' : ''} est bien confirmée. À bientôt ! La Petite Auberge de Flo`
-    );
+  // ============================================================
+  // MESSAGE DE CONFIRMATION (bouton 💬 de l'onglet « À traiter »)
+  //
+  // ⚠️ POUR CHANGER LE TEXTE DU MESSAGE : c'est ici, et nulle part ailleurs.
+  // Les mots entre accolades sont remplacés automatiquement :
+  //   {nom} {date} {heure} {couverts} {service}
+  // Un mot inconnu entre accolades reste tel quel dans le SMS.
+  // Après modification : bumper CACHE_VERSION dans sw.js, sinon le chef
+  // continue d'ouvrir l'ancienne version depuis le cache.
+  // ============================================================
+  const SMS_TEMPLATE =
+    "Bonjour {nom}, c'est confirmé pour {couverts} personne(s) — {date}, {heure}. À bientôt ! La Petite Auberge de Flo";
+
+  const TOKENS = ['nom', 'date', 'heure', 'couverts', 'service'];
+  const TOKEN_RE = new RegExp('\\{(' + TOKENS.join('|') + ')\\}', 'g');
+
+  // Une seule passe : des replace() successifs réinjecteraient (un client
+  // nommé « {date} » verrait son nom remplacé au passage suivant).
+  function renderTemplate(tpl, r) {
+    let vals;
+    try {
+      vals = {
+        nom:      r.name || '',
+        date:     fmtDayShort(r.date),
+        heure:    timeLabel(r),
+        couverts: String(r.guests ?? ''),
+        service:  r.service || '',
+      };
+    } catch (e) {
+      // fmtDayShort sur une date absente lève un RangeError : sans ce filet,
+      // une seule ligne mal formée viderait l'onglet « À traiter » en entier.
+      console.error('renderTemplate', e);
+      return '';
+    }
+    return String(tpl).replace(TOKEN_RE, (m, k) => vals[k]);
+  }
+
+  // Nom distinct de phoneDigits : matchesSearch() déclare déjà un const de ce
+  // nom, qui masquerait celle-ci dans son scope.
+  function smsPhone(r) { return String(r?.phone || '').replace(/[^\d+]/g, ''); }
+
+  // « ?& » plutôt que « ?body= » seul (Android) ou « &body= » seul (iOS) : un
+  // seul paramètre, séparateur avalé par les deux familles de parseurs. Surtout
+  // PAS la double émission ?body=X&body=X parfois recommandée en ligne — un
+  // parseur qui concatène les valeurs répétées enverrait le message en double,
+  // et un corps dupliqué peut partir sans être vu, un corps vide non.
+  // encodeURIComponent laisse passer l'apostrophe, que esc() transformerait en
+  // &#39; dans le href : on l'encode nous-mêmes plutôt que de dépendre du
+  // décodage du navigateur.
+  function smsHref(r) {
+    const body = encodeURIComponent(renderTemplate(SMS_TEMPLATE, r)).replace(/'/g, '%27');
+    return `sms:${smsPhone(r)}?&body=${body}`;
+  }
+
+  function canSms(r) {
+    if (!smsPhone(r)) return false;          // « pas de tel » passe le formulaire
+    try { fmtDayShort(r.date); } catch (_) { return false; }  // pas de message à trous
+    return true;
   }
 
   function emptyHtml(icon, title, text) {
@@ -745,6 +799,8 @@
   });
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
+    // Même garde que le handler de clic ci-dessus.
+    if (e.target.closest?.('[data-stop], [data-check], [data-action]')) return;
     const row = e.target.closest?.('[data-row]');
     if (!row) return;
     e.preventDefault();
@@ -838,8 +894,9 @@
           ${r.notes ? `<p class="cah-card__note">${esc(r.notes)}</p>` : ''}
           <div class="cah-btnrow">
             <button class="adm-btn adm-btn--success" type="button" data-action="confirm" data-id="${r.id}">✓ Valider</button>
-            <a class="adm-btn adm-btn--call" href="${esc(telHref(r.phone))}" data-stop aria-label="Appeler">📞</a>
-            <button class="adm-btn adm-btn--danger" type="button" data-action="refuse" data-id="${r.id}" aria-label="Refuser">✕</button>
+            <a class="adm-btn adm-btn--call cah-btn--icon" href="${esc(telHref(r.phone))}" data-stop aria-label="Appeler">📞</a>
+            ${canSms(r) ? `<a class="adm-btn adm-btn--sms cah-btn--icon" href="${esc(smsHref(r))}" data-stop aria-label="Envoyer le message de confirmation à ${esc(r.name)}">💬</a>` : ''}
+            <button class="adm-btn adm-btn--danger cah-btn--icon" type="button" data-action="refuse" data-id="${r.id}" aria-label="Refuser">✕</button>
           </div>
         </article>`;
     }).join('');

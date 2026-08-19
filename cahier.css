@@ -570,6 +570,12 @@ body.adminpage [hidden] { display: none !important; }
 }
 .cah-btnrow { display: flex; gap: 8px; }
 .cah-btnrow .adm-btn { flex: 1; min-width: 0; }
+/* Les boutons qui n'ont qu'une icône ne prennent pas leur part égale de
+   largeur : à 4 items sur un écran de 375 px, « ✓ Valider » n'aurait plus la
+   place d'afficher son libellé (white-space: nowrap sur .adm-btn). Classe
+   dédiée et non un sélecteur sur --call : le tiroir de détail a un
+   « 📞 Appeler » avec libellé dans une .cah-btnrow lui aussi. */
+.cah-btnrow .cah-btn--icon { flex: 0 0 auto; }
 
 /* admin.css met .adm-sheet__actions en grille 2 colonnes : nos rangées de
    boutons y deviendraient des cellules et déborderaient en largeur. */
