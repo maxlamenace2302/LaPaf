@@ -483,6 +483,9 @@
 
   function canSms(r) {
     if (!smsPhone(r)) return false;          // « pas de tel » passe le formulaire
+    // Le tiroir de détail s'ouvre sur toutes les lignes du cahier : pas de
+    // « c'est confirmé » sur une réservation refusée ou annulée.
+    if (r.status !== 'en_attente' && r.status !== 'confirmee') return false;
     try { fmtDayShort(r.date); } catch (_) { return false; }  // pas de message à trous
     return true;
   }
@@ -1308,7 +1311,8 @@
 
       <div class="adm-sheet__actions cah-actions">
         <div class="cah-btnrow" style="margin-bottom:8px">
-          <a class="adm-btn adm-btn--call" href="${esc(telHref(r.phone))}">📞 Appeler</a>
+          <a class="adm-btn adm-btn--call" href="${esc(telHref(r.phone))}" data-stop>📞 Appeler</a>
+          ${canSms(r) ? `<a class="adm-btn adm-btn--sms" href="${esc(smsHref(r))}" data-stop>💬 Message</a>` : ''}
           <button class="adm-btn adm-btn--ghost" type="button" id="editBtn">✎ Modifier</button>
         </div>
         ${isPending ? `
