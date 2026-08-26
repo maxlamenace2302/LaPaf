@@ -438,7 +438,7 @@
   // continue d'ouvrir l'ancienne version depuis le cache.
   // ============================================================
   const SMS_TEMPLATE =
-    "Bonjour {nom}, c'est confirmé pour {couverts} personne(s) — {date}, {heure}. À bientôt ! La Petite Auberge de Flo";
+    "Bonjour {nom}, nous vous confirmons la réservation du {date}, à {heure}  pour {couverts} personne(s). À bientôt ! La Petite Auberge de Flo";
 
   const TOKENS = ['nom', 'date', 'heure', 'couverts', 'service'];
   const TOKEN_RE = new RegExp('\\{(' + TOKENS.join('|') + ')\\}', 'g');
