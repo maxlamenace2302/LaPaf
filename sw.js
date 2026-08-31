@@ -14,7 +14,7 @@
 // Bumped for the "mode cahier" dashboard (2026-08-17). The fetch strategy is
 // cache-first: without this bump the chef would open the OLD admin.html from
 // cache after deploy, and only see the new one on the following launch.
-const CACHE_VERSION = 'auberge-flo-v2-cahier-sms';
+const CACHE_VERSION = 'auberge-flo-v2-cahier-sms-webp';
 
 // "App shell" — the static files that make up the dashboard UI.
 // Anything not in this list is fetched live (and cached on demand).
@@ -26,7 +26,7 @@ const APP_SHELL = [
   '/styles.css',
   '/supabase.js',
   '/manifest.webmanifest',
-  '/assets/logo.jpg',
+  '/assets/logo.webp',
   '/assets/icon-192.png',
   '/assets/icon-512.png',
   '/assets/apple-touch-icon.png',

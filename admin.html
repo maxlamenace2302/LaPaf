@@ -33,7 +33,7 @@
 <section id="login-screen" class="screen">
   <div class="adm-login-card">
     <div class="adm-login-brand">
-      <img src="assets/logo.jpg" alt="" />
+      <img src="assets/logo.webp" alt="" />
       <span class="nav__brand-text">
         <span class="nav__brand-line1">La Petite Auberge</span>
         <span class="nav__brand-line2">de Flo</span>
@@ -438,7 +438,7 @@
   // continue d'ouvrir l'ancienne version depuis le cache.
   // ============================================================
   const SMS_TEMPLATE =
-    "Bonjour {nom}, nous vous confirmons la réservation du {date}, à {heure}  pour {couverts} personne(s). À bientôt ! La Petite Auberge de Flo";
+    "Bonjour {nom}, c'est confirmé pour {couverts} personne(s) — {date}, {heure}. À bientôt ! La Petite Auberge de Flo";
 
   const TOKENS = ['nom', 'date', 'heure', 'couverts', 'service'];
   const TOKEN_RE = new RegExp('\\{(' + TOKENS.join('|') + ')\\}', 'g');
