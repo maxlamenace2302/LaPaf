@@ -11,10 +11,10 @@
    old cache is then deleted on the next page load.
 ============================================================ */
 
-// Bumped for the "mode cahier" dashboard (2026-08-17). The fetch strategy is
-// cache-first: without this bump the chef would open the OLD admin.html from
-// cache after deploy, and only see the new one on the following launch.
-const CACHE_VERSION = 'auberge-flo-v2-cahier';
+// Bumped for the "événement du jour" banner (2026-09-12) — admin.html now loads
+// evenement-du-jour.js. Cache-first strategy: without this bump the chef would open
+// the OLD admin.html from cache after deploy, and only see the new one afterwards.
+const CACHE_VERSION = 'auberge-flo-v2-cahier-sms-webp-evenement';
 
 // "App shell" — the static files that make up the dashboard UI.
 // Anything not in this list is fetched live (and cached on demand).
@@ -25,8 +25,9 @@ const APP_SHELL = [
   '/cahier.css',
   '/styles.css',
   '/supabase.js',
+  '/evenement-du-jour.js',
   '/manifest.webmanifest',
-  '/assets/logo.jpg',
+  '/assets/logo.webp',
   '/assets/icon-192.png',
   '/assets/icon-512.png',
   '/assets/apple-touch-icon.png',

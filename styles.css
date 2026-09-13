@@ -25,6 +25,8 @@
   --container: 1280px;
   --gutter: clamp(1.25rem, 3vw, 2.5rem);
   --radius: 4px;
+
+  --bandeau-h: 0px; /* mesurée en JS par evenement-du-jour.js, 0 quand pas d'événement */
 }
 
 * { box-sizing: border-box; }
@@ -146,7 +148,7 @@ p { margin: 0 0 1rem; }
 
 .nav {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: var(--bandeau-h, 0px); left: 0; right: 0;
   z-index: 50;
   display: flex;
   align-items: center;
@@ -440,6 +442,100 @@ p { margin: 0 0 1rem; }
   padding: 0.7rem 1.2rem;
 }
 .hero__strip .dot { color: var(--coral); }
+
+/* Bandeau événement du jour — édité via evenement-du-jour.js, masqué par défaut.
+   Ancré en haut de l'écran : reste visible pendant le défilement, comme le menu. */
+.bandeau-evenement {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 70; /* au-dessus du menu (50/20) pour rester visible devant lui */
+  text-align: center;
+  background: var(--aubergine);
+  color: var(--cream);
+  font-family: var(--f-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 0.65rem var(--gutter);
+  border-bottom: 2px solid var(--coral);
+}
+.bandeau-evenement[hidden] { display: none; }
+
+/* Popup événement — photo en grand à l'arrivée sur le site, une fois par visite */
+.event-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 120; /* au-dessus du bandeau et du menu */
+  background: rgba(20, 8, 14, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.event-popup.is-open { opacity: 1; }
+.event-popup[hidden] { display: none; }
+.event-popup__card {
+  position: relative;
+  width: min(420px, 100%);
+  background: var(--cream);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 40px 90px -25px rgba(0,0,0,0.7);
+  transform: translateY(10px) scale(0.98);
+  transition: transform .3s ease;
+}
+.event-popup.is-open .event-popup__card { transform: translateY(0) scale(1); }
+.event-popup__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.event-popup__close {
+  position: absolute;
+  top: 0.6rem; right: 0.6rem;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(20, 8, 14, 0.55);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s;
+}
+.event-popup__close:hover { background: rgba(20, 8, 14, 0.8); }
+.event-popup__body {
+  padding: 1.5rem 1.5rem 1.75rem;
+  text-align: center;
+}
+.event-popup__title {
+  font-family: var(--f-serif);
+  font-size: 1.6rem;
+  color: var(--aubergine);
+  margin: 0.2rem 0 1.2rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .event-popup, .event-popup__card { transition: none; }
+}
+
+/* Carrousel hero — calques supplémentaires ajoutés par evenement-du-jour.js
+   au-dessus de l'image statique existante (fallback si JS ne tourne pas). */
+.hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.hero__slide.is-active { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .hero__slide { transition: none; }
+}
 
 /* ---------- LA MAISON ---------- */
 

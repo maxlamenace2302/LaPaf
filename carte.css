@@ -18,7 +18,7 @@ body.cartepage {
   background: var(--aubergine);
   color: var(--cream);
   position: sticky;
-  top: 0;
+  top: var(--bandeau-h, 0px);
   z-index: 20;
   box-shadow: 0 6px 22px -10px rgba(58,26,42,0.5);
 }

@@ -13,7 +13,7 @@
   background: var(--aubergine);
   color: var(--cream);
   position: sticky;
-  top: 0;
+  top: var(--bandeau-h, 0px);
   z-index: 50;
   display: flex;
   align-items: center;
@@ -225,6 +225,25 @@
   opacity: 0.65;
 }
 
+/* Note "c'est une soirée à thème ce jour-là" — evenement-du-jour.js compare la date
+   choisie à evt.date et affiche/masque cette note en direct. */
+.event-date-note {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  font-family: var(--f-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+  background: rgba(230, 57, 70, 0.08);
+  border: 1px solid rgba(230, 57, 70, 0.3);
+  color: var(--coral-deep);
+}
+.event-date-note[hidden] { display: none; }
+
 /* ---------- ACTIONS ---------- */
 .reserve-actions {
   display: flex;
@@ -377,7 +396,7 @@
   padding: clamp(1.8rem, 3vw, 2.6rem);
   border-radius: 4px;
   position: sticky;
-  top: calc(80px + 1rem);
+  top: calc(var(--bandeau-h, 0px) + 80px + 1rem);
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
