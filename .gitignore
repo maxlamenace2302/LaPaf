@@ -17,3 +17,6 @@ node_modules/
 *.log
 .env
 .env.local
+
+# Photos sources avant conversion WebP (non deployees)
+assets/_originaux/
