@@ -19,7 +19,7 @@
 //     une fois par visite (sessionStorage)
 //   - sur reservation.html, une note apparaît si la date choisie == `date`
 window.EVENEMENT_DU_JOUR = {
-  actif: true,
+  actif: false,
   date: "2026-09-26",
   nom: "Soirée Karaoké",
   image: "assets/events/karaoke.webp",
