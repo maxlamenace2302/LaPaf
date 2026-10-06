@@ -19,17 +19,17 @@
 //     une fois par visite (sessionStorage)
 //   - sur reservation.html, une note apparaît si la date choisie == `date`
 window.EVENEMENT_DU_JOUR = {
-  actif: false,
-  date: "2026-09-26",
+  actif: true,
+  date: "2026-10-09",
   nom: "Soirée Karaoké",
   image: "assets/events/karaoke.webp",
-  texte_bandeau: "🎤 Samedi 26 Septembre: Soirée Karaoké — animation dès 20h",
+  texte_bandeau: "🎤 Vendredi 9 Octobre: Soirée Karaoké — animation dès 19h",
 };
 
 (function () {
   var evt = window.EVENEMENT_DU_JOUR;
 
-  // "2026-09-26" → "samedi 26 septembre" (ou "" si la date est absente/invalide)
+  // "2026-10-09" → "vendredi 9 septembre" (ou "" si la date est absente/invalide)
   function formatDateFR(iso) {
     if (!iso) return "";
     var d = new Date(iso + "T00:00:00");
